@@ -1,0 +1,11 @@
+{
+    "cortex-debug.armToolchainPath": "/usr/bin",
+    "cortex-debug.openocdPath": "/usr/local/bin/openocd",
+    "files.associations": {
+        "*.json": "json",
+        "stdarg.h": "c",
+        "string.h": "c",
+        "configdrivers.h": "c",
+        "swo.h": "c"
+    }
+}
