@@ -29,12 +29,14 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
+#include "stm32f4xx_ll_tim.h"
+#include "stm32f4xx_ll_usart.h"
+#include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_gpio.h"
 #include "stm32f4xx_ll_exti.h"
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_cortex.h"
-#include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_utils.h"
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_dma.h"
@@ -46,6 +48,10 @@ extern "C" {
  */
 #define __DISABLE					0x00
 #define __ENABLE					0x01
+#define itsdk_time_get_ms HAL_GetTick
+#define NMEA_GPRMC_SENTENCE_SIZE 70
+
+void printmsg(char *msg);
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -71,8 +77,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define GPSRST_Pin LL_GPIO_PIN_10
-#define GPSRST_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

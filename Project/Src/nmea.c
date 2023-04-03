@@ -45,8 +45,54 @@
 // #include <it_sdk/logger/logger.h>
 // #include <it_sdk/time/time.h>
 
-#include <time.h>
+//#include <time.h>
 
+uint64_t __time_utc_reference_uS = 0;  // store the local time reference corresponding to 00:00:00 utc time
+uint32_t __time_utc_atreference_S = 0; // store the UTC time corresponding to the local reference
+
+uint32_t itsdk_time_get_us()
+{
+	return TIM5->CNT;
+}
+/**
+ * Sync the UTC Time reference
+ * With the second count since midnight
+ */
+void itsdk_time_sync_UTC_s(uint32_t utc_s)
+{
+	__time_utc_reference_uS = itsdk_time_get_us();
+	__time_utc_atreference_S = utc_s;
+}
+
+/**
+ * Get the current UTC time
+ * Return the time in S when utc reference have been set 0 otherwise
+ */
+uint32_t itsdk_time_get_UTC_s()
+{
+	if (__time_utc_atreference_S == 0)
+		return 0;
+	uint64_t t = (itsdk_time_get_us() - __time_utc_reference_uS) / 1000000;
+	return __time_utc_atreference_S + t;
+}
+
+/**
+ * Get the current UTC time
+ * Return true when utc reference have been and store the current time in
+ * the given parameter if not null. Return false if not set and param contains the
+ * duration in S since reset
+ */
+bool itsdk_time_is_UTC_s(uint32_t *destTime)
+{
+	if (destTime != NULL)
+	{
+		uint64_t t = (itsdk_time_get_us() - __time_utc_reference_uS) / 1000000;
+		*destTime = (uint32_t)(__time_utc_atreference_S + t);
+	}
+	if (__time_utc_atreference_S == 0)
+		return false;
+	return true;
+}
 
 /**
  * Setup the right number of NMEA messaging according to the request made by the user in term of

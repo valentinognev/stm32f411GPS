@@ -64,15 +64,15 @@
  * is that a switch to binary mode ... unclear
  * by-the-way, now I know how to chnage the baudrate properly
 
-    itsdk_delayMs(2000);
+    LL_mDelay(2000);
     static const uint8_t bin_off[] = "\x24\x0E\x00\xFD\x00\x00\x00\x00\x00\x00\xF3\x0D\x0A";
 
     for ( int db = 0 ; db <= SERIAL_SPEED_115200 ; db++) {
         log_info(">>> %d\r\n",db);
         __gnss_changeBaudRate(db);
-        itsdk_delayMs(10);
+        LL_mDelay(10);
         serial1_write(bin_off,13);
-        itsdk_delayMs(20);
+        LL_mDelay(20);
         sprintf(cmd,"$PMTK000*");
         if ( __quectedSendCommand(cmd,DRIVER_GNSS_QUECTEL_CMD_MAXZ,DRIVER_GNSS_QUECTEL_CMD_TEST) == GNSS_SUCCESS )
             break;
@@ -180,10 +180,11 @@ gnss_ret_e quectel_lxx_initLowPower(gnss_config_t * config) {
     #endif
 
     // Configure the Reset pin and use it
-    if  ( ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN != __LP_GPIO_NONE ) {
-        gpio_configure(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK,ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN,GPIO_OUTPUT_PP);
+    if  ( ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN != __LP_GPIO_NONE ) 
+	{
+        //gpio_configure(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK,ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN,GPIO_OUTPUT_PP);
         LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK,ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
-        itsdk_delayMs(30); // 10 ms min according to doc
+        LL_mDelay(30); // 10 ms min according to doc
         LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK,ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
     }
 
@@ -197,7 +198,7 @@ gnss_ret_e quectel_lxx_initLowPower(gnss_config_t * config) {
     }
 
     #if ITSDK_DRIVERS_GNSS_QUECTEL_MODEL == DRIVER_GNSS_QUECTEL_MODEL_L80
-    itsdk_delayMs(100);    // extra delay needed for L80
+    LL_mDelay(100);    // extra delay needed for L80
     #endif
 
     // Check with a no action code, failed if failed
@@ -268,7 +269,7 @@ static gnss_ret_e __quectelSetRunMode(gnss_run_mode_e mode) {
             // So in a such case, reseting the device will allow to be back is a known mode to stop it properly.
             __quectel_status.isInStopMode = 1;
             LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK,ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
-            itsdk_delayMs(20);
+            LL_mDelay(20);
             LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK,ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
             __gnss_connectSerial();
               __gnss_initSerial();
@@ -344,7 +345,7 @@ static gnss_ret_e __quectelSwitchToStopWithMemoryRetention() {
         //         // request for perpetual backup mode
         //         sprintf(cmd,"$PMTK225,4*");
         //         __quectedSendCommand(cmd,DRIVER_GNSS_QUECTEL_CMD_MAXZ,DRIVER_GNSS_QUECTEL_CMD_NOACK);
-        //         itsdk_delayMs(100);
+        //         LL_mDelay(100);
         //     #endif
 
         //     // violent stop, no care
@@ -362,7 +363,7 @@ static gnss_ret_e __quectelSwitchToStopWithMemoryRetention() {
                  LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_L86_FORCEON_BANK,ITSDK_DRIVERS_GNSS_QUECTEL_L86_FORCEON_PIN);
               }
             #endif
-            itsdk_delayMs(100);
+            LL_mDelay(100);
             sprintf(cmd,"$PMTK225,4*");
             //DRIVER_GNSS_QUECTEL_CMD_NOACK
             if ( __quectedSendCommand(cmd,DRIVER_GNSS_QUECTEL_CMD_MAXZ,DRIVER_GNSS_QUECTEL_CMD_NOACK) != GNSS_SUCCESS ) {
@@ -406,7 +407,7 @@ static gnss_ret_e __quectelSwitchBackfromStopMode() {
 
           // A reset should not be needed but it seems it is not working w/o it.
 		 LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
-		 itsdk_delayMs(30); // 10 ms min according to doc
+		 LL_mDelay(30); // 10 ms min according to doc
 		 LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
 
 		 __gnss_connectSerial();
@@ -415,7 +416,7 @@ static gnss_ret_e __quectelSwitchBackfromStopMode() {
 		 {
 			 // We failed to wake up - reset !
 			 LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
-			 itsdk_delayMs(20); // 10 ms min according to doc
+			 LL_mDelay(20); // 10 ms min according to doc
 			 LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
 			 __gnss_initSerial();
 			 //ITSDK_ERROR_REPORT(ITSDK_ERROR_DRV_QUECTEL8X_FORCERST, 0);
@@ -427,7 +428,7 @@ static gnss_ret_e __quectelSwitchBackfromStopMode() {
 			 }
           }
         #if ITSDK_DRIVERS_GNSS_QUECTEL_MODEL == DRIVER_GNSS_QUECTEL_MODEL_L80
-            itsdk_delayMs(100);    // extra delay needed for L80
+            LL_mDelay(100);    // extra delay needed for L80
         #endif
 
           __quectel_status.isInBackupMode = 0;
@@ -577,7 +578,7 @@ static gnss_ret_e __quectelWaitForAck(uint16_t commandCode) {
         #if ITSDK_WITH_WDG != __WDG_NONE && ITSDK_WDG_MS > 0
            wdg_refresh();
         #endif
-        itsdk_delayMs(5);
+        LL_mDelay(5);
         time += 5;
     } while (response == false && time < timeout);
     if ( response == false ) {
@@ -761,7 +762,7 @@ static gnss_ret_e __quectelNMEA(gnss_data_t * data, uint8_t * line, uint16_t sz,
                 // avoid to spam the log with this message too fast
                 __quectel_status.nmeaProcessed = 0;
                 __quectel_status.nmeaErrors = 0;
-                log_error("G#");
+              //  log_error("G#");
             }
             break;
     }

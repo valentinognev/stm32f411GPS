@@ -5,9 +5,17 @@
 #include "SWO.h"
 #include "projectMain.h"
 #include "math.h"
+#include "gnss.h"
 
 #include "usb_device.h"
 #include "TinyGPS++.h"
+
+extern "C"
+{ // another way
+	gnss_ret_e gnss_setup();
+	void gnss_process_loop(bool force);
+	gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq, uint32_t timeoutS);
+};
 
 /*
    This sample sketch demonstrates the normal use of a TinyGPSPlus (TinyGPSPlus) object.
@@ -25,22 +33,32 @@ TinyGPSPlus gps;
 
 void projectMain()
 {
-    USART_PrintString("A simple demonstration of TinyGPSPlus with an attached GPS module\n");
+	LL_TIM_EnableCounter(TIM5);
+
+	USART_PrintString("A simple demonstration of TinyGPSPlus with an attached GPS module\n");
     USART_PrintString("Testing TinyGPSPlus library v. \n");
+
+    gnss_run_mode_e mode = GNSS_RUN_HOT;
+    uint16_t fixFreq = 100;
+    uint32_t timeoutS = 1;
+
+    gnss_setup();
+    gnss_ret_e res = gnss_start(mode, fixFreq, timeoutS);
 
     while (true)
     {
+        gnss_process_loop(true);
         // This sketch displays information every time a new sentence is correctly encoded.
         // while (ss.available() > 0)
         //     if (gps.encode(ss.read()))
         //         displayInfo();
 
-        if (millis() > 5000 && gps.charsProcessed() < 10)
-        {
-            USART_PrintString("No GPS detected: check wiring.");
-            while (true)
-                ;
-        }
+        // if (millis() > 5000 && gps.charsProcessed() < 10)
+        // {
+        //     USART_PrintString("No GPS detected: check wiring.");
+        //     while (true)
+        //         ;
+        // }
     }
 }
 

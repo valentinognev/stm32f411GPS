@@ -6,6 +6,8 @@
         "stdarg.h": "c",
         "string.h": "c",
         "configdrivers.h": "c",
-        "swo.h": "c"
+        "swo.h": "c",
+        "nmea.h": "c",
+        "main.h": "c"
     }
 }

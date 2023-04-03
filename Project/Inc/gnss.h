@@ -244,10 +244,10 @@ gnss_ret_e gnss_addTriggerCallBack(
 bool gnss_isTriggerCallBack(
 	gnss_eventHandler_t * handler
 );
-gnss_ret_e gnss_setup();
-void gnss_process_loop(bool force);		// Loop process automatically included in the itsdk_loop
+// gnss_ret_e gnss_setup();
+// void gnss_process_loop(bool force);		// Loop process automatically included in the itsdk_loop
 
-gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq,  uint32_t timeoutS);
+// gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq,  uint32_t timeoutS);
 gnss_ret_e gnss_stop(gnss_run_mode_e mode);
 gnss_ret_e gnss_encodePosition48b(gnss_data_t * data, uint64_t * output);
 

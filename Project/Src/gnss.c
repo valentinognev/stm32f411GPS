@@ -21,15 +21,13 @@
  * ==========================================================
  */
 
-#if ITSDK_WITH_DRIVERS == __ENABLE
-
 #include <configDrivers.h>
-#if ITSDK_DRIVERS_WITH_GNSS_DRIVER == __ENABLE
+
 #include <gnss.h>
 
-#if ITSDK_DRIVERS_GNSS_QUECTEL == __ENABLE
+
 #include <quectel.h>
-#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <sys/types.h>
@@ -50,7 +48,8 @@ static void __gnss_resetStructForNewFix(void);
 
 // ---------------------------------------------------------
 // Main public interfaces
-gnss_ret_e gnss_setup() {
+gnss_ret_e gnss_setup() 
+{
 	gnss_ret_e ret = GNSS_SUCCESS;
 	__gnss_config.pBuffer = 0;
 	__gnss_config.callbackList = NULL;
@@ -78,7 +77,8 @@ gnss_ret_e gnss_setup() {
  * port and call the associated services and execeute all the asynchronous operation proposed
  * by gnss driver
  */
-void gnss_process_loop(bool force) {
+void gnss_process_loop(bool force) 
+{
 	if ( !__gnss_config.setupDone && force == false ) return;
 
 	// Manage data reception from receiver using a serial line
@@ -137,7 +137,8 @@ void gnss_process_loop(bool force) {
  * - GNSS_ALLREADYRUNNNING : you try to start something already running, you must stop it before
  * - GNSS_FAILEDRESTARTING : The underlaying driver was not able to wake up the gnss module to restart
  */
-gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq,  uint32_t timeoutS) {
+gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq,  uint32_t timeoutS) 
+{
 	if ( !__gnss_config.setupDone ) return GNSS_NOTREADY;
 	if (  __gnss_config.isRunning ) return GNSS_ALLREADYRUNNNING;
 	if ( fixFreq != 0 && fixFreq != 1 && fixFreq != 100 ) return GNSS_NOTSUPPORTED;
@@ -253,9 +254,7 @@ static gnss_ret_e __gnss_onDataRefreshed(void) {
 	static volatile uint8_t __insideProcedure = 0;
 	gnss_triggers_e triggers = GNSS_TRIGGER_ON_NONE;
 
-	itsdk_enterCriticalSection();
 	if ( __insideProcedure == 1 || __gnss_config.isRunning == 0 ) {
-		itsdk_leaveCriticalSection();
 		if ( __gnss_config.isRunning == 0 && __gnss_config.setRunMode != NULL) {
 			// this is an abnormal case
 			__gnss_config.setRunMode(GNSS_STOP_FORCE);
@@ -264,7 +263,6 @@ static gnss_ret_e __gnss_onDataRefreshed(void) {
 		return GNSS_SKIP;					//  let skip that one
 	}
 	__insideProcedure = 1;
-	itsdk_leaveCriticalSection();
 
 	// Update duration
 	uint64_t _now = (itsdk_time_get_ms()/1000);
@@ -377,9 +375,7 @@ static gnss_ret_e __gnss_onDataRefreshed(void) {
 
 	// Reset the structure for next run
 	__gnss_resetStructForNextCycle();
-	itsdk_enterCriticalSection();
 	__insideProcedure = 0;
-	itsdk_leaveCriticalSection();
 	return GNSS_SUCCESS;
 }
 
@@ -752,9 +748,5 @@ gnss_ret_e gnss_encodePosition48b(gnss_data_t * data, uint64_t * output) {
 
 }
 
-
-
-#endif // ITSDK_DRIVERS_WITH_GNSS_DRIVER
-#endif // ITSDK_WITH_DRIVERS
 
 

@@ -87,6 +87,7 @@
       #warning "For GNSS, UART under interrupt is recommended and buffer size higher than 64 is also recommended"
     #endif
 #endif
+#define __LP_GPIO_NONE (0)
 #define ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK        GPIOA                    // Pin to control the quectel GNSS Reset signal
 #define ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN        GPIO_PIN_12                    //    __LP_GPIO_NONE if not used
 // #define ITSDK_DRIVERS_GNSS_QUECTEL_L86_FORCEON_BANK    __BANK_B                    // Pin to control the L86 Force On signal. When __LP_GPIO_NONE the backup mode is disabled

@@ -1,7 +1,7 @@
 #include "SWO.h"
 #include "main.h"
 
-extern UART_HandleTypeDef huart2;
+//extern UART_HandleTypeDef huart2;
 
 void SWO_PrintChar(char const c, uint8_t const portNumber)
 {
@@ -55,16 +55,27 @@ void SWO_PrintDefaultN(char const* str, size_t const len)
 
 void USART_PrintChar(char const c)
 {
-    HAL_UART_Transmit(&huart2, (uint8_t*)&c, 1, 100);
+    while (LL_USART_IsActiveFlag_TXE(USART2))
+        ;
+    LL_USART_TransmitData8(USART2, c);
 }
 void USART_PrintString(char const* s)
 {
-    HAL_UART_Transmit(&huart2, (uint8_t*)s, strlen(s), 100);
+    for (int i = 0; i < strlen(s); i++)
+    {
+        // wait untill DR empty
+        while (LL_USART_IsActiveFlag_TXE(USART2))
+            ;
+        LL_USART_TransmitData8(USART2, s[i]);
+    }
 }
 void USART_PrintDefaultN(char const* str, size_t const len)
 {
-    for (size_t i = 0; i < len; ++i)
+    for (int i = 0; i < len; i++)
     {
-        USART_PrintChar(str[i]);
+        // wait untill DR empty
+        while (LL_USART_IsActiveFlag_TXE(USART2))
+            ;
+        LL_USART_TransmitData8(USART2, str[i]);
     }
 }

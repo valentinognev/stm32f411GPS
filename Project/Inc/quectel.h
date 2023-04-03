@@ -30,7 +30,7 @@
 #define DRIVER_GNSS_QUECTEL_MODEL_L86	0				// Support GPS & GLONASS + wakeup with FORCE_ON pin
 #define DRIVER_GNSS_QUECTEL_MODEL_L80	1				// Supports GPS, backup mode by cutting VCC
 
-gnss_ret_e quectel_lxx_initLowPower();
+// gnss_ret_e quectel_lxx_initLowPower();
 
 typedef struct {
 	volatile uint8_t				hasboot:1; 			// flag indicating the device has reboot (and is responding)

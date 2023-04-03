@@ -27,6 +27,9 @@
 #define INC_IT_SDK_GNSS_NMEA_H_
 
 #include <configDrivers.h>
+#include "main.h"
+
+
 
 gnss_ret_e nmea_selectNMEAMessages(gnss_config_t * config, nmea_supported_e supported);
 gnss_ret_e nmea_processNMEA(gnss_data_t * data, uint8_t * line, uint16_t sz, gnss_nmea_driver_t * driver);
