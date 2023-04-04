@@ -88,8 +88,8 @@
     #endif
 #endif
 #define __LP_GPIO_NONE (0)
-#define ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK        GPIOA                    // Pin to control the quectel GNSS Reset signal
-#define ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN        GPIO_PIN_12                    //    __LP_GPIO_NONE if not used
+#define ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK        GPSRST_GPIO_Port                    // Pin to control the quectel GNSS Reset signal
+#define ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN         GPSRST_Pin                    //    __LP_GPIO_NONE if not used
 // #define ITSDK_DRIVERS_GNSS_QUECTEL_L86_FORCEON_BANK    __BANK_B                    // Pin to control the L86 Force On signal. When __LP_GPIO_NONE the backup mode is disabled
 // #define ITSDK_DRIVERS_GNSS_QUECTEL_L86_FORCEON_PIN    __LP_GPIO_15
 // #define ITSDK_DRIVERS_GNSS_QUECTEL_L8X_POWERON_BANK    __BANK_B                    // Pin to control the L80/L86 VCC_ENABLE on

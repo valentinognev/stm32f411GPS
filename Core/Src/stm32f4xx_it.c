@@ -19,6 +19,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "gnss.h"
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -41,13 +42,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern int lat_minutes;
-extern int lat_degrees;
-extern float lat_seconds;
-
-extern int long_minutes;
-extern int long_degrees;
-extern float long_seconds;
 extern char NMEA_Sent[];
 
 /* USER CODE END PV */
@@ -214,60 +208,38 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 0 */
   static int flag = 0;
   static int i = 0;
-  static char char_lat_minutes[10];
-  static char char_lat_seconds[10];
-  static char char_lat_degrees[10];
-  static char char_long_minutes[10];
-  static char char_long_seconds[10];
-  static char char_long_degrees[10];
-  char test_print[100];
   uint16_t data_byte;
 
   if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
   {
     // a data byte is received from the user
     data_byte = LL_USART_ReceiveData8(USART1);
-    if (data_byte == 36)
+    if (data_byte == '$')
     {
       flag = 1;
+    }
+    else if (data_byte == '\r')
+    {
+      flag = 0;
+      USART_PrintString("\n-----------\n");
+      USART_PrintString(NMEA_Sent);
+      USART_PrintString("\n-----------\n");
     }
     // extract the NMEA sentence
     if ((i < NMEA_GPRMC_SENTENCE_SIZE - 1) & (flag == 1))
     {
       NMEA_Sent[i] = (char)data_byte;
+      __gnss_processChar((char)data_byte);
       i++;
     }
     else
     {
-      // dummy print
-      printmsg("\r\n");
-
-      if (((char)NMEA_Sent[3]) == 'R') // check if its a GPRMC sentence
-      {
-        getLatitude(char_lat_minutes, char_lat_seconds, char_lat_degrees, NMEA_Sent);
-
-        lat_degrees = atoi(char_lat_degrees);
-        lat_minutes = atoi(char_lat_minutes);
-        lat_seconds = 60 * (atof(char_lat_seconds));
-
-        sprintf(test_print, "Latitude: %d degrees %d minutes %f seconds", lat_degrees, lat_minutes, lat_seconds);
-        printmsg(test_print);
-        printmsg("\r\n");
-
-        getLongitude(char_long_minutes, char_long_seconds, char_long_degrees, NMEA_Sent);
-
-        long_degrees = atoi(char_long_degrees);
-        long_minutes = atoi(char_long_minutes);
-        long_seconds = 60 * (atof(char_long_seconds));
-
-        sprintf(test_print, "Longitude: %d degrees %d minutes %f seconds", long_degrees, long_minutes, long_seconds);
-        printmsg(test_print);
-        printmsg("\r\n");
-      }
       i = 0;
       flag = 0;
+      USART_PrintString("\n-----------\n");
+      USART_PrintString(NMEA_Sent);
+      USART_PrintString("\n-----------\n");
     }
-   // LL_USART_ClearFlag_RXNE(USART1);
   }
   else
   {

@@ -60,22 +60,6 @@ static void MX_TIM5_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void getLatitude(char *char_minutes, char *char_seconds, char *char_degrees, char *NMEA_Sent);
-void getLongitude(char *char_minutes, char *char_seconds, char *char_degrees, char *NMEA_Sent);
-static void gpsCommand(char *msg);
-
-/*
- * Global variables
- */
-
-int lat_minutes = 0;
-int lat_degrees = 0;
-float lat_seconds = 0;
-
-int long_minutes = 0;
-int long_degrees = 0;
-float long_seconds = 0;
-char NMEA_Sent[NMEA_GPRMC_SENTENCE_SIZE]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 /* USER CODE END 0 */
 
@@ -114,17 +98,12 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
-  // projectMain();
   // gps setup
   LL_USART_EnableIT_RXNE(USART1);
   LL_USART_EnableIT_ERROR(USART1);
+   
+  projectMain();
 
-  gpsCommand("$PGCMD,33,0*6D\r\n");                                // turn off antenna data nuesance
-  LL_mDelay(100);
-  gpsCommand("$PMTK220,1000*1F\r\n");                              // set update frequency to 1Hz
-  LL_mDelay(100);
-  gpsCommand("$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"); // RMC NMEA Sentence
-  LL_mDelay(100);
   /* USER CODE END 2 */
 
   /* Infinite loop */

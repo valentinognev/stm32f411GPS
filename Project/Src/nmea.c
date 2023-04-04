@@ -95,6 +95,51 @@ bool itsdk_time_is_UTC_s(uint32_t *destTime)
 }
 
 /**
+ * Get the current hour of the day
+ */
+uint8_t itsdk_time_get_UTC_hour()
+{
+	if (__time_utc_atreference_S == 0)
+		return 0;
+	uint64_t t = (itsdk_time_get_us() - __time_utc_reference_uS) / 1000000;
+	t = __time_utc_atreference_S + t;
+
+	t /= 3600;
+	t %= 24;
+
+	return t;
+}
+
+/**
+ * Get the current minute of the day
+ */
+uint8_t itsdk_time_get_UTC_min()
+{
+	if (__time_utc_atreference_S == 0)
+		return 0;
+	uint64_t t = (itsdk_time_get_us() - __time_utc_reference_uS) / 1000000;
+	t = __time_utc_atreference_S + t;
+
+	t /= 60;
+	t %= 60;
+
+	return t;
+}
+
+/**
+ * Get the current minute of the day
+ */
+uint8_t itsdk_time_get_UTC_sec()
+{
+	if (__time_utc_atreference_S == 0)
+		return 0;
+	uint64_t t = (itsdk_time_get_us() - __time_utc_reference_uS) / 1000000;
+	t = __time_utc_atreference_S + t;
+	t %= 60;
+	return t;
+}
+
+/**
  * Setup the right number of NMEA messaging according to the request made by the user in term of
  * information. Some of the information only exist in one type of message, some are redundant and
  * we need to reduce the number of redundancy but keeping all the needed information.

@@ -254,35 +254,34 @@ gnss_ret_e gnss_encodePosition48b(gnss_data_t * data, uint64_t * output);
 void gnss_customSerial_print(char * msg);
 serial_read_response_e gnss_customSerial_read(char * ch);
 
-void gnss_printState(void);
+//void gnss_printState(void);
+void __gnss_processChar(char c);
 
 #if ITSDK_DRIVERS_GNSS_WITHGALSAT == __ENABLE
 #error "GALILEO is not yet supported"
 #endif
 
-// =============================================================================
-// Internal stuff
-// =============================================================================
+	// =============================================================================
+	// Internal stuff
+	// =============================================================================
 
+	typedef enum {
+		NMEA_NONE = 0,
+		NMEA_RMC = 0x0000001, // list of message type a device is supporting
+		NMEA_GGA = 0x0000002,
+		NMEA_GSA = 0x0000004,
+		NMEA_GSV = 0x0000008,
+		NMEA_GLL = 0x0000010,
+		NMEA_VTG = 0x0000020,
+		NMEA_ZDA = 0x0000040,
 
-
-typedef enum {
-	NMEA_NONE = 0,
-	NMEA_RMC  = 0x0000001,		// list of message type a device is supporting
-	NMEA_GGA  = 0x0000002,
-	NMEA_GSA  = 0x0000004,
-	NMEA_GSV  = 0x0000008,
-	NMEA_GLL  = 0x0000010,
-	NMEA_VTG  = 0x0000020,
-	NMEA_ZDA  = 0x0000040,
-
-	NMEA_GSVL = 0x00004008,		// Last of the GSV messages
-	MTK_CHN   = 0x00008000,		// proprietary format
-	NMEA_GL   = 0x01000000,
-	NMEA_GP   = 0x02000000,
-	NMEA_GN   = 0x04000000,
-	NMEA_GA	  = 0x08000000
-} nmea_supported_e;
+		NMEA_GSVL = 0x00004008, // Last of the GSV messages
+		MTK_CHN = 0x00008000,	// proprietary format
+		NMEA_GL = 0x01000000,
+		NMEA_GP = 0x02000000,
+		NMEA_GN = 0x04000000,
+		NMEA_GA = 0x08000000
+	} nmea_supported_e;
 
 
 typedef struct gnss_nmea_driver_s {

@@ -64,7 +64,7 @@ void USART_PrintString(char const* s)
     for (int i = 0; i < strlen(s); i++)
     {
         // wait untill DR empty
-        while (LL_USART_IsActiveFlag_TXE(USART2))
+        while (!LL_USART_IsActiveFlag_TXE(USART2))
             ;
         LL_USART_TransmitData8(USART2, s[i]);
     }
@@ -74,7 +74,7 @@ void USART_PrintDefaultN(char const* str, size_t const len)
     for (int i = 0; i < len; i++)
     {
         // wait untill DR empty
-        while (LL_USART_IsActiveFlag_TXE(USART2))
+        while (!LL_USART_IsActiveFlag_TXE(USART2))
             ;
         LL_USART_TransmitData8(USART2, str[i]);
     }
