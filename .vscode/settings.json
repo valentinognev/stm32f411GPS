@@ -8,6 +8,7 @@
         "configdrivers.h": "c",
         "swo.h": "c",
         "nmea.h": "c",
-        "main.h": "c"
+        "main.h": "c",
+        "lcd_driver.h": "c"
     }
 }

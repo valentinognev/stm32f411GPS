@@ -90,3 +90,10 @@ build/CMakeFiles/stm32f411GPS.dir/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_
 build/CMakeFiles/stm32f411GPS.dir/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usart.c.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/quectel.c.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/tool.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/GPS/gnss.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/GPS/nmea.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/GPS/quectel.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/GPS/tool.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/TFT/GUI.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/TFT/Lcd_Driver.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/TFT/TFT_demo.c.obj

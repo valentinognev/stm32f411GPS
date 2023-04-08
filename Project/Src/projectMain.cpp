@@ -8,7 +8,13 @@
 #include "gnss.h"
 
 #include "usb_device.h"
-#include "TinyGPS++.h"
+
+extern "C"
+{ // another way
+#include "Lcd_Driver.h"
+#include "GUI.h"
+#include "TFT_demo.h"
+};
 
 extern "C"
 { // another way
@@ -27,8 +33,6 @@ extern "C"
 */
 static const uint32_t GPSBaud = 9600;
 
-// The TinyGPSPlus object
-TinyGPSPlus gps;
 char NMEA_Sent[NMEA_GPRMC_SENTENCE_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // The serial connection to the GPS device
@@ -38,6 +42,9 @@ void projectMain()
 {
 	LL_TIM_EnableCounter(TIM5);
 
+    Lcd_Init();	 //1.8 Inch LCD screen -- Initialization configuration 
+	Lcd_Clear(GRAY0);// Clear the screen 									  // initialization LCD  
+	
 	// USART_PrintString("A simple demonstration of TinyGPSPlus with an attached GPS module\n");
     // USART_PrintString("Testing TinyGPSPlus library v. \n");
 
@@ -57,77 +64,24 @@ void projectMain()
     // gpsCommand("$PMTK103*30\r\n");         // This message is used to cold start the GPS module
     // gpsCommand("$PMTK104*37\r\n");         // This message is used to factory reset the GPS module, no information about last gps location
     // gpsCommand("$PMTK313,1*2E\r\n");       // This message is used to enable the NMEA message output of the GPS module
+    Lcd_Clear(GRAY0);
 
     while (true)
     {
+        //Test_Demo();	// LCD screen test DEMO	   
+ 
         gnss_process_loop(true);
         gnss_printState();
         LL_mDelay(1000);
+
+        Gui_DrawFont_GBK16_l(8, 0, BLUE, GRAY0, (uint8_t*)NMEA_Sent,10);
+
         // gpsCommand("$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"); // RMC NMEA Sentence
         // USART_PrintString("-----------\n");
         // USART_PrintString(NMEA_Sent);
         // USART_PrintString("\n-----------");
-
-        // This sketch displays information every time a new sentence is correctly encoded.
-        // for (int i = 0; i < strlen(NMEA_Sent); i++)
-        //     if (gps.encode(NMEA_Sent[i]))
-        //         displayInfo();
-        // LL_mDelay(1000);
-        // if (millis() > 5000 && gps.charsProcessed() < 10)
-        // {
-        //     USART_PrintString("No GPS detected: check wiring.");
-        //     while (true)
-        //         ;
-        // }
     }
 }
 
-static void gpsCommand(char *msg)
-{
-    for (int i = 0; i < strlen(msg); i++)
-    {
-        // wait untill DR empty
-        while (!LL_USART_IsActiveFlag_TXE(USART1))
-            ;
-        LL_USART_TransmitData8(USART1, msg[i]);
-    }
-    LL_mDelay(100);
-}
 
-void displayInfo()
-{
-    char buf[100];
-    USART_PrintString("Location: ");
-    if (gps.location.isValid())
-    {
-        sprintf(buf, "%f,%f\n", gps.location.lat(), gps.location.lng());
-        USART_PrintString(buf);
-    }
-    else
-    {
-        USART_PrintString("INVALID");
-    }
 
-    USART_PrintString("  Date/Time: ");
-    if (gps.date.isValid())
-    {
-        sprintf(buf, "%02d/%02d/%04d ", gps.date.day(), gps.date.month(), gps.date.year());
-        USART_PrintString(buf);
-    }
-    else
-    {
-        USART_PrintString("INVALID");
-    }
-
-    USART_PrintString(" ");
-    if (gps.time.isValid())
-    {
-        sprintf(buf, "%02d:%02d:%02d.%02d\n", gps.time.hour(), gps.time.minute(), gps.time.second(), gps.time.centisecond());
-        USART_PrintString(buf);
-    }
-    else
-    {
-        USART_PrintString("INVALID");
-    }
-
-}

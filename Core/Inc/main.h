@@ -77,8 +77,24 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define GPSRST_Pin LL_GPIO_PIN_9
-#define GPSRST_GPIO_Port GPIOA
+#define GPS_RST_Pin LL_GPIO_PIN_4
+#define GPS_RST_GPIO_Port GPIOA
+#define LCD_BLK_Pin LL_GPIO_PIN_0
+#define LCD_BLK_GPIO_Port GPIOB
+#define LCD_RS_Pin LL_GPIO_PIN_1
+#define LCD_RS_GPIO_Port GPIOB
+#define LCD_CS_Pin LL_GPIO_PIN_12
+#define LCD_CS_GPIO_Port GPIOB
+#define LCD_SCL_Pin LL_GPIO_PIN_13
+#define LCD_SCL_GPIO_Port GPIOB
+#define LCD_RST_Pin LL_GPIO_PIN_14
+#define LCD_RST_GPIO_Port GPIOB
+#define LCD_SDI_Pin LL_GPIO_PIN_15
+#define LCD_SDI_GPIO_Port GPIOB
+#define GPS_RX_Pin LL_GPIO_PIN_10
+#define GPS_RX_GPIO_Port GPIOA
+#define GPS_TX_Pin LL_GPIO_PIN_15
+#define GPS_TX_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
