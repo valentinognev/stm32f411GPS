@@ -22,6 +22,11 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+#include "stdbool.h"
+#include <string.h>
+#include "NMEAQueue.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,8 +46,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern char NMEA_Sent[];
-
+extern NMEAQueue nmea_buff;
+char buff[NMEA_GPRMC_SENTENCE_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -220,24 +225,27 @@ void USART1_IRQHandler(void)
     else if (data_byte == '\r')
     {
       flag = 0;
-      USART_PrintString("\n-----------\n");
-      USART_PrintString(NMEA_Sent);
-      USART_PrintString("\n-----------\n");
+      buff[i]='\0';
+      if (strlen(buff) > 3)
+        NMEAQueue_push(&nmea_buff, buff);
+  //    USART_PrintString("\n-----------\n");
+  //    USART_PrintString(NMEA_Sent);
+  //    USART_PrintString("\n-----------\n");
     }
     // extract the NMEA sentence
     if ((i < NMEA_GPRMC_SENTENCE_SIZE - 1) & (flag == 1))
     {
-      NMEA_Sent[i] = (char)data_byte;
-      __gnss_processChar((char)data_byte);
+      buff[i] = (char)data_byte;
+      // __gnss_processChar((char)data_byte);
       i++;
     }
     else
     {
       i = 0;
       flag = 0;
-      USART_PrintString("\n-----------\n");
-      USART_PrintString(NMEA_Sent);
-      USART_PrintString("\n-----------\n");
+  //    USART_PrintString("\n-----------\n");
+  //    USART_PrintString(NMEA_Sent);
+  //    USART_PrintString("\n-----------\n");
     }
   }
   else

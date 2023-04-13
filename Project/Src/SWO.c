@@ -1,6 +1,7 @@
 #include "SWO.h"
 #include "main.h"
-
+#include "GUI.h"
+#include "Lcd_Driver.h"
 //extern UART_HandleTypeDef huart2;
 
 void SWO_PrintChar(char const c, uint8_t const portNumber)
@@ -78,4 +79,9 @@ void USART_PrintDefaultN(char const* str, size_t const len)
             ;
         LL_USART_TransmitData8(USART2, str[i]);
     }
+}
+
+void TFT_PrintString(int16_t lineNum, char const *s)
+{
+    Gui_DrawFont_GBK16(8, (lineNum-1)*16 , BLUE, GRAY0, s);
 }

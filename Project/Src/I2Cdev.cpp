@@ -242,7 +242,7 @@ bool I2Cdev::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t byte, void* wir
  */
 bool I2Cdev::writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t* data, void* wireObj)
 {
-    uint8_t aTxBuffer[100];
+    uint8_t aTxBuffer[200];
     aTxBuffer[0] = regAddr;
     for(int i = 0;i<length;i++)
         aTxBuffer[i+1] = data[i];
@@ -254,17 +254,6 @@ bool I2Cdev::writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_
     while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY)
     {
     }
-    // i2c_cmd_handle_t cmd;
-
-    // cmd = i2c_cmd_link_create();
-    // ESP_ERROR_CHECK(i2c_master_start(cmd));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(cmd, (devAddr << 1) | I2C_MASTER_WRITE, 1));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(cmd, regAddr, 1));
-    // ESP_ERROR_CHECK(i2c_master_write(cmd, data, length-1, 0));
-    // ESP_ERROR_CHECK(i2c_master_write_byte(cmd, data[length-1], 1));
-    // ESP_ERROR_CHECK(i2c_master_stop(cmd));
-    // ESP_ERROR_CHECK(i2c_master_cmd_begin(I2C_NUM, cmd, 1000/portTICK_PERIOD_MS));
-    // i2c_cmd_link_delete(cmd);
     return true;
 }
 

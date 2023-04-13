@@ -257,6 +257,14 @@ serial_read_response_e gnss_customSerial_read(char * ch);
 //void gnss_printState(void);
 void __gnss_processChar(char c);
 
+
+
+
+// gnss_ret_e gnss_setup();
+// void gnss_process_loop(bool force);
+// gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq, uint32_t timeoutS);
+// void gnss_printState(void);
+
 #if ITSDK_DRIVERS_GNSS_WITHGALSAT == __ENABLE
 #error "GALILEO is not yet supported"
 #endif
@@ -323,7 +331,6 @@ typedef struct {
 } gnss_config_t;
 
 
-
 // --- Internal function
 void __gnss_printf(char *format, ...);
 gnss_ret_e __gnss_changeBaudRate(serial_baudrate_e br);
@@ -346,5 +353,7 @@ gnss_ret_e __gnss_connectSerial();
 #define GNSS_LOG_ERROR(x)
 #define GNSS_LOG_ANY(x)
 #endif
+
+
 
 #endif /* INC_IT_SDK_GNSS_GNSS_H_ */
