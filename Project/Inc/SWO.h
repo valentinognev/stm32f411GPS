@@ -16,6 +16,7 @@ extern "C"
     void USART_PrintChar(char const c);
     void USART_PrintString(char const* s);
     void USART_PrintDefaultN(char const* str, size_t const len);
+    void TFT_PrintString(int16_t lineNum, char const *s);
 
 #ifdef __cplusplus
 }

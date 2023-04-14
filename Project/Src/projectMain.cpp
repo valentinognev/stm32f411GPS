@@ -14,6 +14,7 @@ extern "C"
 #include "Lcd_Driver.h"
 #include "GUI.h"
 #include "TFT_demo.h"
+#include "gnss.h"
 };
 
 extern "C"
@@ -32,8 +33,6 @@ extern "C"
    4800-baud serial GPS device hooked up on pins 4(rx) and 3(tx).
 */
 static const uint32_t GPSBaud = 9600;
-
-char NMEA_Sent[NMEA_GPRMC_SENTENCE_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // The serial connection to the GPS device
 // SoftwareSerial ss(RXPin, TXPin);
@@ -68,13 +67,14 @@ void projectMain()
 
     while (true)
     {
-        //Test_Demo();	// LCD screen test DEMO	   
- 
+        //Test_Demo();	// LCD screen test DEMO
+        Lcd_Clear(GRAY0); // Clear the screen 									  // initialization LCD
+
         gnss_process_loop(true);
         gnss_printState();
         LL_mDelay(1000);
 
-        Gui_DrawFont_GBK16_l(8, 0, BLUE, GRAY0, (uint8_t*)NMEA_Sent,10);
+        //Gui_DrawFont_GBK16_l(8, 0, BLUE, GRAY0, (uint8_t*)NMEA_Sent,10);
 
         // gpsCommand("$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"); // RMC NMEA Sentence
         // USART_PrintString("-----------\n");
