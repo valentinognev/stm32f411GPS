@@ -197,6 +197,22 @@ typedef struct {
 										// depending on - ITSDK_DRIVERS_GNSS_WITH_UTCDATE_FULL
 } gnss_date_t;
 
+typedef struct
+{
+	uint8_t hour;
+	uint8_t minute;
+	uint8_t second;
+	uint8_t year;
+	uint8_t month;
+	uint8_t day;
+	uint8_t fix;
+	uint8_t satellites;
+	float latitude;
+	float longitude;
+	float altitude;
+	float speed;
+	float course;
+} gnss_simple_data_t;
 
 #define ITSDK_GNSS_GPSSAT_NB	32
 #define ITSDK_GNSS_GLOSAT_NB	24

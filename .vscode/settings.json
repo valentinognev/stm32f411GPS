@@ -10,6 +10,7 @@
         "nmea.h": "c",
         "main.h": "c",
         "lcd_driver.h": "c",
-        "circularbuffer.h": "c"
+        "circularbuffer.h": "c",
+        "gnss.h": "c"
     }
 }

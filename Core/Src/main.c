@@ -47,13 +47,6 @@ I2C_HandleTypeDef hi2c1;
 osThreadId defaultTaskNameHandle;
 /* USER CODE BEGIN PV */
 
-/* The control message buffer.  This is used to pass the handle of the message
-message buffer that holds application data into the core to core interrupt
-service routine. */
-static MessageBufferHandle_t xControlMessageBuffer;
-
-/* Counters used to indicate to the check that the tasks are still executing. */
-static uint32_t ulCycleCounters[mbaNUMBER_OF_CORE_B_TASKS];
 
 /* USER CODE END PV */
 
@@ -67,7 +60,8 @@ static void MX_I2C1_Init(void);
 void defaultTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
-
+static void gnssTask(void *pvParameters);
+static void lcdTask(void *pvParameters);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -109,12 +103,6 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
-  // gps setup
-  LL_USART_EnableIT_RXNE(USART1);
-  LL_USART_EnableIT_ERROR(USART1);
-   
-  projectMain();
-
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -140,11 +128,19 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  xTaskCreate(prvCoreATask,     /* The function that implements the task. */
-              "AMPCoreA",       /* Human readable name for the task. */
+  configSTACK_DEPTH_TYPE xStackSize = 512;
+
+  xTaskCreate(gnssTask,         /* The function that implements the task. */
+              "gnssTask",       /* Human readable name for the task. */
               xStackSize,       /* Stack size (in words!). */
               NULL,             /* Task parameter is not used. */
-              tskIDLE_PRIORITY, /* The priority at which the task is created. */
+              tskIDLE_PRIORITY+2, /* The priority at which the task is created. */
+              NULL);            /* No use for the task handle. */
+  xTaskCreate(lcdTask,         /* The function that implements the task. */
+              "lcdTask",       /* Human readable name for the task. */
+              xStackSize,       /* Stack size (in words!). */
+              NULL,             /* Task parameter is not used. */
+              tskIDLE_PRIORITY+1, /* The priority at which the task is created. */
               NULL);            /* No use for the task handle. */
   /* USER CODE END RTOS_THREADS */
 
@@ -502,7 +498,34 @@ void getLatitude(char *char_minutes, char *char_seconds, char *char_degrees, cha
 }
 
 /* USER CODE END 4 */
+void gnssTask(void* pvParameters)
+{
 
+  gnssMain();
+  // Never reach here
+  /* Remove warning about unused parameters. */
+  (void)pvParameters;
+  
+  for(;;)
+  {
+    osDelay(1);
+  }
+  
+}
+
+void lcdTask(void *pvParameters)
+{
+
+  lcdMain();
+  // Never reach here
+  /* Remove warning about unused parameters. */
+  (void)pvParameters;
+
+  for (;;)
+  {
+    osDelay(1);
+  }
+}
 /* USER CODE BEGIN Header_defaultTask */
 /**
   * @brief  Function implementing the defaultTaskName thread.

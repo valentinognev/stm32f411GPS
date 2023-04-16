@@ -9,6 +9,11 @@
 
 #include "usb_device.h"
 
+#include "FreeRTOS.h"
+#include "message_buffer.h"
+#include "queue.h"
+#include "cmsis_os.h"
+
 extern "C"
 { // another way
 #include "Lcd_Driver.h"
@@ -23,8 +28,11 @@ extern "C"
 	void gnss_process_loop(bool force);
 	gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq, uint32_t timeoutS);
     void gnss_printState(void);
+    void gnss_getData(gnss_simple_data_t *gnssData);
 };
 
+
+QueueHandle_t gnssDataQueue;
 // static void gpsCommand(char *msg);
 // void displayInfo();
 /*
@@ -34,17 +42,43 @@ extern "C"
 */
 static const uint32_t GPSBaud = 9600;
 
+/* The control message buffer.  This is used to pass the handle of the message
+message buffer that holds application data into the core to core interrupt
+service routine. */
+static MessageBufferHandle_t gnssMessageBuffer;
+
+
 // The serial connection to the GPS device
 // SoftwareSerial ss(RXPin, TXPin);
 
-void projectMain()
+void gnssMain()
 {
-	LL_TIM_EnableCounter(TIM5);
+    gnss_simple_data_t gnssData = {
+        .hour = 0,
+        .minute = 0,
+        .second = 0,
+        .year = 0,
+        .month = 0,
+        .day = 0,
+        .fix = 0,
+        .satellites = 0,
+        .latitude = 0,
+        .longitude = 0,
+        .altitude = 0,
+        .speed = 0,
+        .course = 0,
+    };
+    gnssDataQueue = xQueueCreate(1, sizeof(gnss_simple_data_t));
 
-    Lcd_Init();	 //1.8 Inch LCD screen -- Initialization configuration 
-	Lcd_Clear(GRAY0);// Clear the screen 									  // initialization LCD  
-	
-	// USART_PrintString("A simple demonstration of TinyGPSPlus with an attached GPS module\n");
+    const size_t gnssMessageBufferSizeBytes = 100;
+    gnssMessageBuffer = xMessageBufferCreate(gnssMessageBufferSizeBytes);
+
+	LL_TIM_EnableCounter(TIM5);
+    // gps setup
+    LL_USART_EnableIT_RXNE(USART1);
+    LL_USART_EnableIT_ERROR(USART1);
+
+    // USART_PrintString("A simple demonstration of TinyGPSPlus with an attached GPS module\n");
     // USART_PrintString("Testing TinyGPSPlus library v. \n");
 
     gnss_run_mode_e mode = GNSS_RUN_HOT;
@@ -63,25 +97,51 @@ void projectMain()
     // gpsCommand("$PMTK103*30\r\n");         // This message is used to cold start the GPS module
     // gpsCommand("$PMTK104*37\r\n");         // This message is used to factory reset the GPS module, no information about last gps location
     // gpsCommand("$PMTK313,1*2E\r\n");       // This message is used to enable the NMEA message output of the GPS module
-    Lcd_Clear(GRAY0);
-
+ 
     while (true)
     {
-        //Test_Demo();	// LCD screen test DEMO
-        Lcd_Clear(GRAY0); // Clear the screen 									  // initialization LCD
-
         gnss_process_loop(true);
+        gnss_getData(&gnssData);
+        xQueueSend(gnssDataQueue, &gnssData, 0);
         gnss_printState();
-        LL_mDelay(1000);
-
-        //Gui_DrawFont_GBK16_l(8, 0, BLUE, GRAY0, (uint8_t*)NMEA_Sent,10);
-
-        // gpsCommand("$PMTK314,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"); // RMC NMEA Sentence
-        // USART_PrintString("-----------\n");
-        // USART_PrintString(NMEA_Sent);
-        // USART_PrintString("\n-----------");
+        osDelay(1000);
     }
 }
 
+
+void lcdMain()
+{
+    gnss_simple_data_t gnssData;
+    char buf[100];
+    Lcd_Init();	 //1.8 Inch LCD screen -- Initialization configuration 
+    Lcd_Clear(GRAY0);// Clear the screen 									  // initialization LCD  
+    
+    while (true)
+    {
+        xQueueReceive(gnssDataQueue, &gnssData, portMAX_DELAY);
+        if (gnssData.satellites == 0)
+        {
+            TFT_PrintString(0, "No GPS signal");
+            continue;
+        }
+        else
+        {
+            sprintf(buf, "Sat: %d", gnssData.satellites);
+            TFT_PrintString(1, buf);
+            sprintf(buf, " %02d/%02d/%02d", gnssData.day, gnssData.month, gnssData.year);
+            TFT_PrintString(2, buf);
+            sprintf(buf, "%02d:%02d:%02d", gnssData.hour, gnssData.minute, gnssData.second);
+            TFT_PrintString(3, buf);
+            sprintf(buf, "Lat: %f", gnssData.latitude);
+            TFT_PrintString(4, buf);
+            sprintf(buf, "Lon: %f", gnssData.longitude);
+            TFT_PrintString(5, buf);
+            sprintf(buf, "Alt: %f", gnssData.altitude);
+            TFT_PrintString(6, buf);
+            sprintf(buf, "Spd: %f", gnssData.speed);
+            TFT_PrintString(7, buf);
+        }
+    }
+}
 
 

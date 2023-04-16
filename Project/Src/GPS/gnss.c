@@ -712,6 +712,34 @@ void log_debug(char *format, ...)
     USART_PrintString(fmtBuffer);
 }
 
+void gnss_getData(gnss_simple_data_t *gnssData)
+{
+    if (__gnss_config.data.satInView == 0)
+        return;
+
+    if ((__gnss_config.data.gpsTime.status & GNSS_TIME_TMDATE) == GNSS_TIME_TMDATE)
+    {
+        gnssData->year = __gnss_config.data.gpsTime.year;
+        gnssData->month = __gnss_config.data.gpsTime.month;
+        gnssData->day = __gnss_config.data.gpsTime.day;
+        gnssData->hour = __gnss_config.data.gpsTime.hours;
+        gnssData->minute = __gnss_config.data.gpsTime.minutes;
+        gnssData->second = __gnss_config.data.gpsTime.seconds;
+    }
+
+    if (__gnss_config.data.fixInfo.fixType >= GNSS_FIX_2D)
+    {
+        gnssData->latitude = __gnss_config.data.fixInfo.latitude;
+        gnssData->longitude = __gnss_config.data.fixInfo.longitude;
+        gnssData->altitude = __gnss_config.data.fixInfo.altitude;
+        gnssData->speed = __gnss_config.data.fixInfo.speed_kmh;
+        gnssData->course = __gnss_config.data.fixInfo.direction;
+    }
+    gnssData->satellites = __gnss_config.data.satInView;
+    gnssData->fix = __gnss_config.data.fixInfo.fixType;
+}
+
+
 void gnss_printState(void)
 {
     char buf[200];
@@ -719,8 +747,6 @@ void gnss_printState(void)
         return;
 
     log_debug("Last Refresh: %d\r\n", __gnss_config.data.lastRefreshS);
-    sprintf(buf, "LR: %d\r\n", __gnss_config.data.lastRefreshS);
-    TFT_PrintString(1, buf);
     if ((__gnss_config.data.gpsTime.status & GNSS_TIME_TMDATE) == GNSS_TIME_TMDATE)
     {
         log_debug("Date was %02d/%02d/%02d %02d:%02d:%02d\r\n",
@@ -731,10 +757,6 @@ void gnss_printState(void)
                   __gnss_config.data.gpsTime.hours,
                   __gnss_config.data.gpsTime.minutes,
                   __gnss_config.data.gpsTime.seconds);
-        sprintf(buf, " %02d/%02d/%02d", __gnss_config.data.gpsTime.day, __gnss_config.data.gpsTime.month, __gnss_config.data.gpsTime.year);
-        TFT_PrintString(2, buf);
-        sprintf(buf, "%02d:%02d:%02d", __gnss_config.data.gpsTime.hours, __gnss_config.data.gpsTime.minutes, __gnss_config.data.gpsTime.seconds);
-        TFT_PrintString(3, buf);
         log_debug("  S from UTC Midnight is %d this is %d:%d:%d\r\n",
                   itsdk_time_get_UTC_s(),
                   itsdk_time_get_UTC_hour(),
@@ -748,26 +770,15 @@ void gnss_printState(void)
     else
     {
         log_debug("Date/Time not set\r\n");
-        TFT_PrintString(3, "Date/Time not set");
     }
-    sprintf(buf, "stat: %s\r\n", ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_NONE) ? "NONE" : ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_2D) ? "FIX2D" : "FIX3D")));
-    TFT_PrintString(4, buf);
     log_debug("Fix status   : %s\r\n", ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_NONE) ? "NONE" : ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_2D) ? "FIX2D" : "FIX3D")));
     if (__gnss_config.data.fixInfo.fixType >= GNSS_FIX_2D)
     {
         log_debug("  Lat             : %d\r\n", __gnss_config.data.fixInfo.latitude);
-        sprintf(buf, "Lat :%d\r\n", __gnss_config.data.fixInfo.latitude);
-        TFT_PrintString(5, buf);
         log_debug("  Lng             : %d\r\n", __gnss_config.data.fixInfo.longitude);
-        sprintf(buf, "Lng: %d\r\n", __gnss_config.data.fixInfo.longitude);
-        TFT_PrintString(6, buf);
         log_debug("  Alt             : %d\r\n", __gnss_config.data.fixInfo.altitude);
-        sprintf(buf, "Alt : %d\r\n", __gnss_config.data.fixInfo.altitude);
-        TFT_PrintString(7, buf);
         log_debug("  Speed knots     : %d\r\n", __gnss_config.data.fixInfo.speed_knot);
         log_debug("  Speed kmh       : %d\r\n", __gnss_config.data.fixInfo.speed_kmh);
-        sprintf(buf, "Speed kmh: %d\r\n", __gnss_config.data.fixInfo.speed_kmh);
-        TFT_PrintString(8, buf);
 
 #if ITSDK_DRIVERS_GNSS_WITHGPSSAT == __ENABLE
         log_debug("P Sat use in Fix  : %d\r\n", __gnss_config.data.fixInfo.gps.nbSatUsed);
