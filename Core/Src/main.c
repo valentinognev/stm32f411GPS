@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -43,7 +44,16 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
+osThreadId defaultTaskNameHandle;
 /* USER CODE BEGIN PV */
+
+/* The control message buffer.  This is used to pass the handle of the message
+message buffer that holds application data into the core to core interrupt
+service routine. */
+static MessageBufferHandle_t xControlMessageBuffer;
+
+/* Counters used to indicate to the check that the tasks are still executing. */
+static uint32_t ulCycleCounters[mbaNUMBER_OF_CORE_B_TASKS];
 
 /* USER CODE END PV */
 
@@ -54,6 +64,8 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM5_Init(void);
 static void MX_I2C1_Init(void);
+void defaultTask(void const * argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -93,7 +105,6 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
-  MX_USB_DEVICE_Init();
   MX_TIM5_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
@@ -106,6 +117,40 @@ int main(void)
 
   /* USER CODE END 2 */
 
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of defaultTaskName */
+  osThreadDef(defaultTaskName, defaultTask, osPriorityIdle, 0, 128);
+  defaultTaskNameHandle = osThreadCreate(osThread(defaultTaskName), NULL);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  xTaskCreate(prvCoreATask,     /* The function that implements the task. */
+              "AMPCoreA",       /* Human readable name for the task. */
+              xStackSize,       /* Stack size (in words!). */
+              NULL,             /* Task parameter is not used. */
+              tskIDLE_PRIORITY, /* The priority at which the task is created. */
+              NULL);            /* No use for the task handle. */
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -265,7 +310,7 @@ static void MX_USART1_UART_Init(void)
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USART1 interrupt Init */
-  NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
   NVIC_EnableIRQ(USART1_IRQn);
 
   /* USER CODE BEGIN USART1_Init 1 */
@@ -457,6 +502,48 @@ void getLatitude(char *char_minutes, char *char_seconds, char *char_degrees, cha
 }
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_defaultTask */
+/**
+  * @brief  Function implementing the defaultTaskName thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_defaultTask */
+void defaultTask(void const * argument)
+{
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
+  /* USER CODE BEGIN 5 */
+
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM2 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM2) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
