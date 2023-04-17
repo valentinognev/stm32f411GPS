@@ -167,6 +167,34 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 stream5 global interrupt.
+  */
+void DMA1_Stream5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
+// RX UART DEBUG
+  /* USER CODE END DMA1_Stream5_IRQn 0 */
+
+  /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream5_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 stream6 global interrupt.
+  */
+void DMA1_Stream6_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream6_IRQn 0 */
+// TX UART DEBUG
+  /* USER CODE END DMA1_Stream6_IRQn 0 */
+
+  /* USER CODE BEGIN DMA1_Stream6_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream6_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
@@ -186,64 +214,86 @@ void TIM2_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-  static int flag = 0;
-  static int i = 0;
-  uint16_t data_byte;
+ 	if (LL_USART_IsActiveFlag_IDLE(UART_PORT_GPS)) 
+  {
+		LL_USART_ClearFlag_IDLE(UART_PORT_GPS);
 
-  if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
-  {
-    // a data byte is received from the user
-    data_byte = LL_USART_ReceiveData8(USART1);
-    if (data_byte == '$')
-    {
-      flag = 1;
-    }
-    else if (data_byte == '\r')
-    {
-      flag = 0;
-      buff[i]='\0';
-      if (strlen(buff) > 3)
-        NMEAQueue_push(&nmea_buff, buff);
-  //    USART_PrintString("\n-----------\n");
-  //    USART_PrintString(NMEA_Sent);
-  //    USART_PrintString("\n-----------\n");
-    }
-    // extract the NMEA sentence
-    if ((i < NMEA_GPRMC_SENTENCE_SIZE - 1) & (flag == 1))
-    {
-      buff[i] = (char)data_byte;
-      // __gnss_processChar((char)data_byte);
-      i++;
-    }
-    else
-    {
-      i = 0;
-      flag = 0;
-  //    USART_PrintString("\n-----------\n");
-  //    USART_PrintString(NMEA_Sent);
-  //    USART_PrintString("\n-----------\n");
-    }
+		DMA_GPS_RX_ISR();
   }
-  else
-  {
-    if (LL_USART_IsActiveFlag_ORE(USART1))
-    {
-      (void)USART1->DR;
-    }
-    else if (LL_USART_IsActiveFlag_FE(USART1))
-    {
-      (void)USART1->DR;
-    }
-    else if (LL_USART_IsActiveFlag_NE(USART1))
-    {
-      (void)USART1->DR;
-    }
-  }
+
+  // static int flag = 0;
+  // static int i = 0;
+  // uint16_t data_byte;
+
+  // if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
+  // {
+  //   // a data byte is received from the user
+  //   data_byte = LL_USART_ReceiveData8(USART1);
+  //   if (data_byte == '$')
+  //   {
+  //     flag = 1;
+  //   }
+  //   else if (data_byte == '\r')
+  //   {
+  //     flag = 0;
+  //     buff[i]='\0';
+  //     if (strlen(buff) > 3)
+  //       NMEAQueue_push(&nmea_buff, buff);
+  // //    USART_PrintString("\n-----------\n");
+  // //    USART_PrintString(NMEA_Sent);
+  // //    USART_PrintString("\n-----------\n");
+  //   }
+  //   // extract the NMEA sentence
+  //   if ((i < NMEA_GPRMC_SENTENCE_SIZE - 1) & (flag == 1))
+  //   {
+  //     buff[i] = (char)data_byte;
+  //     // __gnss_processChar((char)data_byte);
+  //     i++;
+  //   }
+  //   else
+  //   {
+  //     i = 0;
+  //     flag = 0;
+  // //    USART_PrintString("\n-----------\n");
+  // //    USART_PrintString(NMEA_Sent);
+  // //    USART_PrintString("\n-----------\n");
+  //   }
+  // }
+  // else
+  // {
+  //   if (LL_USART_IsActiveFlag_ORE(USART1))
+  //   {
+  //     (void)USART1->DR;
+  //   }
+  //   else if (LL_USART_IsActiveFlag_FE(USART1))
+  //   {
+  //     (void)USART1->DR;
+  //   }
+  //   else if (LL_USART_IsActiveFlag_NE(USART1))
+  //   {
+  //     (void)USART1->DR;
+  //   }
+  // }
 
   /* USER CODE END USART1_IRQn 0 */
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 stream2 global interrupt.
+  */
+void DMA2_Stream2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
+  //RX GPS
+  DMA_GPS_TX_ISR();
+  /* USER CODE END DMA2_Stream2_IRQn 0 */
+
+  /* USER CODE BEGIN DMA2_Stream2_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream2_IRQn 1 */
 }
 
 /**
@@ -258,6 +308,20 @@ void OTG_FS_IRQHandler(void)
   /* USER CODE BEGIN OTG_FS_IRQn 1 */
 
   /* USER CODE END OTG_FS_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 stream7 global interrupt.
+  */
+void DMA2_Stream7_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream7_IRQn 0 */
+//TX GPS
+  /* USER CODE END DMA2_Stream7_IRQn 0 */
+
+  /* USER CODE BEGIN DMA2_Stream7_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream7_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

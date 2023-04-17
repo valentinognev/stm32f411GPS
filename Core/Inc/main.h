@@ -97,7 +97,7 @@ void Error_Handler(void);
 #define GPS_TX_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
-
+#define UART_PORT_GPS USART1
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
