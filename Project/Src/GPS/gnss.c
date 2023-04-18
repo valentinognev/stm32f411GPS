@@ -689,7 +689,7 @@ void __gnss_processChar(char c)
     }
 }
 
-void __gnss_processString(char *buff)
+void gnss_processString(char *buff)
 {
     if (__gnss_config.withNmeaDecodeur && __gnss_config.driver.nmea.nmeaParser != NULL)
     {

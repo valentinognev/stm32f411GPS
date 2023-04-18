@@ -4,6 +4,8 @@
 #include "Lcd_Driver.h"
 //extern UART_HandleTypeDef huart2;
 
+#define HEX_CHARS      "0123456789ABCDEF"
+
 void SWO_PrintChar(char const c, uint8_t const portNumber)
 {
     volatile int timeout;
@@ -53,35 +55,141 @@ void SWO_PrintDefaultN(char const* str, size_t const len)
     }
 }
 
-
+/// @brief Prints a character to the serial port in blocking mode
+/// @param c - character to print
 void USART_PrintChar(char const c)
 {
-    while (LL_USART_IsActiveFlag_TXE(USART2))
+    while (LL_USART_IsActiveFlag_TXE(SERIAL_USART))
         ;
-    LL_USART_TransmitData8(USART2, c);
+    LL_USART_TransmitData8(SERIAL_USART, c);
+	/* **************************************************** *
+	 * The second while loops serves as guarantee that		*
+	 * the data is transmitted through the channel.			*
+	 * This is to prevent any data corruption.				*
+	 * **************************************************** */
+	while (!LL_USART_IsActiveFlag_TC(SERIAL_USART));
 }
+
 void USART_PrintString(char const* s)
 {
     for (int i = 0; i < strlen(s); i++)
     {
         // wait untill DR empty
-        while (!LL_USART_IsActiveFlag_TXE(USART2))
+        while (!LL_USART_IsActiveFlag_TXE(SERIAL_USART))
             ;
-        LL_USART_TransmitData8(USART2, s[i]);
+        LL_USART_TransmitData8(SERIAL_USART, s[i]);
     }
 }
-void USART_PrintDefaultN(char const* str, size_t const len)
+void USART_PrintBuffer(char const* str, size_t const len)
 {
     for (int i = 0; i < len; i++)
     {
         // wait untill DR empty
-        while (!LL_USART_IsActiveFlag_TXE(USART2))
+        while (!LL_USART_IsActiveFlag_TXE(SERIAL_USART))
             ;
-        LL_USART_TransmitData8(USART2, str[i]);
+        LL_USART_TransmitData8(SERIAL_USART, str[i]);
     }
 }
 
+void USART_PrintInt(int32_t num) 
+{
+	char str[10]; // 10 chars max for INT32_MAX
+	int i = 0;
+	if (num < 0) {
+		USART_PrintChar('-');
+		num *= -1;
+	}
+	do str[i++] = num % 10 + '0'; while ((num /= 10) > 0);
+	for (i--; i >= 0; i--) USART_PrintChar(str[i]);
+}
+
+void USART_PrintInt0(int32_t num) 
+{
+	char str[10]; // 10 chars max for INT32_MAX
+	int i = 0;
+	if (num < 0) {
+		USART_PrintChar('-');
+		num *= -1;
+	}
+	if ((num < 10) && (num >= 0)) USART_PrintChar('0');
+	do str[i++] = num % 10 + '0'; while ((num /= 10) > 0);
+	for (i--; i >= 0; i--) USART_PrintChar(str[i]);
+}
+
+void USART_PrintHex8(uint16_t num) 
+{
+	USART_PrintChar(HEX_CHARS[(num >> 4)   % 0x10]);
+	USART_PrintChar(HEX_CHARS[(num & 0x0f) % 0x10]);
+}
+
+void USART_PrintHex16(uint16_t num) 
+{
+	uint8_t i;
+	for (i = 12; i > 0; i -= 4) USART_PrintChar(HEX_CHARS[(num >> i) % 0x10]);
+	USART_PrintChar(HEX_CHARS[(num & 0x0f) % 0x10]);
+}
+
+void USART_PrintHex32(uint32_t num) 
+{
+	uint8_t i;
+	for (i = 28; i > 0; i -= 4)	USART_PrintChar(HEX_CHARS[(num >> i) % 0x10]);
+	USART_PrintChar(HEX_CHARS[(num & 0x0f) % 0x10]);
+}
+
+void USART_PrintBufPrintable(char *buf, uint16_t bufsize, char subst) 
+{
+	uint16_t i;
+	char ch;
+	for (i = 0; i < bufsize; i++) {
+		ch = *buf++;
+		USART_PrintChar(ch > 32 ? ch : subst);
+	}
+}
+
+void USART_PrintBufHex(char *buf, uint16_t bufsize) 
+{
+	uint16_t i;
+	char ch;
+	for (i = 0; i < bufsize; i++) {
+		ch = *buf++;
+		USART_PrintChar(HEX_CHARS[(ch >> 4)   % 0x10]);
+		USART_PrintChar(HEX_CHARS[(ch & 0x0f) % 0x10]);
+	}
+}
+
+void USART_PrintBufHexFancy(char *buf, uint16_t bufsize, uint8_t column_width, char subst) 
+{
+	uint16_t i = 0,len,pos;
+	char buffer[column_width];
+
+	while (i < bufsize) {
+		// Line number
+		USART_PrintHex16(i);
+		USART_PrintChar(':'); USART_PrintChar(' '); // Faster and less code than USART_PrintStr(": ");
+
+		// Copy one line
+		if (i+column_width >= bufsize) len = bufsize - i; else len = column_width;
+		memcpy(buffer,&buf[i],len);
+
+		// Hex data
+		pos = 0;
+		while (pos < len) USART_PrintHex8(buffer[pos++]);
+		USART_PrintChar(' ');
+
+		// Raw data
+		pos = 0;
+		do USART_PrintChar(buffer[pos] > 32 ? buffer[pos] : subst); while (++pos < len);
+		USART_PrintChar('\n');
+
+		i += len;
+	}
+}
+
+/// @brief The function prints a string on the TFT screen, starting at line lineNum.
+/// @param lineNum - the line number to start printing the string on.
+/// @param s - the string to print.
 void TFT_PrintString(int16_t lineNum, char const *s)
 {
+    // This function prints a string on the screen, starting at line lineNum.
     Gui_DrawFont_GBK16(8, (lineNum-1)*16 , BLUE, GRAY0, s);
 }

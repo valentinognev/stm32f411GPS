@@ -66,7 +66,7 @@ void projectMain()
                 &xGPSMessageRXTaskHandle);/* No use for the task handle. */
     xTaskCreate(vUSARTTask, "USART", 300, NULL, tskIDLE_PRIORITY + 3, &xUSARTTaskHandle);
     xTaskCreate(vLCDTransmitTask, "LCD_TX", 250, NULL, tskIDLE_PRIORITY + 1, NULL);
-    xTaskCreate(vTaskInfoTransmitTask, "NRF_TX_TaskInfo", 300, NULL, tskIDLE_PRIORITY + 2, NULL);
+    // xTaskCreate(vTaskInfoTransmitTask, "NRF_TX_TaskInfo", 300, NULL, tskIDLE_PRIORITY + 2, NULL);
 }
 
 // void gnssMain()

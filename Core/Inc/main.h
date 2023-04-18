@@ -29,6 +29,9 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
+#include "stm32f4xx_ll_dma.h"
+#include "stm32f4xx_ll_i2c.h"
+#include "stm32f4xx_ll_spi.h"
 #include "stm32f4xx_ll_tim.h"
 #include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_rcc.h"
@@ -39,7 +42,6 @@ extern "C" {
 #include "stm32f4xx_ll_cortex.h"
 #include "stm32f4xx_ll_utils.h"
 #include "stm32f4xx_ll_pwr.h"
-#include "stm32f4xx_ll_dma.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -77,8 +79,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SERIAL_TX_Pin LL_GPIO_PIN_2
+#define SERIAL_TX_GPIO_Port GPIOA
+#define SERIAL_RX_Pin LL_GPIO_PIN_3
+#define SERIAL_RX_GPIO_Port GPIOA
 #define GPS_RST_Pin LL_GPIO_PIN_4
 #define GPS_RST_GPIO_Port GPIOA
+#define TFT_SCK_Pin LL_GPIO_PIN_5
+#define TFT_SCK_GPIO_Port GPIOA
+#define TFT_MOSI_Pin LL_GPIO_PIN_7
+#define TFT_MOSI_GPIO_Port GPIOA
 #define LCD_BLK_Pin LL_GPIO_PIN_0
 #define LCD_BLK_GPIO_Port GPIOB
 #define LCD_RS_Pin LL_GPIO_PIN_1
@@ -95,9 +105,29 @@ void Error_Handler(void);
 #define GPS_RX_GPIO_Port GPIOA
 #define GPS_TX_Pin LL_GPIO_PIN_15
 #define GPS_TX_GPIO_Port GPIOA
+#define SENSOR_SCL_Pin LL_GPIO_PIN_6
+#define SENSOR_SCL_GPIO_Port GPIOB
+#define SENSOR_SDA_Pin LL_GPIO_PIN_7
+#define SENSOR_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define UART_PORT_GPS USART1
+#define GPS_USART USART1
+#define SERIAL_USART USART2
+#define SENSOR_I2C I2C1
+#define TFT_SPI SPI1
+
+#define TFT_DMA               DMA2
+#define TFT_DMA_STREAM_TX     DMA2_Stream3
+#define SENSOR_DMA            DMA1
+#define SENSOR_DMA_STREAM_TX  DMA1_Stream1
+#define SENSOR_DMA_STREAM_RX  DMA1_Stream0
+#define SERIAL_DMA            DMA1
+#define SERIAL_DMA_STREAM_TX  DMA1_Stream6
+#define SERIAL_DMA_STREAM_RX  DMA1_Stream5
+#define GPS_DMA               DMA1
+#define GPS_DMA_STREAM_TX     DMA1_Stream7
+#define GPS_DMA_STREAM_RX     DMA1_Stream2
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
