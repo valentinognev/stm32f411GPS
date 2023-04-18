@@ -130,15 +130,8 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  configSTACK_DEPTH_TYPE xStackSize = 512;
-
-  xTaskCreate(vGPSMessageRXTask,/* The function that implements the task. */
-              "GPS_Msg_RX",     /* Human readable name for the task. */
-              350,              /* Stack size (in words!). */
-              NULL,             /* Task parameter is not used. */
-              tskIDLE_PRIORITY+2, /* The priority at which the task is created. */
-              xGPSMsgRXTask);  /* No use for the task handle. */
-  xTaskCreate(vGPSTask, "GPS_Main", 200, NULL, 3, &xGPSTaskHandle);  /* USER CODE END RTOS_THREADS */
+  ProjectMain();
+  /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
   osKernelStart();
@@ -527,77 +520,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void printmsg(char *msg)
-{
-  for (int i = 0; i < strlen(msg); i++)
-  {
-    // wait untill DR empty
-    while (!LL_USART_IsActiveFlag_TXE(USART2))
-      ;
-    LL_USART_TransmitData8(USART2, msg[i]);
-  }
-}
-
-static void gpsCommand(char *msg)
-{
-  for (int i = 0; i < strlen(msg); i++)
-  {
-    // wait untill DR empty
-    while (!LL_USART_IsActiveFlag_TXE(USART1))
-      ;
-    LL_USART_TransmitData8(USART1, msg[i]);
-  }
-}
-
-void getLongitude(char *char_minutes, char *char_seconds, char *char_degrees, char *NMEA_Sent)
-{
-  // Extract minutes
-  int k = 0;
-  for (int j = 35; j < 37; j++)
-  {
-    char_minutes[k] = NMEA_Sent[j];
-    k++;
-  }
-  // extract seconds
-  k = 0;
-  for (int j = 37; j < 42; j++)
-  {
-    char_seconds[k] = NMEA_Sent[j];
-    k++;
-  }
-  // extract degrees
-  k = 0;
-  for (int j = 32; j < 35; j++)
-  {
-    char_degrees[k] = NMEA_Sent[j];
-    k++;
-  }
-}
-
-void getLatitude(char *char_minutes, char *char_seconds, char *char_degrees, char *NMEA_Sent)
-{
-  // Extract minutes
-  int k = 0;
-  for (int j = 22; j < 24; j++)
-  {
-    char_minutes[k] = NMEA_Sent[j];
-    k++;
-  }
-  // extract seconds
-  k = 0;
-  for (int j = 24; j < 29; j++)
-  {
-    char_seconds[k] = NMEA_Sent[j];
-    k++;
-  }
-  // extract degrees
-  k = 0;
-  for (int j = 20; j < 22; j++)
-  {
-    char_degrees[k] = NMEA_Sent[j];
-    k++;
-  }
-}
 
 /* USER CODE END 4 */
 

@@ -7,9 +7,7 @@
 extern "C"
 {
 #endif
-
-    void gnssMain();
-    void lcdMain();
+    void ProjectMain();
 
 #ifdef __cplusplus
 }
