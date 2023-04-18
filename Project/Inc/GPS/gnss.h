@@ -272,7 +272,7 @@ serial_read_response_e gnss_customSerial_read(char * ch);
 
 //void gnss_printState(void);
 void __gnss_processChar(char c);
-
+void gnss_processString(char *buff);
 
 
 
