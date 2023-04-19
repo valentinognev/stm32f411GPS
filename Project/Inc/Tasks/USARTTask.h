@@ -7,8 +7,8 @@
 
 // TODO: Use dynamic allocation for message strings
 typedef char *UARTMessage_t;
-extern TaskHandle_t xUSARTTaskHandle;
-extern QueueHandle_t xUSARTQueue;
+// extern TaskHandle_t xUSARTTaskHandle;
+// extern QueueHandle_t xUSARTQueue;
 
 void osQueueUSARTMessage(const char *format, ...);
 void vUSARTTask(void *pvParameters);

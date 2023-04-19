@@ -130,7 +130,8 @@ void DMA_GPS_TX_ISR(void)
 	}
 }
 
-void DMA_GPS_RX_ISR(void) {
+void DMA_GPS_RX_ISR(void) 
+{
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 	// Send a notification to FREERTOS for the task to take priority

@@ -15,10 +15,10 @@
 // #define LL_DMA_IsActive
 #define UART_QUEUE_SIZE		85
 
-DMA_HandleTypeDef dma;
+// DMA_HandleTypeDef dma;
 
-QueueHandle_t xUSARTQueue;
-TaskHandle_t xUSARTTaskHandle;
+static QueueHandle_t xUSARTQueue;
+static TaskHandle_t xUSARTTaskHandle;
 
 /**
  * A task that prints strings via UART through DMA
@@ -66,7 +66,7 @@ void osQueueUARTMessage(const char * format, ...) {
 
 		// TODO: Show a warning if the queue is full (e.g. replace the last
 		// message in the queue)
-		if (xQueueSend(xUARTQueue, (void*) (&pcUARTMessage), (TickType_t) 0) == pdFAIL) {
+		if (xQueueSend(xUSARTQueue, (void*) (&pcUARTMessage), (TickType_t) 0) == pdFAIL) {
 			// Make sure to deallocate the failed message
 			vPortFree(pcUARTMessage);
 		}
@@ -79,6 +79,6 @@ void DMA_USART_TX_ISR(void)
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
 	// Notify the UART1 TX task that transaction has ended
-	vTaskNotifyGiveFromISR(xUARTTaskHandle, &xHigherPriorityTaskWoken);
+	vTaskNotifyGiveFromISR(xUSARTTaskHandle, &xHigherPriorityTaskWoken);
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

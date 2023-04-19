@@ -53,7 +53,7 @@ TaskHandle_t xUSARTTaskHandle;
 
 // The serial connection to the GPS device
 // SoftwareSerial ss(RXPin, TXPin);
-void projectMain()
+void ProjectMain()
 {
     // SWO_PrintString("Hello World!\r
     configSTACK_DEPTH_TYPE xStackSize = 512;

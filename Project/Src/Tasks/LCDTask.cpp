@@ -15,7 +15,7 @@
 // #define LL_DMA_IsActive
 #define UART_QUEUE_SIZE		85
 
-DMA_HandleTypeDef dma;
+// DMA_HandleTypeDef dma;
 
 QueueHandle_t xSPIQueue;
 TaskHandle_t xSPITaskHandle;
