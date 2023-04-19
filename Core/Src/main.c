@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "projectMain.h"
+#include "USARTTask.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

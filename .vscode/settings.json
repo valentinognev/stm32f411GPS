@@ -12,6 +12,8 @@
         "lcd_driver.h": "c",
         "circularbuffer.h": "c",
         "gnss.h": "c",
-        "stm32f4xx_it.h": "c"
+        "stm32f4xx_it.h": "c",
+        "projectmain.h": "c",
+        "usarttask.h": "c"
     }
 }

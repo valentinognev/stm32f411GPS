@@ -3,10 +3,12 @@
 #include "SWO.h"
 #include <string.h>
 #include <stdio.h>
-#include "gnss.h"
+
 #include "USARTTask.h"
-
-
+extern "C"
+{
+#include "gnss.h"
+}
 
 #define DMA_RX_BUFFER_SIZE          550
 #define COMMAND_REQUEST_SIZE		12

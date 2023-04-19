@@ -29,7 +29,7 @@
 #include "NMEAQueue.h"
 
 /* USER CODE END Includes */
-
+#include "projectMain.h"
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
 

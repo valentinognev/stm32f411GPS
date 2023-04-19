@@ -11,7 +11,17 @@ extern TaskHandle_t xGPSMessageRXTaskHandle;
 extern QueueHandle_t xGPSQueue;
 
 void vGPSMessageRXTask(void *pvParameters);
-void DMA_GPS_TX_ISR(void);
-void DMA_GPS_RX_ISR(void);
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    void DMA_GPS_TX_ISR(void);
+    void DMA_GPS_RX_ISR(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GPSTASK_H_ */

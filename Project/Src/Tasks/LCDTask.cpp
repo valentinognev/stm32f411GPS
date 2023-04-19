@@ -1,14 +1,20 @@
 #include "main.h"
-#include "FreeRTOS.h"
-#include "queue.h"
-#include "portable.h"
+
 #include "SWO.h"
-#include "Lcd_Driver.h"
+
+#include "LCDTask.h"
 
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
 
+extern "C"
+{
+#include "FreeRTOS.h"
+#include "queue.h"
+#include "portable.h"   
+#include "Lcd_Driver.h" 
+}
 
 #define LL_TFT_DMA_STREAM_TX __LL_DMA_GET_STREAM(TFT_DMA_STREAM_TX)
 
@@ -23,7 +29,7 @@ TaskHandle_t xSPITaskHandle;
 /**
  * A task that prints strings via UART through DMA
  */
-void vLCDTask(void *pvParameters) 
+void vLCDTransmitTask(void *pvParameters)
 {
 	char *message = NULL;
     Lcd_Init();

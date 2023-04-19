@@ -67,6 +67,9 @@ void ProjectMain()
     xTaskCreate(vUSARTTask, "USART", 300, NULL, tskIDLE_PRIORITY + 3, &xUSARTTaskHandle);
     xTaskCreate(vLCDTransmitTask, "LCD_TX", 250, NULL, tskIDLE_PRIORITY + 1, NULL);
     // xTaskCreate(vTaskInfoTransmitTask, "NRF_TX_TaskInfo", 300, NULL, tskIDLE_PRIORITY + 2, NULL);
+    osQueueUSARTMessage("Hello world %d from FreeRTOS\r\n", xTaskGetTickCount());
+    osQueueUSARTMessage("Compiled at " __DATE__ " " __TIME__ "\r\n");
+    vTaskStartScheduler();
 }
 
 // void gnssMain()
