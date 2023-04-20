@@ -13,7 +13,7 @@
 #define LL_SERIAL_DMA_STREAM_TX __LL_DMA_GET_STREAM(SERIAL_DMA_STREAM_TX)
 
 // #define LL_DMA_IsActive
-#define UART_QUEUE_SIZE		85
+#define USART_QUEUE_SIZE		85
 
 // DMA_HandleTypeDef dma;
 
@@ -46,7 +46,7 @@ void vUSARTTask(void *pvParameters)
 /**
  * Queue a UART message so that it can be printed later
  */
-void osQueueUARTMessage(const char * format, ...) {
+void osQueueUSARTMessage(const char * format, ...) {
 	// TODO: Less copying around bits
 
 	va_list arg;
@@ -73,7 +73,6 @@ void osQueueUARTMessage(const char * format, ...) {
 	}
 }
 
-
 void DMA_USART_TX_ISR(void)
 {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -81,4 +80,30 @@ void DMA_USART_TX_ISR(void)
 	// Notify the UART1 TX task that transaction has ended
 	vTaskNotifyGiveFromISR(xUSARTTaskHandle, &xHigherPriorityTaskWoken);
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void vSetupUART()
+{
+	// UART_Init(115200); // Initialize the UART with the set baud rate
+	// UART_SendStr("CubeSAT hardware initialization...\r\n");
+
+	// // DMA (Direct Memory Access) initialization
+	// __HAL_RCC_DMA1_CLK_ENABLE();
+	// dma.Instance = UART_DMA_CHAN_TX;					// DMA channel for UART
+	// dma.Init.Direction = DMA_MEMORY_TO_PERIPH;			// Transfer data from memory to peripheral
+	// dma.Init.PeriphInc = DMA_PINC_DISABLE;				// Disable incrementing a pointer
+	// dma.Init.MemInc = DMA_MINC_ENABLE;					// Disable incrementing a pointer
+	// dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE; // Transfer each byte
+	// dma.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	// Transfer each byte
+	// dma.Init.Mode = DMA_NORMAL;
+	// dma.Init.Priority = DMA_PRIORITY_LOW;
+	// HAL_DMA_Init(&dma);
+	// //	__HAL_LINKDMA(huart,hdmatx,dma);
+
+	// LL_DMA_EnableIT_TC(DMA1, LL_UART_DMA_CHAN_TX);
+
+	// NVIC_SetPriority(DMA1_Channel4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 12, 0));
+	// NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+
+	xUSARTQueue = xQueueCreate(USART_QUEUE_SIZE, sizeof(UARTMessage_t *));
 }

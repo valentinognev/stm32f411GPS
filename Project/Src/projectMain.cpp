@@ -55,6 +55,7 @@ TaskHandle_t xUSARTTaskHandle;
 // SoftwareSerial ss(RXPin, TXPin);
 void ProjectMain()
 {
+    vSetupUART();
     // SWO_PrintString("Hello World!\r
     configSTACK_DEPTH_TYPE xStackSize = 512;
 

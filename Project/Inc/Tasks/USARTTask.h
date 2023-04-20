@@ -5,6 +5,12 @@
 #include "queue.h"
 #include "task.h"
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
 // TODO: Use dynamic allocation for message strings
 typedef char *UARTMessage_t;
 // extern TaskHandle_t xUSARTTaskHandle;
@@ -12,7 +18,10 @@ typedef char *UARTMessage_t;
 
 void osQueueUSARTMessage(const char *format, ...);
 void vUSARTTask(void *pvParameters);
+void vSetupUART();
 
-void DMA_UART_TX_ISR(void);
+EXTERNC void DMA_USART_TX_ISR(void);
+
+#undef EXTERNC
 
 #endif /* UARTTASK_H_ */

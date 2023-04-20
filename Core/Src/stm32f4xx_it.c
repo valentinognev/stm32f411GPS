@@ -27,6 +27,7 @@
 #include "stdbool.h"
 #include <string.h>
 #include "NMEAQueue.h"
+#include "USARTTask.h"
 
 /* USER CODE END Includes */
 #include "projectMain.h"
@@ -176,7 +177,7 @@ void DebugMon_Handler(void)
 void DMA1_Stream0_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
-    // RX
+    // I2C RX
     /*Check for transfer complete flag*/
     if (LL_DMA_IsActiveFlag_TC0(DMA1))
     {
@@ -203,7 +204,7 @@ void DMA1_Stream0_IRQHandler(void)
 void DMA1_Stream1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
-    // TX
+    // I2C TX
     /*Check for transfer complete flag*/
     if (LL_DMA_IsActiveFlag_TC1(DMA1))
     {
@@ -230,7 +231,7 @@ void DMA1_Stream1_IRQHandler(void)
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-// RX UART DEBUG
+// RX USART DEBUG
   /* USER CODE END DMA1_Stream5_IRQn 0 */
 
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
@@ -244,7 +245,14 @@ void DMA1_Stream5_IRQHandler(void)
 void DMA1_Stream6_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream6_IRQn 0 */
-// TX UART DEBUG
+  // TX USART DEBUG
+    if (LL_DMA_IsActiveFlag_TC6(DMA1))
+    {
+        LL_DMA_ClearFlag_TC6(DMA1);
+        LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_6);
+
+        DMA_USART_TX_ISR();
+    }
   /* USER CODE END DMA1_Stream6_IRQn 0 */
 
   /* USER CODE BEGIN DMA1_Stream6_IRQn 1 */
@@ -464,7 +472,7 @@ void DMA2_Stream2_IRQHandler(void)
 void DMA2_Stream3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
-
+  // SPI TX
   /* USER CODE END DMA2_Stream3_IRQn 0 */
 
   /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */
