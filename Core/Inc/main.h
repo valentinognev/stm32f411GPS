@@ -124,9 +124,9 @@ void Error_Handler(void);
 #define SERIAL_DMA            DMA1
 #define SERIAL_DMA_STREAM_TX  DMA1_Stream6
 #define SERIAL_DMA_STREAM_RX  DMA1_Stream5
-#define GPS_DMA               DMA1
-#define GPS_DMA_STREAM_TX     DMA1_Stream7
-#define GPS_DMA_STREAM_RX     DMA1_Stream2
+#define GPS_DMA               DMA2
+#define GPS_DMA_STREAM_TX     DMA2_Stream7
+#define GPS_DMA_STREAM_RX     DMA2_Stream2
 
 /* USER CODE END Private defines */
 

@@ -46,7 +46,6 @@ static void __gnss_process_serialLine(void);
 static gnss_ret_e __gnss_onDataRefreshed(void);
 static void __gnss_resetStructForNextCycle(void);
 static void __gnss_resetStructForNewFix(void);
-static void __gnss_processString(char *buff);
 
 #define LOGGER_MAX_BUF_SZ 80
 // ---------------------------------------------------------
@@ -90,7 +89,6 @@ void gnss_process_loop(bool force)
         return;
 
     // Manage data reception from receiver using a serial line
-    LL_USART_DisableIT_RXNE(USART1);
     if (nmea_buff.count > 0)
     {
         sprintf(buff, "Queue size : %d\n", nmea_buff.count);
@@ -103,10 +101,9 @@ void gnss_process_loop(bool force)
         sprintf(buff, "NMEA : %s\n", NMEAdata);
         USART_PrintString(buff);
         
-        __gnss_processString(NMEAdata);
+        gnss_processString(NMEAdata);
     }
     NMEAQueue_init(&nmea_buff);
-    LL_USART_EnableIT_RXNE(USART1);
     // #endif
 
     // Ensure we are not free-fall with a gps never terminating

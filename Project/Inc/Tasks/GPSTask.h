@@ -10,7 +10,9 @@ typedef uint8_t *GPSMessage_t;
 extern TaskHandle_t xGPSMessageRXTaskHandle;
 extern QueueHandle_t xGPSQueue;
 
+void setupGPS();
 void vGPSMessageRXTask(void *pvParameters);
+void vGNSSTask(void *pvParameters);
 
 #ifdef __cplusplus
 extern "C"

@@ -458,7 +458,7 @@ void DMA2_Stream2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
   //RX GPS
-  DMA_GPS_TX_ISR();
+  
   /* USER CODE END DMA2_Stream2_IRQn 0 */
 
   /* USER CODE BEGIN DMA2_Stream2_IRQn 1 */
@@ -501,6 +501,12 @@ void DMA2_Stream7_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream7_IRQn 0 */
 //TX GPS
+  if (LL_DMA_IsActiveFlag_TC7(GPS_DMA))
+  {
+    LL_DMA_ClearFlag_TC7(GPS_DMA);
+    LL_DMA_DisableStream(GPS_DMA, __LL_DMA_GET_STREAM(GPS_DMA_STREAM_TX));
+    DMA_GPS_TX_ISR();
+  }
   /* USER CODE END DMA2_Stream7_IRQn 0 */
 
   /* USER CODE BEGIN DMA2_Stream7_IRQn 1 */

@@ -18,7 +18,7 @@
 // DMA_HandleTypeDef dma;
 
 static QueueHandle_t xUSARTQueue;
-static TaskHandle_t xUSARTTaskHandle;
+TaskHandle_t xUSARTTaskHandle;
 
 /**
  * A task that prints strings via UART through DMA
@@ -37,7 +37,6 @@ void vUSARTTask(void *pvParameters)
             LL_DMA_ConfigAddresses(SERIAL_DMA, LL_SERIAL_DMA_STREAM_TX, (uint32_t)message,            
                     LL_USART_DMA_GetRegAddr(SERIAL_USART), LL_DMA_DIRECTION_MEMORY_TO_PERIPH); // Send message from memory to the USART Data Register
                     
-            USART_PrintString(message);
             LL_USART_EnableDMAReq_TX(SERIAL_USART); // Enable DMA in the USART registers
             LL_DMA_EnableStream(SERIAL_DMA, LL_SERIAL_DMA_STREAM_TX); // Enable the DMA transaction
 
@@ -105,10 +104,7 @@ void setupUSART()
     // HAL_DMA_Init(&dma);
     // //    __HAL_LINKDMA(huart,hdmatx,dma);
 
-    // LL_DMA_EnableIT_TC(DMA1, LL_UART_DMA_CHAN_TX);
-
-    // NVIC_SetPriority(DMA1_Channel4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 12, 0));
-    // NVIC_EnableIRQ(DMA1_Channel4_IRQn);
-
+    LL_DMA_EnableIT_TC(SERIAL_DMA, LL_SERIAL_DMA_STREAM_TX);
+    LL_DMA_EnableIT_TE(SERIAL_DMA, LL_SERIAL_DMA_STREAM_TX);
     xUSARTQueue = xQueueCreate(USART_QUEUE_SIZE, sizeof(UARTMessage_t *));
 }
