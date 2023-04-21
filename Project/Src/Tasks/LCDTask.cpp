@@ -19,36 +19,47 @@ extern "C"
 #define LL_TFT_DMA_STREAM_TX __LL_DMA_GET_STREAM(TFT_DMA_STREAM_TX)
 
 // #define LL_DMA_IsActive
-#define UART_QUEUE_SIZE		85
+#define LCD_QUEUE_SIZE		5
+#define MESSAGE_SIZE        20
 
+ struct LCDMessage
+ {
+	uint8_t line;
+	char ucData[ MESSAGE_SIZE ];
+ };
 // DMA_HandleTypeDef dma;
 
 QueueHandle_t xSPIQueue;
 TaskHandle_t xSPITaskHandle;
+
 
 /**
  * A task that prints strings via UART through DMA
  */
 void vLCDTransmitTask(void *pvParameters)
 {
-	char *message = NULL;
+	LCDMessage *lcdMessage = NULL;
     Lcd_Init();
     int counter=0;
-	while (1) {
+	while (1) 
+    {
         counter++;
-		if (xQueueReceive(xSPIQueue, &message, portMAX_DELAY)) 
+		if (xQueueReceive(xSPIQueue, &lcdMessage, portMAX_DELAY)) 
         { // Receive a message from the queue
 			
-            TFT_PrintString(counter%7, message);
+            TFT_PrintString(lcdMessage->line, lcdMessage->ucData);
 
 			xTaskNotifyWait(0x00, 0x00, NULL, portMAX_DELAY);
-			vPortFree(message); // Free up the memory held by the message string
-			message = NULL;
+			vPortFree(lcdMessage); // Free up the memory held by the message string
+			lcdMessage = NULL;
 		}
 	}
 }
 
-
+void setupLCD()
+{
+    xSPIQueue = xQueueCreate(LCD_QUEUE_SIZE, sizeof(LCDMessage));
+}
 
 // void DMA_SPI_TX_ISR(void)
 // {

@@ -78,7 +78,8 @@ void vGPSUSARTTask(void *pvParameters) {
 
 void vGPSMessageRXTask(void *pvParameters) {
 	while(1) {
-		if (ulTaskNotifyTake(pdFALSE, portMAX_DELAY)) {
+		if (ulTaskNotifyTake(pdFALSE, portMAX_DELAY)) 
+        {
 			prvGPSDMAMessageRX();
 		}
 	}

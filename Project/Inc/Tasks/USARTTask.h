@@ -18,7 +18,7 @@ typedef char *UARTMessage_t;
 
 void osQueueUSARTMessage(const char *format, ...);
 void vUSARTTask(void *pvParameters);
-void vSetupUART();
+void setupUSART();
 
 EXTERNC void DMA_USART_TX_ISR(void);
 

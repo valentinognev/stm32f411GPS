@@ -10,5 +10,6 @@ typedef uint8_t *LCDMessage_t;
 extern QueueHandle_t xLCDQueue;
 
 void vLCDTransmitTask(void *pvParameters);
+void setupLCD();
 
 #endif /* LCDTASK_H_ */
