@@ -2,7 +2,10 @@
 #include "main.h"
 #include "GUI.h"
 #include "Lcd_Driver.h"
+#include <stdbool.h>
 //extern UART_HandleTypeDef huart2;
+
+bool transmitFinished = false;
 
 void SWO_PrintChar(char const c, uint8_t const portNumber)
 {
@@ -80,6 +83,26 @@ void USART_PrintDefaultN(char const* str, size_t const len)
         LL_USART_TransmitData8(USART2, str[i]);
     }
 }
+
+
+void USART_PrintStringDMA(char const* s)
+{
+
+    for (int i = 0; i < strlen(s); i++)
+    {
+        LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_7, strlen(s)); // Set amount of copied bits for DMA
+        LL_DMA_ConfigAddresses(DMA2, LL_DMA_STREAM_7, (uint32_t)s,
+                (uint32_t)&(USART1->DR), LL_DMA_DIRECTION_MEMORY_TO_PERIPH); // Send message from memory to the USART Data Register
+        LL_USART_EnableDMAReq_TX(USART1); // Enable DMA in the USART registers
+        LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_7); // Enable the DMA transaction
+
+        // wait untill DR empty
+        while (transmitFinished)
+            ;
+    }
+}
+
+
 
 void TFT_PrintString(int16_t lineNum, char const *s)
 {
