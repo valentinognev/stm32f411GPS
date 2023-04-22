@@ -23,11 +23,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "GPSTask.h"
-#include "stdbool.h"
+#include <stdbool.h>
 #include <string.h>
-#include "NMEAQueue.h"
-#include "USARTTask.h"
+#include "GNSScommTXTask.h"
+#include "GNSScommRXTask.h"
+#include "SERIALcommTXTask.h"
+
 
 /* USER CODE END Includes */
 
@@ -48,8 +49,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-extern NMEAQueue nmea_buff;
-char buff[NMEA_GPRMC_SENTENCE_SIZE];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -251,7 +251,7 @@ void DMA1_Stream6_IRQHandler(void)
         LL_DMA_ClearFlag_TC6(SERIAL_DMA);
         LL_DMA_DisableStream(SERIAL_DMA, SERIAL_DMA_STREAM_TX);
 
-        DMA_USART_TX_ISR();
+        DMA_SERIAL_TX_ISR();
     }
   /* USER CODE END DMA1_Stream6_IRQn 0 */
 

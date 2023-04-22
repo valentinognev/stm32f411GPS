@@ -204,3 +204,11 @@ build/CMakeFiles/stm32f411GPS.dir/USB_DEVICE/App/usbd_desc.c.obj.d
 build/CMakeFiles/stm32f411GPS.dir/USB_DEVICE/Target/usbd_conf.c.obj.d
 build/CMakeFiles/Progress/2
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Queue.c.obj
+build/CMakeFiles/Progress/2
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Queue.c.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/GNSScommRXTask.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/GNSScommTXTask.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/GNSSprocessTask.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/SERIALcommTXTask.cpp.obj
+build/CMakeFiles/Progress/2
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Queue.c.obj

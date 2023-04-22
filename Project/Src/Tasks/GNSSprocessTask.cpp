@@ -1,14 +1,17 @@
 #include "GNSSprocessTask.h"
-#include "USARTTask.h"
+#include "SERIALcommTXTask.h"
 #include "FreeRTOS.h"
-#include "gnss.h"
 
+
+#include <string.h>
+
+#define GNSS_PROCESS_QUEUE_SIZE 100
 static QueueHandle_t xGNSSprocessQueue;
 TaskHandle_t xGNSSprocessTaskHandle;
 
 gnss_simple_data_t xGNSSData;
 
-void vGNSSTask(void *pvParameters)
+void vGNSSprocessTask(void *pvParameters)
 {
     gnss_simple_data_t gnssData = {
         .hour = 0,
@@ -25,10 +28,8 @@ void vGNSSTask(void *pvParameters)
         .speed = 0,
         .course = 0,
     };
-    gnssDataQueue = xQueueCreate(1, sizeof(gnss_simple_data_t));
-
+ 
     const size_t gnssMessageBufferSizeBytes = 100;
-    gnssMessageBuffer = xMessageBufferCreate(gnssMessageBufferSizeBytes);
 
     gnss_run_mode_e mode = GNSS_RUN_HOT;
     uint16_t fixFreq = 100;
@@ -37,13 +38,18 @@ void vGNSSTask(void *pvParameters)
     gnss_setup();
     gnss_ret_e res = gnss_start(mode, fixFreq, timeoutS);
 
-    while (true)
+    GNSSprocessMessage_t message;
+    while (1)
     {
-        gnss_process_loop(true);
-        gnss_getData(&gnssData);
-        xQueueSend(gnssDataQueue, &gnssData, 0);
-        gnss_printState();
-        osDelay(1000);
+        if (xQueueReceive(xGNSSprocessQueue, &message, portMAX_DELAY))
+        {
+            gnss_processString(message);
+            vPortFree(message);
+
+            gnss_getData(&gnssData);
+
+            gnss_printState();
+        }
     }
 }
 
@@ -52,22 +58,27 @@ void vGNSSTask(void *pvParameters)
  */
 void osQueueGNSSprocessMessage(const char* gnssmess)
 {
-    GNSSMessage_t pcGNSSMessage = (GNSSMessage_t)pvPortMalloc(strlen(gnssmess));
+    GNSSprocessMessage_t pcGNSSprocessMessage = (GNSSprocessMessage_t)pvPortMalloc(strlen(gnssmess));
 
-    if (pcGNSSMessage == NULL)
+    if (pcGNSSprocessMessage == NULL)
     {
-        osQueueUSARTMessage("ERROR! Not enough memory to store GNSS string\r\n");
+        osQueueSERIALMessage("ERROR! Not enough memory to store GNSS string\r\n");
+        return;
     }
-    else
-    {
-        strcpy(pcGNSSMessage, buffer);
+    
+    strcpy(pcGNSSprocessMessage, gnssmess);
 
-        // TODO: Show a warning if the queue is full (e.g. replace the last
-        // message in the queue)
-        if (xQueueSend(xGNSSQueue, (void *)(&pcGNSSMessage), (TickType_t)0) == pdFAIL)
-        {
-            // Make sure to deallocate the failed message
-            vPortFree(pcGNSSMessage);
-        }
+    // TODO: Show a warning if the queue is full (e.g. replace the last
+    // message in the queue)
+    if (xQueueSend(xGNSSprocessQueue, (void *)(&pcGNSSprocessMessage), (TickType_t)0) == pdFAIL)
+    {
+        // Make sure to deallocate the failed message
+        vPortFree(pcGNSSprocessMessage);
     }
+    
+}
+
+void setupGNSSprocess()
+{
+    xGNSSprocessQueue = xQueueCreate(GNSS_PROCESS_QUEUE_SIZE, sizeof(GNSSprocessMessage_t));
 }

@@ -1,4 +1,4 @@
-#include "GNSScommTask.h"
+#include "GNSScommRXTask.h"
 #include "main.h"
 #include "SWO.h"
 #include <string.h>
@@ -12,15 +12,15 @@ extern "C"
 }
 
 #define DMA_RX_BUFFER_SIZE          550
-#define COMMAND_REQUEST_SIZE        100
+#define GNSS_COMMAND_REQUEST_SIZE        100
 
 // Private function prototypes
 
-void prvGNSSDMAMessageRX(void);
+void prvGNSS_RX_DMA(void);
 
 // Private variables
 
-char cDMA_TX_Buffer[COMMAND_REQUEST_SIZE];
+char cDMA_RX_Buffer[GNSS_COMMAND_REQUEST_SIZE];
 
 // Task handle
 static QueueHandle_t xGNSStransmitQueue;
@@ -32,7 +32,7 @@ void vGNSScommRXTask(void *pvParameters)
     LL_DMA_EnableStream(GNSS_DMA, GNSS_DMA_STREAM_RX);
 
     LL_USART_EnableIT_IDLE(GNSS_USART);
-    
+
     while(1) 
     {
         if (ulTaskNotifyTake(pdFALSE, portMAX_DELAY)) 
@@ -86,7 +86,7 @@ void DMA_GNSS_RX_ISR(void)
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // Send a notification to FREERTOS for the task to take priority
-    vTaskNotifyGiveFromISR(xGNSSMessageRXTaskHandle, &xHigherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(xGNSScommRXTaskHandle, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 

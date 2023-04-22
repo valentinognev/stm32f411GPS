@@ -11,6 +11,8 @@
 #define EXTERNC
 #endif
 
+typedef char* GNSSMessage_t;
+
 void setupGNSScommTX();
 void vGNSScommTXTask(void *pvParameters);
 

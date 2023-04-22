@@ -55,7 +55,7 @@ void DMA_GNSS_TX_ISR(void)
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // Notify the UART1 TX task that transaction has ended
-    vTaskNotifyGiveFromISR(vGNSScommTXTaskHandle, &xHigherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(xGNSScommTXTaskHandle, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -64,22 +64,23 @@ void DMA_GNSS_TX_ISR(void)
  */
 void osQueueGNSStransmitMessage(const char *gnssmess)
 {
+
     GNSSMessage_t pcGNSSMessage = (GNSSMessage_t)pvPortMalloc(strlen(gnssmess));
 
     if (pcGNSSMessage == NULL)
     {
-        osQueueUSARTMessage("ERROR! Not enough memory to store GNSS string\r\n");
+        osQueueSERIALMessage("ERROR! Not enough memory to store GNSS string\r\n");
+        return;
     }
-    else
-    {
-        strcpy(pcGNSSMessage, buffer);
 
-        // TODO: Show a warning if the queue is full (e.g. replace the last
-        // message in the queue)
-        if (xQueueSend(xGNSStransmitQueue, (void *)(&pcGNSSMessage), (TickType_t)0) == pdFAIL)
-        {
-            // Make sure to deallocate the failed message
-            vPortFree(pcGNSSMessage);
-        }
+    strcpy(pcGNSSMessage, gnssmess);
+
+    // TODO: Show a warning if the queue is full (e.g. replace the last
+    // message in the queue)
+    if (xQueueSend(xGNSScommTXQueue, (void *)(&pcGNSSMessage), (TickType_t)0) == pdFAIL)
+    {
+        // Make sure to deallocate the failed message
+        vPortFree(pcGNSSMessage);
     }
+   
 }

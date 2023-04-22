@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "projectMain.h"
-#include "USARTTask.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -434,7 +433,7 @@ static void MX_USART1_UART_Init(void)
   PA10   ------> USART1_RX
   PA15   ------> USART1_TX
   */
-  GPIO_InitStruct.Pin = GPS_RX_Pin|GPS_TX_Pin;
+  GPIO_InitStruct.Pin = GNSS_RX_Pin|GNSS_TX_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -654,19 +653,19 @@ static void MX_GPIO_Init(void)
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPS_RST_GPIO_Port, GPS_RST_Pin);
+  LL_GPIO_ResetOutputPin(GNSS_RST_GPIO_Port, GNSS_RST_Pin);
 
   /**/
   LL_GPIO_ResetOutputPin(GPIOB, LCD_BLK_Pin|LCD_RS_Pin|LCD_CS_Pin|LCD_SCL_Pin
                           |LCD_RST_Pin|LCD_SDI_Pin);
 
   /**/
-  GPIO_InitStruct.Pin = GPS_RST_Pin;
+  GPIO_InitStruct.Pin = GNSS_RST_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(GPS_RST_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(GNSS_RST_GPIO_Port, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = LCD_BLK_Pin|LCD_RS_Pin|LCD_CS_Pin|LCD_SCL_Pin

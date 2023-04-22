@@ -59,22 +59,22 @@ void osQueueSERIALMessage(const char *format, ...)
     va_end(arg);
 
     // configASSERT(strlen(message) < 127);
-    SERIALMessage_t pcUARTMessage = (SERIALMessage_t)pvPortMalloc(strlen(buffer) + 1);
+    SERIALMessage_t pcSERIALMessage = (SERIALMessage_t)pvPortMalloc(strlen(buffer) + 1);
 
-    if (pcUARTMessage == NULL)
+    if (pcSERIALMessage == NULL)
     {
         USART_PrintString("ERROR! Not enough memory to store UART string\r\n");
     }
     else
     {
-        strcpy(pcUARTMessage, buffer);
+        strcpy(pcSERIALMessage, buffer);
 
         // TODO: Show a warning if the queue is full (e.g. replace the last
         // message in the queue)
-        if (xQueueSend(xSERIALcommTXQueue, (void *)(&pcUARTMessage), (TickType_t)0) == pdFAIL)
+        if (xQueueSend(xSERIALcommTXQueue, (void *)(&pcSERIALMessage), (TickType_t)0) == pdFAIL)
         {
             // Make sure to deallocate the failed message
-            vPortFree(pcUARTMessage);
+            vPortFree(pcSERIALMessage);
         }
     }
 }
@@ -88,9 +88,9 @@ void DMA_SERIAL_TX_ISR(void)
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void setupUSART()
+void setupSERIALcommTX()
 {
     LL_DMA_EnableIT_TC(SERIAL_DMA, SERIAL_DMA_STREAM_TX);
     LL_DMA_EnableIT_TE(SERIAL_DMA, SERIAL_DMA_STREAM_TX);
-    xUSARTQueue = xQueueCreate(USART_QUEUE_SIZE, sizeof(SERIALMessage_t *));
+    xSERIALcommTXQueue = xQueueCreate(SERIAL_TX_QUEUE_SIZE, sizeof(SERIALMessage_t *));
 }
