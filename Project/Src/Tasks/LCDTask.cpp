@@ -59,6 +59,7 @@ void vLCDTransmitTask(void *pvParameters)
 void setupLCD()
 {
     xSPIQueue = xQueueCreate(LCD_QUEUE_SIZE, sizeof(LCDMessage));
+	xTaskCreate(vLCDTransmitTask, "LCD_TX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 1, NULL);
 }
 
 // void DMA_SPI_TX_ISR(void)

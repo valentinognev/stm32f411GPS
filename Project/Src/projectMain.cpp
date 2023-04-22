@@ -23,48 +23,17 @@
 #include "LCDTask.h"
 #include "InfoTask.h"
 
-extern "C"
-{ // another way
-#include "Lcd_Driver.h"
-#include "GUI.h"
-#include "TFT_demo.h"
-};
-
-
-// static void GNSSCommand(char *msg);
-// void displayInfo();
-/*
-   This sample sketch demonstrates the normal use of a TinyGNSSPlus (TinyGNSSPlus) object.
-   It requires the use of SoftwareSerial, and assumes that you have a
-   4800-baud serial GNSS device hooked up on pins 4(rx) and 3(tx).
-*/
-static const uint32_t GNSSBaud = 9600;
-
-extern TaskHandle_t xGNSScommRXTaskHandle;
-extern TaskHandle_t xGNSScommTXTaskHandle;
-extern TaskHandle_t xGNSSprocessTaskHandle;
-extern TaskHandle_t xSERIALcommTXTaskHandle;
-
-// The serial connection to the GNSS device
-// SoftwareSerial ss(RXPin, TXPin);
 void ProjectMain()
 {
     setupLCD();    
     setupSERIALcommTX();
+    setupGNSSprocess();
     setupGNSScommTX();
     setupGNSScommRX();
-    setupGNSSprocess();
 
     // SWO_PrintString("Hello World!\r
     configSTACK_DEPTH_TYPE xStackSize = 512;
-
-    const int stackSizeWords = 300;
-    xTaskCreate(vGNSScommRXTask, "GNSScommRX", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, &xGNSScommRXTaskHandle);
-    xTaskCreate(vGNSScommTXTask, "GNSScommTX", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, &xGNSScommTXTaskHandle);
-    xTaskCreate(vGNSSprocessTask, "GNSSprocess", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, NULL);
-    xTaskCreate(vSERIALcommTXTask, "SERIALcommTX", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, &xSERIALcommTXTaskHandle);
-    xTaskCreate(vLCDTransmitTask, "LCD_TX", stackSizeWords, NULL, tskIDLE_PRIORITY + 1, NULL);
-
+    //osQueueGNSStransmitMessage("const char *gnssmess");        
     // xTaskCreate(vTaskInfoTransmitTask, "NRF_TX_TaskInfo", 300, NULL, tskIDLE_PRIORITY + 2, NULL);
     osQueueSERIALMessage("Hello world %d from FreeRTOS\r\n", xTaskGetTickCount());
     osQueueSERIALMessage("Compiled at " __DATE__ " " __TIME__ "\r\n");

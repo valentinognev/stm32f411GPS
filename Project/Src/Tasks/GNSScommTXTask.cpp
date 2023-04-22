@@ -16,10 +16,7 @@ TaskHandle_t xGNSScommTXTaskHandle;
 
 void vGNSScommTXTask(void *pvParameters)
 {
-    GNSSMessage_t message = NULL;
-
-    LL_DMA_EnableIT_TC(GNSS_DMA, GNSS_DMA_STREAM_TX);
-    LL_DMA_EnableIT_TE(GNSS_DMA, GNSS_DMA_STREAM_TX);
+    GNSScommMessage_t message = NULL;
 
     while (1)
     {
@@ -45,9 +42,15 @@ void vGNSScommTXTask(void *pvParameters)
 void setupGNSScommTX()
 {
     // TX initialization
+    xGNSScommTXQueue = xQueueCreate(GNSS_QUEUE_SIZE, sizeof(GNSScommMessage_t));
     LL_USART_EnableDMAReq_TX(GNSS_USART);
 
+    LL_DMA_EnableIT_TC(GNSS_DMA, GNSS_DMA_STREAM_TX);
+    LL_DMA_EnableIT_TE(GNSS_DMA, GNSS_DMA_STREAM_TX);
+
     LL_DMA_DisableStream(GNSS_DMA, GNSS_DMA_STREAM_TX);
+
+    xTaskCreate(vGNSScommTXTask, "GNSScommTX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 3, &xGNSScommTXTaskHandle);
  }
 
 void DMA_GNSS_TX_ISR(void)
@@ -65,7 +68,7 @@ void DMA_GNSS_TX_ISR(void)
 void osQueueGNSStransmitMessage(const char *gnssmess)
 {
 
-    GNSSMessage_t pcGNSSMessage = (GNSSMessage_t)pvPortMalloc(strlen(gnssmess));
+    GNSScommMessage_t pcGNSSMessage = (GNSScommMessage_t)pvPortMalloc(strlen(gnssmess));
 
     if (pcGNSSMessage == NULL)
     {

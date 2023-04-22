@@ -13,6 +13,9 @@ gnss_simple_data_t xGNSSData;
 
 void vGNSSprocessTask(void *pvParameters)
 {
+
+    vTaskPrioritySet(xGNSSprocessTaskHandle, tskIDLE_PRIORITY + 3);
+
     gnss_simple_data_t gnssData = {
         .hour = 0,
         .minute = 0,
@@ -28,7 +31,7 @@ void vGNSSprocessTask(void *pvParameters)
         .speed = 0,
         .course = 0,
     };
- 
+    
     const size_t gnssMessageBufferSizeBytes = 100;
 
     gnss_run_mode_e mode = GNSS_RUN_HOT;
@@ -78,7 +81,9 @@ void osQueueGNSSprocessMessage(const char* gnssmess)
     
 }
 
+
 void setupGNSSprocess()
 {
     xGNSSprocessQueue = xQueueCreate(GNSS_PROCESS_QUEUE_SIZE, sizeof(GNSSprocessMessage_t));
+    xTaskCreate(vGNSSprocessTask, "GNSSprocess", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 2, NULL);
 }

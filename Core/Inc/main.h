@@ -128,6 +128,7 @@ void Error_Handler(void);
 #define GNSS_DMA_STREAM_TX     LL_DMA_STREAM_7
 #define GNSS_DMA_STREAM_RX     LL_DMA_STREAM_2
 
+#define STACK_SIZE_WORDS 256
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

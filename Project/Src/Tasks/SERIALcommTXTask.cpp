@@ -93,4 +93,6 @@ void setupSERIALcommTX()
     LL_DMA_EnableIT_TC(SERIAL_DMA, SERIAL_DMA_STREAM_TX);
     LL_DMA_EnableIT_TE(SERIAL_DMA, SERIAL_DMA_STREAM_TX);
     xSERIALcommTXQueue = xQueueCreate(SERIAL_TX_QUEUE_SIZE, sizeof(SERIALMessage_t *));
+    
+    xTaskCreate(vSERIALcommTXTask, "SERIALcommTXTask", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 3, &xSERIALcommTXTaskHandle);
 }

@@ -23,16 +23,10 @@ void prvGNSS_RX_DMA(void);
 char cDMA_RX_Buffer[GNSS_COMMAND_REQUEST_SIZE];
 
 // Task handle
-static QueueHandle_t xGNSStransmitQueue;
-
 TaskHandle_t xGNSScommRXTaskHandle;
 
 void vGNSScommRXTask(void *pvParameters) 
 {
-    LL_DMA_EnableStream(GNSS_DMA, GNSS_DMA_STREAM_RX);
-
-    LL_USART_EnableIT_IDLE(GNSS_USART);
-
     while(1) 
     {
         if (ulTaskNotifyTake(pdFALSE, portMAX_DELAY)) 
@@ -98,7 +92,14 @@ void setupGNSScommRX()
 			LL_USART_DMA_GetRegAddr(GNSS_USART), (uint32_t)cDMA_RX_Buffer,
 			LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
     LL_USART_EnableDMAReq_RX(GNSS_USART);
+    LL_DMA_EnableStream(GNSS_DMA, GNSS_DMA_STREAM_RX);
 
+    LL_DMA_EnableIT_HT(GNSS_DMA, GNSS_DMA_STREAM_RX);
+    LL_DMA_EnableIT_TC(GNSS_DMA, GNSS_DMA_STREAM_RX);
+    // LL_USART_EnableIT_IDLE(GNSS_USART);
+
+    xTaskCreate(vGNSScommRXTask, "GNSScommRX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 3, &xGNSScommRXTaskHandle);
+    __NOP();
     //xUSARTQueue = xQueueCreate(USART_QUEUE_SIZE, sizeof(UARTMessage_t *));
 }
 

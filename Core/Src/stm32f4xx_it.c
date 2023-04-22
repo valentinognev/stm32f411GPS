@@ -29,7 +29,7 @@
 #include "GNSScommRXTask.h"
 #include "SERIALcommTXTask.h"
 
-
+extern TaskHandle_t xGNSScommRXTaskHandle;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -231,7 +231,7 @@ void DMA1_Stream1_IRQHandler(void)
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-// RX USART DEBUG
+// RX SERIAL DEBUG
   /* USER CODE END DMA1_Stream5_IRQn 0 */
 
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
@@ -245,7 +245,7 @@ void DMA1_Stream5_IRQHandler(void)
 void DMA1_Stream6_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream6_IRQn 0 */
-  // TX USART DEBUG
+  // TX SERIAL DEBUG
     if (LL_DMA_IsActiveFlag_TC6(SERIAL_DMA))
     {
         LL_DMA_ClearFlag_TC6(SERIAL_DMA);
@@ -374,64 +374,9 @@ void USART1_IRQHandler(void)
  	if (LL_USART_IsActiveFlag_IDLE(GNSS_USART)) 
   {
 		LL_USART_ClearFlag_IDLE(GNSS_USART);
-
+    
 		DMA_GNSS_RX_ISR();
   }
-
-  // static int flag = 0;
-  // static int i = 0;
-  // uint16_t data_byte;
-
-  // if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
-  // {
-  //   // a data byte is received from the user
-  //   data_byte = LL_USART_ReceiveData8(USART1);
-  //   if (data_byte == '$')
-  //   {
-  //     flag = 1;
-  //   }
-  //   else if (data_byte == '\r')
-  //   {
-  //     flag = 0;
-  //     buff[i]='\0';
-  //     if (strlen(buff) > 3)
-  //       NMEAQueue_push(&nmea_buff, buff);
-  // //    USART_PrintString("\n-----------\n");
-  // //    USART_PrintString(NMEA_Sent);
-  // //    USART_PrintString("\n-----------\n");
-  //   }
-  //   // extract the NMEA sentence
-  //   if ((i < NMEA_GPRMC_SENTENCE_SIZE - 1) & (flag == 1))
-  //   {
-  //     buff[i] = (char)data_byte;
-  //     // __gnss_processChar((char)data_byte);
-  //     i++;
-  //   }
-  //   else
-  //   {
-  //     i = 0;
-  //     flag = 0;
-  // //    USART_PrintString("\n-----------\n");
-  // //    USART_PrintString(NMEA_Sent);
-  // //    USART_PrintString("\n-----------\n");
-  //   }
-  // }
-  // else
-  // {
-  //   if (LL_USART_IsActiveFlag_ORE(USART1))
-  //   {
-  //     (void)USART1->DR;
-  //   }
-  //   else if (LL_USART_IsActiveFlag_FE(USART1))
-  //   {
-  //     (void)USART1->DR;
-  //   }
-  //   else if (LL_USART_IsActiveFlag_NE(USART1))
-  //   {
-  //     (void)USART1->DR;
-  //   }
-  // }
-
   /* USER CODE END USART1_IRQn 0 */
   /* USER CODE BEGIN USART1_IRQn 1 */
 
@@ -458,7 +403,12 @@ void DMA2_Stream2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
   //RX GPS
-  
+  /* Check transfer-complete interrupt */
+  if (LL_DMA_IsEnabledIT_TC(GNSS_DMA, GNSS_DMA_STREAM_RX) && LL_DMA_IsActiveFlag_TC2(GNSS_DMA))
+  {
+    LL_DMA_ClearFlag_TC2(GNSS_DMA);                     /* Clear transfer complete flag */
+    DMA_GNSS_RX_ISR();
+  }
   /* USER CODE END DMA2_Stream2_IRQn 0 */
 
   /* USER CODE BEGIN DMA2_Stream2_IRQn 1 */

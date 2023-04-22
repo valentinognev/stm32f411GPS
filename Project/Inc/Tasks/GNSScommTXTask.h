@@ -11,10 +11,11 @@
 #define EXTERNC
 #endif
 
-typedef char* GNSSMessage_t;
+typedef char* GNSScommMessage_t;
 
 void setupGNSScommTX();
 void vGNSScommTXTask(void *pvParameters);
+void osQueueGNSStransmitMessage(const char *gnssmess);
 
 EXTERNC void DMA_GNSS_TX_ISR(void);
 
