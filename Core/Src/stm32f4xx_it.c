@@ -246,10 +246,10 @@ void DMA1_Stream6_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream6_IRQn 0 */
   // TX USART DEBUG
-    if (LL_DMA_IsActiveFlag_TC6(DMA1))
+    if (LL_DMA_IsActiveFlag_TC6(SERIAL_DMA))
     {
-        LL_DMA_ClearFlag_TC6(DMA1);
-        LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_6);
+        LL_DMA_ClearFlag_TC6(SERIAL_DMA);
+        LL_DMA_DisableStream(SERIAL_DMA, SERIAL_DMA_STREAM_TX);
 
         DMA_USART_TX_ISR();
     }
@@ -371,11 +371,11 @@ void SPI1_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
- 	if (LL_USART_IsActiveFlag_IDLE(GPS_USART)) 
+ 	if (LL_USART_IsActiveFlag_IDLE(GNSS_USART)) 
   {
-		LL_USART_ClearFlag_IDLE(GPS_USART);
+		LL_USART_ClearFlag_IDLE(GNSS_USART);
 
-		DMA_GPS_RX_ISR();
+		DMA_GNSS_RX_ISR();
   }
 
   // static int flag = 0;
@@ -501,11 +501,11 @@ void DMA2_Stream7_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream7_IRQn 0 */
 //TX GPS
-  if (LL_DMA_IsActiveFlag_TC7(GPS_DMA))
+  if (LL_DMA_IsActiveFlag_TC7(GNSS_DMA))
   {
-    LL_DMA_ClearFlag_TC7(GPS_DMA);
-    LL_DMA_DisableStream(GPS_DMA, __LL_DMA_GET_STREAM(GPS_DMA_STREAM_TX));
-    DMA_GPS_TX_ISR();
+    LL_DMA_ClearFlag_TC7(GNSS_DMA);
+    LL_DMA_DisableStream(GNSS_DMA, GNSS_DMA_STREAM_TX);
+    DMA_GNSS_TX_ISR();
   }
   /* USER CODE END DMA2_Stream7_IRQn 0 */
 

@@ -16,8 +16,10 @@
 
 #include "task.h"
 
-#include "GPSTask.h"
-#include "USARTTask.h"
+#include "GNSScommTXTask.h"
+#include "GNSScommRXTask.h"
+#include "GNSSprocessTask.h"
+#include "SERIALcommTXTask.h"
 #include "LCDTask.h"
 #include "InfoTask.h"
 
@@ -26,51 +28,47 @@ extern "C"
 #include "Lcd_Driver.h"
 #include "GUI.h"
 #include "TFT_demo.h"
-#include "gnss.h"
 };
 
-extern "C"
-{ // another way
-	void gnss_process_loop(bool force);
-    void gnss_printState(void);
-    void gnss_getData(gnss_simple_data_t *gnssData);
-};
 
-// static void gpsCommand(char *msg);
+// static void GNSSCommand(char *msg);
 // void displayInfo();
 /*
-   This sample sketch demonstrates the normal use of a TinyGPSPlus (TinyGPSPlus) object.
+   This sample sketch demonstrates the normal use of a TinyGNSSPlus (TinyGNSSPlus) object.
    It requires the use of SoftwareSerial, and assumes that you have a
-   4800-baud serial GPS device hooked up on pins 4(rx) and 3(tx).
+   4800-baud serial GNSS device hooked up on pins 4(rx) and 3(tx).
 */
-static const uint32_t GPSBaud = 9600;
+static const uint32_t GNSSBaud = 9600;
 
-extern TaskHandle_t xGPSMessageRXTaskHandle;
-extern TaskHandle_t xUSARTTaskHandle;
-extern TaskHandle_t xGNSSTaskHandle;
+extern TaskHandle_t xGNSScommRXTaskHandle;
+extern TaskHandle_t xGNSScommTXTaskHandle;
+extern TaskHandle_t xGNSSprocessTaskHandle;
+extern TaskHandle_t xSERIALcommTXTaskHandle;
 
-// The serial connection to the GPS device
+// The serial connection to the GNSS device
 // SoftwareSerial ss(RXPin, TXPin);
 void ProjectMain()
 {
-    setupUSART();
-    setupLCD();
-    setupGPS();
+    setupLCD();    
+    setupSERIALcommTX();
+    setupGNSScommTX();
+    setupGNSScommRX();
+    setupGNSSprocess();
+
     // SWO_PrintString("Hello World!\r
     configSTACK_DEPTH_TYPE xStackSize = 512;
 
-    xTaskCreate(vGPSMessageRXTask,        /* The function that implements the task. */
-                "GPS_Msg_RX",             /* Human readable name for the task. */
-                200,                      /* Stack size (in words!). */
-                NULL,                     /* Task parameter is not used. */
-                tskIDLE_PRIORITY + 3,     /* The priority at which the task is created. */
-                &xGPSMessageRXTaskHandle);/* No use for the task handle. */
-    xTaskCreate(vUSARTTask, "USART", 300, NULL, tskIDLE_PRIORITY + 3, &xUSARTTaskHandle);
-    xTaskCreate(vLCDTransmitTask, "LCD_TX", 250, NULL, tskIDLE_PRIORITY + 1, NULL);
-    xTaskCreate(vGNSSTask, "GNSS", 300, NULL, tskIDLE_PRIORITY + 3, &xGNSSTaskHandle);
+    const int stackSizeWords = 300;
+    xTaskCreate(vGNSScommRXTask, "GNSScommRX", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, &xGNSScommRXTaskHandle);
+    xTaskCreate(vGNSScommTXTask, "GNSScommTX", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, &xGNSScommTXTaskHandle);
+    xTaskCreate(vGNSSprocessTask, "GNSSprocess", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, NULL);
+    xTaskCreate(vSERIALcommTXTask, "SERIALcommTX", stackSizeWords, NULL, tskIDLE_PRIORITY + 3, &xSERIALcommTXTaskHandle);
+    xTaskCreate(vLCDTransmitTask, "LCD_TX", stackSizeWords, NULL, tskIDLE_PRIORITY + 1, NULL);
+
     // xTaskCreate(vTaskInfoTransmitTask, "NRF_TX_TaskInfo", 300, NULL, tskIDLE_PRIORITY + 2, NULL);
-    osQueueUSARTMessage("Hello world %d from FreeRTOS\r\n", xTaskGetTickCount());
-    osQueueUSARTMessage("Compiled at " __DATE__ " " __TIME__ "\r\n");
+    osQueueSERIALMessage("Hello world %d from FreeRTOS\r\n", xTaskGetTickCount());
+    osQueueSERIALMessage("Compiled at " __DATE__ " " __TIME__ "\r\n");
+
     vTaskStartScheduler();
 }
 
@@ -88,7 +86,7 @@ void ProjectMain()
 //         xQueueReceive(gnssDataQueue, &gnssData, portMAX_DELAY);
 //         if (gnssData.satellites == 0)
 //         {
-//             TFT_PrintString(0, "No GPS signal");
+//             TFT_PrintString(0, "No GNSS signal");
 //             continue;
 //         }
 //         else

@@ -12,15 +12,15 @@
 #endif
 
 // TODO: Use dynamic allocation for message strings
-typedef char *UARTMessage_t;
+typedef char *SERIALMessage_t;
 // extern TaskHandle_t xUSARTTaskHandle;
 // extern QueueHandle_t xUSARTQueue;
 
-void osQueueUSARTMessage(const char *format, ...);
-void vUSARTTask(void *pvParameters);
-void setupUSART();
+void osQueueSERIALMessage(const char *format, ...);
+void vSERIALcommTXTask(void *pvParameters);
+void setupSERIALcommTX();
 
-EXTERNC void DMA_USART_TX_ISR(void);
+EXTERNC void DMA_SERIAL_TX_ISR(void);
 
 #undef EXTERNC
 

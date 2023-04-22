@@ -5,25 +5,22 @@
 #include "queue.h"
 #include "task.h"
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
 // TODO: Use dynamic allocation for message strings
 typedef uint8_t *GPSMessage_t;
 extern TaskHandle_t xGPSMessageRXTaskHandle;
 extern QueueHandle_t xGPSQueue;
 
-void setupGPS();
-void vGPSMessageRXTask(void *pvParameters);
-void vGNSSTask(void *pvParameters);
+void setupGNSScommRX();
+void vGNSScommRXTask(void *pvParameters);
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
-    void DMA_GPS_TX_ISR(void);
-    void DMA_GPS_RX_ISR(void);
+EXTERNC void DMA_GNSS_RX_ISR(void);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GPSTASK_H_ */

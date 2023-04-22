@@ -83,8 +83,8 @@ void Error_Handler(void);
 #define SERIAL_TX_GPIO_Port GPIOA
 #define SERIAL_RX_Pin LL_GPIO_PIN_3
 #define SERIAL_RX_GPIO_Port GPIOA
-#define GPS_RST_Pin LL_GPIO_PIN_4
-#define GPS_RST_GPIO_Port GPIOA
+#define GNSS_RST_Pin LL_GPIO_PIN_4
+#define GNSS_RST_GPIO_Port GPIOA
 #define TFT_SCK_Pin LL_GPIO_PIN_5
 #define TFT_SCK_GPIO_Port GPIOA
 #define TFT_MOSI_Pin LL_GPIO_PIN_7
@@ -101,32 +101,32 @@ void Error_Handler(void);
 #define LCD_RST_GPIO_Port GPIOB
 #define LCD_SDI_Pin LL_GPIO_PIN_15
 #define LCD_SDI_GPIO_Port GPIOB
-#define GPS_RX_Pin LL_GPIO_PIN_10
-#define GPS_RX_GPIO_Port GPIOA
-#define GPS_TX_Pin LL_GPIO_PIN_15
-#define GPS_TX_GPIO_Port GPIOA
+#define GNSS_RX_Pin LL_GPIO_PIN_10
+#define GNSS_RX_GPIO_Port GPIOA
+#define GNSS_TX_Pin LL_GPIO_PIN_15
+#define GNSS_TX_GPIO_Port GPIOA
 #define SENSOR_SCL_Pin LL_GPIO_PIN_6
 #define SENSOR_SCL_GPIO_Port GPIOB
 #define SENSOR_SDA_Pin LL_GPIO_PIN_7
 #define SENSOR_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define GPS_USART USART1
+#define GNSS_USART USART1
 #define SERIAL_USART USART2
 #define SENSOR_I2C I2C1
 #define TFT_SPI SPI1
 
-#define TFT_DMA               DMA2
-#define TFT_DMA_STREAM_TX     DMA2_Stream3
-#define SENSOR_DMA            DMA1
-#define SENSOR_DMA_STREAM_TX  DMA1_Stream1
-#define SENSOR_DMA_STREAM_RX  DMA1_Stream0
-#define SERIAL_DMA            DMA1
-#define SERIAL_DMA_STREAM_TX  DMA1_Stream6
-#define SERIAL_DMA_STREAM_RX  DMA1_Stream5
-#define GPS_DMA               DMA2
-#define GPS_DMA_STREAM_TX     DMA2_Stream7
-#define GPS_DMA_STREAM_RX     DMA2_Stream2
+#define TFT_DMA                DMA2
+#define TFT_DMA_STREAM_TX      LL_DMA_STREAM_3
+#define SENSOR_DMA             DMA1
+#define SENSOR_DMA_STREAM_TX   LL_DMA_Stream_1
+#define SENSOR_DMA_STREAM_RX   LL_DMA_Stream_0
+#define SERIAL_DMA             DMA1
+#define SERIAL_DMA_STREAM_TX   LL_DMA_STREAM_6
+#define SERIAL_DMA_STREAM_RX   LL_DMA_STREAM_5
+#define GNSS_DMA               DMA2
+#define GNSS_DMA_STREAM_TX     LL_DMA_STREAM_7
+#define GNSS_DMA_STREAM_RX     LL_DMA_STREAM_2
 
 /* USER CODE END Private defines */
 
