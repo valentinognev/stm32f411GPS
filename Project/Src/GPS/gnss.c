@@ -31,9 +31,9 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <string.h>
-#include "NMEAQueue.h"
 
-NMEAQueue nmea_buff;
+#include "FreeRTOS.h"
+#include "queue.h"
 // #include <it_sdk/logger/logger.h>
 // #include <it_sdk/logger/error.h>
 // #include <it_sdk/time/time.h>
@@ -48,12 +48,12 @@ static void __gnss_resetStructForNextCycle(void);
 static void __gnss_resetStructForNewFix(void);
 
 #define LOGGER_MAX_BUF_SZ 80
+
+extern QueueHandle_t xGNSSprocessQueue;
 // ---------------------------------------------------------
 // Main public interfaces
 gnss_ret_e gnss_setup()
 {
-    NMEAQueue_init(&nmea_buff);
-
     gnss_ret_e ret = GNSS_SUCCESS;
     __gnss_config.pBuffer = 0;
     __gnss_config.callbackList = NULL;
@@ -88,22 +88,13 @@ void gnss_process_loop(bool force)
     if (!__gnss_config.setupDone && force == false)
         return;
 
-    // Manage data reception from receiver using a serial line
-    if (nmea_buff.count > 0)
+    while (!uxQueueMessagesWaiting(xGNSSprocessQueue) == 0)
     {
-        sprintf(buff, "Queue size : %d\n", nmea_buff.count);
-        USART_PrintString(buff);
-    }    
-    while(NMEAQueue_empty(&nmea_buff) == false)
-    {
-        NMEAQueue_pop(&nmea_buff, NMEAdata);
-
-        sprintf(buff, "NMEA : %s\n", NMEAdata);
+        xQueueReceive(xGNSSprocessQueue, &buff, portMAX_DELAY);
         USART_PrintString(buff);
         
         gnss_processString(NMEAdata);
     }
-    NMEAQueue_init(&nmea_buff);
     // #endif
 
     // Ensure we are not free-fall with a gps never terminating

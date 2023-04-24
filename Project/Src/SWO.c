@@ -72,13 +72,20 @@ void USART_PrintChar(char const c)
 
 void USART_PrintString(char const* s)
 {
-    for (int i = 0; i < strlen(s); i++)
+	uint16_t len = strlen(s); 
+    for (int i = 0; i < len; i++)
     {
         // wait untill DR empty
         while (!LL_USART_IsActiveFlag_TXE(SERIAL_USART))
             ;
         LL_USART_TransmitData8(SERIAL_USART, s[i]);
     }
+	if (s[len-1] != '\n')
+    {
+		while (!LL_USART_IsActiveFlag_TXE(SERIAL_USART))
+            ;
+		LL_USART_TransmitData8(SERIAL_USART, '\n');
+	}
 }
 void USART_PrintBuffer(char const* str, size_t const len)
 {

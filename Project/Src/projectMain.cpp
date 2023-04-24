@@ -17,7 +17,6 @@
 #include "task.h"
 
 #include "GNSScommTXTask.h"
-#include "GNSScommRXTask.h"
 #include "GNSSprocessTask.h"
 #include "SERIALcommRXTask.h"
 #include "SERIALcommTXTask.h"
@@ -31,7 +30,7 @@ void ProjectMain()
     setupSERIALcommTX();
     setupGNSSprocess();
     setupGNSScommTX();
-    //setupGNSScommRX();
+   // setupGNSScommRX();
 
     // SWO_PrintString("Hello World!\r
     configSTACK_DEPTH_TYPE xStackSize = 512;
