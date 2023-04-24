@@ -81,14 +81,12 @@
  */
 
 #include <configDrivers.h>
-#include <quectel.h>
+#include "quectel.h"
 
 #include <stdio.h>
 
-// #include <it_sdk/wrappers.h>
-// #include <it_sdk/logger/logger.h>
-// #include <it_sdk/logger/error.h>
-#include <nmea.h>
+#include "nmea.h"
+#include "GNSSprocessTask.h"
 
 // --------------------------------------------------------------------------------
 // Internal
@@ -186,6 +184,12 @@ gnss_ret_e quectel_lxx_initLowPower(gnss_config_t *config)
         LL_mDelay(30); // 10 ms min according to doc
         LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
     }
+
+    // char message[300];
+    // if (xGNSSprocessReadFromQueue(message))
+    // {
+    //     gnss_processString(message);
+    // }
 
     // check Quectel presence and wait for boot
     if (__quectelWaitForAck(DRIVER_GNSS_QUECTEL_CMD_RESTART) != GNSS_SUCCESS)
@@ -617,37 +621,32 @@ static gnss_ret_e __quectelWaitForAck(uint16_t commandCode)
     timeout = (commandCode == DRIVER_GNSS_QUECTEL_CMD_RESTART) ? 3000 : 500;
     do
     {
-        switch (commandCode)
+        if (commandCode == DRIVER_GNSS_QUECTEL_CMD_RESTART)
         {
-        case DRIVER_GNSS_QUECTEL_CMD_RESTART:
             if (__quectel_status.hasboot == 1)
                 response = true;
-            break;
-        default:
-            if (__quectel_status.lastAckedCode != DRIVER_GNSS_QUECTEL_CMD_NOACK)
-            {
-                if (__quectel_status.lastAckedCode == commandCode)
-                {
-                    if (__quectel_status.hasAckedFailed == 1)
-                    {
-                        ret = GNSS_FAILED;
-                    }
-                    response = true;
-                }
-                else
-                {
-                    __quectel_status.lastAckedCode = 0;
-                }
-            }
-            break;
         }
+        else if (__quectel_status.lastAckedCode != DRIVER_GNSS_QUECTEL_CMD_NOACK)
+        {
+            if (__quectel_status.lastAckedCode == commandCode)
+            {
+                if (__quectel_status.hasAckedFailed == 1)
+                {
+                    ret = GNSS_FAILED;
+                }
+                response = true;
+            }
+            else
+            {
+                __quectel_status.lastAckedCode = 0;
+            }
+        }
+        
         gnss_process_loop(true);
-#if ITSDK_WITH_WDG != __WDG_NONE && ITSDK_WDG_MS > 0
-        wdg_refresh();
-#endif
         LL_mDelay(5);
         time += 5;
-    } while (response == false && time < timeout);
+    } 
+    while (response == false && time < timeout);
     if (response == false)
     {
         return GNSS_TIMEOUT;

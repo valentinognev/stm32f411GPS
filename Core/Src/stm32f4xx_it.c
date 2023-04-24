@@ -26,7 +26,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "GNSScommTXTask.h"
-#include "GNSScommRXTask.h"
+#include "GNSSprocessTask.h"
 #include "SERIALcommTXTask.h"
 
 extern TaskHandle_t xGNSScommRXTaskHandle;
@@ -383,12 +383,30 @@ void SPI1_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
- 	if (LL_USART_IsActiveFlag_IDLE(GNSS_USART)) 
+  static int flag = 0;
+  static int i = 0;
+  uint16_t data_byte;
+
+  if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
   {
-		LL_USART_ClearFlag_IDLE(GNSS_USART);
-    
-		DMA_GNSS_RX_ISR();
+    GNSSreceiveData();
   }
+  else
+  {
+    if (LL_USART_IsActiveFlag_ORE(USART1))
+    {
+      (void)USART1->DR;
+    }
+    else if (LL_USART_IsActiveFlag_FE(USART1))
+    {
+      (void)USART1->DR;
+    }
+    else if (LL_USART_IsActiveFlag_NE(USART1))
+    {
+      (void)USART1->DR;
+    }
+  }
+
   /* USER CODE END USART1_IRQn 0 */
   /* USER CODE BEGIN USART1_IRQn 1 */
 
@@ -425,7 +443,6 @@ void DMA2_Stream2_IRQHandler(void)
   if (LL_DMA_IsEnabledIT_TC(GNSS_DMA, GNSS_DMA_STREAM_RX) && LL_DMA_IsActiveFlag_TC2(GNSS_DMA))
   {
     LL_DMA_ClearFlag_TC2(GNSS_DMA);                     /* Clear transfer complete flag */
-    DMA_GNSS_RX_ISR();
   }
   /* USER CODE END DMA2_Stream2_IRQn 0 */
 
