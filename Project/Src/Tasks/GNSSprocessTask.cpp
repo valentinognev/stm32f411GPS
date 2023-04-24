@@ -2,6 +2,7 @@
 #include "SERIALcommTXTask.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "SWO.h"
 
 extern "C"
 {
@@ -55,19 +56,19 @@ void vGNSSprocessTask(void *pvParameters)
     LL_USART_DisableIT_IDLE(GNSS_USART);    
     LL_USART_EnableIT_RXNE(GNSS_USART);
 
-    // LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
-    // LL_mDelay(30); // 10 ms min according to doc
-    // LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
+    LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
+    LL_mDelay(30); // 10 ms min according to doc
+    LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
     // char mes[GNSS_INIT_BUFFER_SIZE];
     // if (xQueueReceive(xGNSSprocessQueue, mes, portMAX_DELAY))
     // {
     //     gnss_processString(mes);
     // }
 
-    gnss_setup();
+    //gnss_setup();
     gnss_ret_e res = gnss_start(mode, fixFreq, timeoutS);
 
-    GNSSprocessMessage_t message;
+    char message[GNSS_INIT_BUFFER_SIZE];
     while (1)
     {
         if (xQueueReceive(xGNSSprocessQueue, &message, portMAX_DELAY))
@@ -75,6 +76,7 @@ void vGNSSprocessTask(void *pvParameters)
             gnss_processString(message);
 
             gnss_getData(&gnssData);
+            USART_PrintString(message);
 
             gnss_printState();
         }

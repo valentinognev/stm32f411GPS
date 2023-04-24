@@ -73,6 +73,8 @@ void USART_PrintChar(char const c)
 void USART_PrintString(char const* s)
 {
 	uint16_t len = strlen(s); 
+	if (len == 0)
+		return;
     for (int i = 0; i < len; i++)
     {
         // wait untill DR empty

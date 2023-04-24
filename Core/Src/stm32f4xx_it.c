@@ -230,7 +230,7 @@ void DMA1_Stream1_IRQHandler(void)
   */
 void DMA1_Stream5_IRQHandler(void)
 {
-    /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
+  /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
     // RX SERIAL DEBUG
     if (LL_DMA_IsEnabledIT_TC(SERIAL_DMA, SERIAL_DMA_STREAM_RX) && LL_DMA_IsActiveFlag_TC5(SERIAL_DMA))
     {
@@ -244,11 +244,11 @@ void DMA1_Stream5_IRQHandler(void)
     // {
     //     LL_DMA_ClearFlag_TC5(SERIAL_DMA); /* Clear transfer complete flag */
     // }
-        /* USER CODE END DMA1_Stream5_IRQn 0 */
+  /* USER CODE END DMA1_Stream5_IRQn 0 */
 
-        /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
+  /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
 
-        /* USER CODE END DMA1_Stream5_IRQn 1 */
+  /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
 
 /**
