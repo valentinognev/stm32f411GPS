@@ -20,7 +20,7 @@ void prvGNSS_RX_DMA(void);
 
 // Private variables
 
-char cDMA_RX_Buffer[GNSS_COMMAND_REQUEST_SIZE];
+char cDMA_GNSS_RX_Buffer[GNSS_COMMAND_REQUEST_SIZE];
 
 // Task handle
 TaskHandle_t xGNSScommRXTaskHandle;
@@ -47,11 +47,12 @@ void prvGNSS_RX_DMA(void)
         xLen = DMA_RX_BUFFER_SIZE;
     else
         xLen = DMA_RX_BUFFER_SIZE - xBufDataLen;
-    cDMA_RX_Buffer[xLen] = '\0';  // Append a null terminator
+    cDMA_GNSS_RX_Buffer[xLen] = '\0';  // Append a null terminator
 
-    pcTokSstr = strtok(cDMA_RX_Buffer, "\r\n");
+    pcTokSstr = strtok(cDMA_GNSS_RX_Buffer, "\r\n");
     while(pcTokSstr) 
     {
+        if (strlen(pcTokSstr) == 0) continue;
         osQueueGNSSprocessMessage(pcTokSstr);
         pcTokSstr = strtok(NULL, "\r\n");  // Get the other strings, if any
     }
@@ -89,14 +90,14 @@ void setupGNSScommRX()
     // RX initialization
 	LL_DMA_SetDataLength(GNSS_DMA, GNSS_DMA_STREAM_RX,(uint32_t)DMA_RX_BUFFER_SIZE);
 	LL_DMA_ConfigAddresses(GNSS_DMA, GNSS_DMA_STREAM_RX,
-			LL_USART_DMA_GetRegAddr(GNSS_USART), (uint32_t)cDMA_RX_Buffer,
+			LL_USART_DMA_GetRegAddr(GNSS_USART), (uint32_t)cDMA_GNSS_RX_Buffer,
 			LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
     LL_USART_EnableDMAReq_RX(GNSS_USART);
     LL_DMA_EnableStream(GNSS_DMA, GNSS_DMA_STREAM_RX);
 
     LL_DMA_EnableIT_HT(GNSS_DMA, GNSS_DMA_STREAM_RX);
     LL_DMA_EnableIT_TC(GNSS_DMA, GNSS_DMA_STREAM_RX);
-    // LL_USART_EnableIT_IDLE(GNSS_USART);
+    LL_USART_EnableIT_IDLE(GNSS_USART);
 
     xTaskCreate(vGNSScommRXTask, "GNSScommRX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 3, &xGNSScommRXTaskHandle);
     __NOP();

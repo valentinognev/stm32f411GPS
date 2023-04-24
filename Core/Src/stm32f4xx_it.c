@@ -230,13 +230,25 @@ void DMA1_Stream1_IRQHandler(void)
   */
 void DMA1_Stream5_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-// RX SERIAL DEBUG
-  /* USER CODE END DMA1_Stream5_IRQn 0 */
+    /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
+    // RX SERIAL DEBUG
+    if (LL_DMA_IsEnabledIT_TC(SERIAL_DMA, SERIAL_DMA_STREAM_RX) && LL_DMA_IsActiveFlag_TC5(SERIAL_DMA))
+    {
+        LL_DMA_ClearFlag_TC5(SERIAL_DMA); /* Clear transfer complete flag */
+    }
+    // else if (LL_DMA_IsEnabledIT_TE(SERIAL_DMA, SERIAL_DMA_STREAM_RX) && LL_DMA_IsActiveFlag_TE5(SERIAL_DMA))
+    // {
+    //     LL_DMA_ClearFlag_TE5(SERIAL_DMA); /* Clear transfer error flag */
+    // }
+    // else if (LL_DMA_IsEnabledIT_HT(SERIAL_DMA, SERIAL_DMA_STREAM_RX) && LL_DMA_IsActiveFlag_HT5(SERIAL_DMA))
+    // {
+    //     LL_DMA_ClearFlag_TC5(SERIAL_DMA); /* Clear transfer complete flag */
+    // }
+        /* USER CODE END DMA1_Stream5_IRQn 0 */
 
-  /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
+        /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
 
-  /* USER CODE END DMA1_Stream5_IRQn 1 */
+        /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
 
 /**
@@ -389,6 +401,12 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
+  if (LL_USART_IsActiveFlag_IDLE(SERIAL_USART))
+  {
+    LL_USART_ClearFlag_IDLE(SERIAL_USART);
+
+    DMA_SERIAL_RX_ISR();
+  }
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */

@@ -212,3 +212,6 @@ build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/GNSSprocessTask.cpp.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/SERIALcommTXTask.cpp.obj
 build/CMakeFiles/Progress/2
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Queue.c.obj
+build/CMakeFiles/Progress/2
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/SERIALcommRXTask.cpp.obj
+build/CMakeFiles/Progress/2

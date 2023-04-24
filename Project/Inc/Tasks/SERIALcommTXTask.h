@@ -1,5 +1,5 @@
-#ifndef USARTTASK_H_
-#define USARTTASK_H_
+#ifndef SERIALTXTASK_H_
+#define SERIALTXTASK_H_
 
 #include "FreeRTOS.h"
 #include "queue.h"

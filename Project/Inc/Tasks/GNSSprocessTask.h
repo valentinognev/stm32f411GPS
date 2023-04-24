@@ -1,5 +1,5 @@
-#ifndef GNSS_TASK_H_
-#define GNSS_TASK_H_
+#ifndef GNSSPROCESSTASK_H_
+#define GNSSPROCESSTASK_H_
 
 #include "FreeRTOS.h"
 #include "queue.h"

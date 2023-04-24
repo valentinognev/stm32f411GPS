@@ -1,5 +1,5 @@
-#ifndef GNSSCOMMRXTASK_H_
-#define GNSSCOMMRXTASK_H_
+#ifndef SERIALRXTASK_H_
+#define SERIALRXTASK_H_
 
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -16,11 +16,11 @@
 extern TaskHandle_t xGPSMessageRXTaskHandle;
 extern QueueHandle_t xGPSQueue;
 
-void setupGNSScommRX();
-void vGNSScommRXTask(void *pvParameters);
+void setupSERIALcommRX();
+void vSERIALcommRXTask(void *pvParameters);
 
 
-EXTERNC void DMA_GNSS_RX_ISR(void);
+EXTERNC void DMA_SERIAL_RX_ISR(void);
 
 
 #endif /* GPSTASK_H_ */

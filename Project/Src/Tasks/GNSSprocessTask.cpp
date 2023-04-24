@@ -1,6 +1,8 @@
 #include "GNSSprocessTask.h"
 #include "SERIALcommTXTask.h"
 #include "FreeRTOS.h"
+#include "semphr.h"
+#include "GNSScommRXTask.h"
 
 
 #include <string.h>
@@ -8,12 +10,14 @@
 #define GNSS_PROCESS_QUEUE_SIZE 100
 static QueueHandle_t xGNSSprocessQueue;
 TaskHandle_t xGNSSprocessTaskHandle;
+SemaphoreHandle_t xGNSSprocessSemaphore;
 
 gnss_simple_data_t xGNSSData;
 
 void vGNSSprocessTask(void *pvParameters)
 {
 
+    vTaskDelay(portTICK_PERIOD_MS * 500);
     vTaskPrioritySet(xGNSSprocessTaskHandle, tskIDLE_PRIORITY + 3);
 
     gnss_simple_data_t gnssData = {
@@ -40,6 +44,7 @@ void vGNSSprocessTask(void *pvParameters)
 
     gnss_setup();
     gnss_ret_e res = gnss_start(mode, fixFreq, timeoutS);
+    setupGNSScommRX();
 
     GNSSprocessMessage_t message;
     while (1)
@@ -84,6 +89,7 @@ void osQueueGNSSprocessMessage(const char* gnssmess)
 
 void setupGNSSprocess()
 {
+    xGNSSprocessSemaphore = xSemaphoreCreateBinary();
     xGNSSprocessQueue = xQueueCreate(GNSS_PROCESS_QUEUE_SIZE, sizeof(GNSSprocessMessage_t));
     xTaskCreate(vGNSSprocessTask, "GNSSprocess", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 2, NULL);
 }
