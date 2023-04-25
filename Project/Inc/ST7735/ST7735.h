@@ -8,12 +8,12 @@
 #define ST7735_SPI_PORT SPI1
 
 /****** PIN DEFINES ******/
-#define CS_PORT  LCD_CS_GPIO_Port
-#define CS_PIN   LCD_CS_GPIO_Pin
-#define DC_PORT  LCD_RS_GPIO_Port
-#define DC_PIN   LCD_RS_GPIO_Pin
-#define RST_PORT LCD_RST_GPIO_Port
-#define RST_PIN  LCD_RST_GPIO_Pin
+#define CS_PORT  TFT_CS_GPIO_Port
+#define CS_PIN   TFT_CS_Pin
+#define DC_PORT  TFT_RS_GPIO_Port
+#define DC_PIN   TFT_RS_Pin
+#define RST_PORT TFT_RST_GPIO_Port
+#define RST_PIN  TFT_RST_Pin
 
 /****** TFT DEFINES ******/
 //#define ST7735_IS_160X80 1

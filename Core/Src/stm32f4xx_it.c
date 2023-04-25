@@ -458,6 +458,17 @@ void DMA2_Stream3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
   // SPI TX
+  if (LL_DMA_IsActiveFlag_TC3(TFT_DMA))
+  {
+    LL_DMA_ClearFlag_TC3(TFT_DMA);
+    /* Call function Transmission complete Callback */
+    TFT_DMA_TransmitComplete_Callback();
+  }
+  else if (LL_DMA_IsActiveFlag_TE3(TFT_DMA))
+  {
+    /* Call Error function */
+    TFT_DMA_TransferError_Callback();
+  }
   /* USER CODE END DMA2_Stream3_IRQn 0 */
 
   /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */

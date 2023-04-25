@@ -20,12 +20,12 @@
 #include "GNSSprocessTask.h"
 #include "SERIALcommRXTask.h"
 #include "SERIALcommTXTask.h"
-#include "LCDTask.h"
+#include "TFTcommTXTask.h"
 #include "InfoTask.h"
 
 void ProjectMain()
 {
-    setupLCD();    
+    setupTFTcommTX();    
     setupSERIALcommRX();
     setupSERIALcommTX();
     setupGNSSprocess();

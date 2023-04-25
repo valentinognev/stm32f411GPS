@@ -133,10 +133,10 @@ void  SPI_WriteData(uint8_t Data)
 void Lcd_WriteIndex(uint8_t Index)
 {
    //SPI  Write the order of the command to start 
-   LCD_CS_CLR;
-   LCD_RS_CLR;
-	 SPI_WriteData(Index);
-   LCD_CS_SET;
+   TFT_CS_CLR;
+   TFT_RS_CLR;
+   SPI_WriteData(Index);
+   TFT_CS_SET;
 }
 
 
@@ -156,10 +156,10 @@ void Lcd_WriteIndex(uint8_t Index)
 
 void Lcd_WriteData(uint8_t Data)
 {
-   LCD_CS_CLR;
-   LCD_RS_SET;
+   TFT_CS_CLR;
+   TFT_RS_SET;
    SPI_WriteData(Data);
-   LCD_CS_SET; 
+   TFT_CS_SET;
 }
 
 
@@ -180,11 +180,11 @@ void Lcd_WriteData(uint8_t Data)
 
 void LCD_WriteData_16Bit(uint16_t Data)
 {
-   LCD_CS_CLR;
-   LCD_RS_SET;
-	 SPI_WriteData(Data>>8); 	// Write high 8 Position data 
-	 SPI_WriteData(Data); 			// Write down 8 Position data 
-   LCD_CS_SET; 
+   TFT_CS_CLR;
+   TFT_RS_SET;
+   SPI_WriteData(Data >> 8); // Write high 8 Position data
+   SPI_WriteData(Data);		 // Write down 8 Position data
+   TFT_CS_SET;
 }
 
 
@@ -226,9 +226,9 @@ void Lcd_WriteReg(uint8_t Index,uint8_t Data)
 
 void Lcd_Reset(void)
 {
-  LCD_RST_CLR;//RST High pins output 
+  TFT_RST_CLR;//RST High pins output 
 	LL_mDelay(300);
-  LCD_RST_SET;//RST Point output is low 
+  TFT_RST_SET;//RST Point output is low 
 	LL_mDelay(100);
 }
 

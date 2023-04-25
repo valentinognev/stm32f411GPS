@@ -51,7 +51,7 @@ void setupGNSScommTX()
     LL_DMA_DisableStream(GNSS_DMA, GNSS_DMA_STREAM_TX);
 
     xTaskCreate(vGNSScommTXTask, "GNSScommTX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 3, &xGNSScommTXTaskHandle);
- }
+}
 
 void DMA_GNSS_TX_ISR(void)
 {
@@ -67,7 +67,6 @@ void DMA_GNSS_TX_ISR(void)
  */
 void osQueueGNSStransmitMessage(const char *gnssmess)
 {
-
     GNSScommMessage_t pcGNSSMessage = (GNSScommMessage_t)pvPortMalloc(strlen(gnssmess));
 
     if (pcGNSSMessage == NULL)
