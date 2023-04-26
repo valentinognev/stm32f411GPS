@@ -269,6 +269,7 @@ void __gnss_processChar(char c);
 void gnss_processString(char *buff);
 void gnss_getData(gnss_simple_data_t *gnssData);
 void gnss_printState(void);
+void gnss_printToTFT(void);
 
 // void gnss_process_loop(bool force);
 // gnss_ret_e gnss_start(gnss_run_mode_e mode, uint16_t fixFreq, uint32_t timeoutS);

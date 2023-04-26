@@ -1,12 +1,13 @@
 #include "GNSSprocessTask.h"
 #include "SERIALcommTXTask.h"
 #include "FreeRTOS.h"
-#include "semphr.h"
 #include "SWO.h"
+
 
 extern "C"
 {
-    #include "gnss.h"
+#include "ST7735.h"    
+#include "gnss.h"
 }
 
 #include <string.h>
@@ -18,7 +19,6 @@ char gnssBuffer[GNSS_INIT_BUFFER_SIZE];
 
 QueueHandle_t xGNSSprocessQueue;
 TaskHandle_t xGNSSprocessTaskHandle;
-SemaphoreHandle_t xGNSSprocessSemaphore;
 
 gnss_simple_data_t xGNSSData;
 
@@ -52,12 +52,15 @@ void vGNSSprocessTask(void *pvParameters)
     uint16_t fixFreq = 100;
     uint32_t timeoutS = 1;
 
+    ST7735_Init(0);
+
     LL_USART_DisableDMAReq_RX(GNSS_USART);
     LL_USART_DisableIT_IDLE(GNSS_USART);    
     LL_USART_EnableIT_RXNE(GNSS_USART);
+    vTaskDelay(portTICK_PERIOD_MS * 1); // 10 ms min according to doc
 
     LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
-    LL_mDelay(30); // 10 ms min according to doc
+    vTaskDelay(portTICK_PERIOD_MS * 30); // 10 ms min according to doc
     LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
     // char mes[GNSS_INIT_BUFFER_SIZE];
     // if (xQueueReceive(xGNSSprocessQueue, mes, portMAX_DELAY))
@@ -66,6 +69,7 @@ void vGNSSprocessTask(void *pvParameters)
     // }
 
     //gnss_setup();
+
     gnss_ret_e res = gnss_start(mode, fixFreq, timeoutS);
 
     char message[GNSS_INIT_BUFFER_SIZE];
@@ -75,10 +79,11 @@ void vGNSSprocessTask(void *pvParameters)
         {
             gnss_processString(message);
 
-            gnss_getData(&gnssData);
+            //gnss_getData(&gnssData);
             USART_PrintString(message);
 
             gnss_printState();
+            gnss_printToTFT();
         }
     }
 }
@@ -106,7 +111,6 @@ void osQueueGNSSprocessMessageFromISR(const char *gnssmess)
 
 void setupGNSSprocess()
 {
-    xGNSSprocessSemaphore = xSemaphoreCreateBinary();
     xGNSSprocessQueue = xQueueCreate(GNSS_PROCESS_QUEUE_SIZE, GNSS_INIT_BUFFER_SIZE);
     xTaskCreate(vGNSSprocessTask, "GNSSprocess", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 2, NULL);
 }

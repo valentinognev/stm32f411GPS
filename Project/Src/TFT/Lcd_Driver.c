@@ -284,6 +284,7 @@ void Lcd_Init(void)
 	Lcd_WriteData(0xA2); 
 	Lcd_WriteData(0x02); 
 	Lcd_WriteData(0x84); 
+
 	Lcd_WriteIndex(0xC1); 
 	Lcd_WriteData(0xC5); 
 
@@ -294,6 +295,7 @@ void Lcd_Init(void)
 	Lcd_WriteIndex(0xC3); 
 	Lcd_WriteData(0x8A); 
 	Lcd_WriteData(0x2A); 
+
 	Lcd_WriteIndex(0xC4); 
 	Lcd_WriteData(0x8A); 
 	Lcd_WriteData(0xEE); 
@@ -355,6 +357,7 @@ void Lcd_Init(void)
 	
 	Lcd_WriteIndex(0xF0); //Enable test command  
 	Lcd_WriteData(0x01); 
+	
 	Lcd_WriteIndex(0xF6); //Disable ram power save mode 
 	Lcd_WriteData(0x00); 
 	

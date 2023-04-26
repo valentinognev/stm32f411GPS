@@ -19,5 +19,10 @@ void vTFTcommTXTask(void *pvParameters);
 void setupTFTcommTX();
 EXTERNC void TFT_DMA_TransmitComplete_Callback();
 EXTERNC void TFT_DMA_TransferError_Callback();
+EXTERNC void TFT_WriteCommand(uint8_t cmd);
+EXTERNC void TFT_WriteData(uint8_t *buff, size_t buff_size);
+EXTERNC void TFT_Select();
+EXTERNC void TFT_Unselect();
+EXTERNC void TFT_Reset();
 
 #endif /* LCDTASK_H_ */

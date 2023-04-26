@@ -16,6 +16,7 @@
         "projectmain.h": "c",
         "usarttask.h": "c",
         "serialcommtxtask.h": "c",
-        "gnsscommrxtask.h": "c"
+        "gnsscommrxtask.h": "c",
+        "tftcommtxtask.h": "c"
     }
 }

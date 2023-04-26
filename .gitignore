@@ -224,3 +224,5 @@ build/CMakeFiles/stm32f411GPS.dir/Project/Src/Fonts/font24.c.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/ST7735/fonts.c.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/ST7735/ST7735.c.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/TFTcommTXTask.cpp.obj
+build/CMakeFiles/Progress/2
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Queue.c.obj

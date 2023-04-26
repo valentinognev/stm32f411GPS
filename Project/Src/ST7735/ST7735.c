@@ -15,7 +15,7 @@ uint8_t _ystart;
 
 const uint8_t
     init_cmds1[] = {           // Init for 7735R, part 1 (red or green tab)
-        15,                    // 15 commands in list:
+        14,                    // 15 commands in list:
         ST7735_SWRESET, DELAY, //  1: Software reset, 0 args, w/delay
         150,                   //     150 ms delay
         ST7735_SLPOUT, DELAY,  //  2: Out of sleep mode, 0 args, w/delay
@@ -75,49 +75,13 @@ const uint8_t
     init_cmds3[] = {                                                                                                         // Init for 7735R, part 3 (red or green tab)
         4,                                                                                                                   //  4 commands in list:
         ST7735_GMCTRP1, 16,                                                                                                  //  1: Magical unicorn dust, 16 args, no delay:
-        0x02, 0x1c, 0x07, 0x12, 0x37, 0x32, 0x29, 0x2d, 0x29, 0x25, 0x2B, 0x39, 0x00, 0x01, 0x03, 0x10, ST7735_GMCTRN1, 16,  //  2: Sparkles and rainbows, 16 args, no delay:
-        0x03, 0x1d, 0x07, 0x06, 0x2E, 0x2C, 0x29, 0x2D, 0x2E, 0x2E, 0x37, 0x3F, 0x00, 0x00, 0x02, 0x10, ST7735_NORON, DELAY, //  3: Normal display on, no args, w/delay
+        0x02, 0x1c, 0x07, 0x12, 0x37, 0x32, 0x29, 0x2d, 0x29, 0x25, 0x2B, 0x39, 0x00, 0x01, 0x03, 0x10, 
+        ST7735_GMCTRN1, 16,  //  2: Sparkles and rainbows, 16 args, no delay:
+        0x03, 0x1d, 0x07, 0x06, 0x2E, 0x2C, 0x29, 0x2D, 0x2E, 0x2E, 0x37, 0x3F, 0x00, 0x00, 0x02, 0x10, 
+        ST7735_NORON, DELAY, //  3: Normal display on, no args, w/delay
         10,                                                                                                                  //     10 ms delay
         ST7735_DISPON, DELAY,                                                                                                //  4: Main screen turn on, no args w/delay
         100};                                                                                                                //     100 ms delay
-
-// void TFT_Select()
-// {
-//   LL_GPIO_ResetOutputPin(CS_PORT, CS_PIN);
-// }
-
-// void TFT_Unselect()
-// {
-//   LL_GPIO_SetOutputPin(CS_PORT, CS_PIN);
-// }
-
-// void ST7735_Reset()
-// {
-//   LL_GPIO_ResetOutputPin(RST_PORT, RST_PIN);
-//   LL_mDelay(5);
-//   LL_GPIO_SetOutputPin(RST_PORT, RST_PIN);
-// }
-
-// void ST7735_WriteCommand(uint8_t cmd)
-// {
-//   LL_GPIO_ResetOutputPin(DC_PORT, DC_PIN);
-//   LL_SPI_TransmitData8(ST7735_SPI_PORT, cmd);
-// }
-
-// void ST7735_WriteCommandCommTX(uint8_t cmd)
-// {
-//   LL_GPIO_ResetOutputPin(DC_PORT, DC_PIN);
-//   LL_SPI_TransmitData8(ST7735_SPI_PORT, cmd);
-// }
-
-// void ST7735_WriteData(uint8_t *buff, size_t buff_size)
-// {
-//   LL_GPIO_SetOutputPin(DC_PORT, DC_PIN);
-//   for (int i = 0; i < buff_size; i++)
-//   {
-//     LL_SPI_TransmitData8(ST7735_SPI_PORT, buff[i]);
-//   }
-// }
 
 void DisplayInit(const uint8_t *addr)
 {
@@ -145,16 +109,11 @@ void DisplayInit(const uint8_t *addr)
       ms = *addr++;
       if (ms == 255)
         ms = 500;
-      LL_mDelay(ms);
+      vTaskDelay(portTICK_PERIOD_MS * ms);
     }
+    __NOP();
   }
-}
-
-void ST7735_Reset()
-{
-  LL_GPIO_ResetOutputPin(RST_PORT, RST_PIN);
-  vTaskDelay(portTICK_PERIOD_MS * 5);
-  LL_GPIO_SetOutputPin(RST_PORT, RST_PIN);
+  __NOP();
 }
 
 void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
@@ -177,7 +136,7 @@ void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
 void ST7735_Init(uint8_t rotation)
 {
   TFT_Select();
-  ST7735_Reset();
+  TFT_Reset();
   DisplayInit(init_cmds1);
   DisplayInit(init_cmds2);
   DisplayInit(init_cmds3);
