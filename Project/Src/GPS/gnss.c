@@ -838,25 +838,24 @@ void gnss_printState(void)
 void gnss_printToTFT(void)
 {
     char buf[200];
-    if (__gnss_config.data.satInView == 0)
-        return;
+    // ST7735_FillScreen(BLACK);
 
-    sprintf(buf,"Last Refresh: %d\r\n", __gnss_config.data.lastRefreshS);
+    sprintf(buf,"Last Refresh: %d", __gnss_config.data.lastRefreshS);
     ST7735_WriteString(0, 0, buf, Font_7x10, WHITE, BLACK);
     if ((__gnss_config.data.gpsTime.status & GNSS_TIME_TMDATE) == GNSS_TIME_TMDATE)
     {
-        sprintf(buf,"Date: %02d/%02d/%02d\r\n",
+        sprintf(buf,"Date: %02d/%02d/%02d",
                 __gnss_config.data.gpsTime.day,
                 __gnss_config.data.gpsTime.month,
                 __gnss_config.data.gpsTime.year);
         ST7735_WriteString(0, 10, buf, Font_7x10, WHITE, BLACK);
 
-        sprintf(buf, "Time:  %02d:%02d:%02d\r\n",
+        sprintf(buf, "Time:  %02d:%02d:%02d",
                 __gnss_config.data.gpsTime.hours,
                 __gnss_config.data.gpsTime.minutes,
                 __gnss_config.data.gpsTime.seconds);
         ST7735_WriteString(0, 20, buf, Font_7x10, WHITE, BLACK);
-        // log_debug("  S from UTC Midnight is %d this is %d:%d:%d\r\n",
+        // log_debug("  S from UTC Midnight is %d this is %d:%d:%d",
         //           itsdk_time_get_UTC_s(),
         //           itsdk_time_get_UTC_hour(),
         //           itsdk_time_get_UTC_min(),
@@ -864,48 +863,51 @@ void gnss_printToTFT(void)
     }
     else
     {
-        sprintf(buf,"Date/Time not set\r\n");
+        sprintf(buf,"Date/Time not set");
         ST7735_WriteString(0, 10, buf, Font_7x10, WHITE, BLACK);
     }
-    sprintf(buf, "Fix status   : %s\r\n", ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_NONE) ? "NONE" : ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_2D) ? "FIX2D" : "FIX3D")));
+    sprintf(buf, "Fix status   : %s", ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_NONE) ? "NONE" : ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_2D) ? "FIX2D" : "FIX3D")));
     ST7735_WriteString(0, 30, buf, Font_7x10, WHITE, BLACK);
     if (__gnss_config.data.fixInfo.fixType >= GNSS_FIX_2D)
     {
-        sprintf(buf, "  Lat             : %d\r\n", __gnss_config.data.fixInfo.latitude);
-        sprintf(buf, "  Lng             : %d\r\n", __gnss_config.data.fixInfo.longitude);
-        sprintf(buf, "  Alt             : %d\r\n", __gnss_config.data.fixInfo.altitude);
-        sprintf(buf, "  Speed knots     : %d\r\n", __gnss_config.data.fixInfo.speed_knot);
-        sprintf(buf, "  Speed kmh       : %d\r\n", __gnss_config.data.fixInfo.speed_kmh);
+        sprintf(buf, "  Lat             : %d", __gnss_config.data.fixInfo.latitude);
+        sprintf(buf, "  Lng             : %d", __gnss_config.data.fixInfo.longitude);
+        sprintf(buf, "  Alt             : %d", __gnss_config.data.fixInfo.altitude);
+        sprintf(buf, "  Speed knots     : %d", __gnss_config.data.fixInfo.speed_knot);
+        sprintf(buf, "  Speed kmh       : %d", __gnss_config.data.fixInfo.speed_kmh);
 
 #if ITSDK_DRIVERS_GNSS_WITHGPSSAT == __ENABLE
-        sprintf(buf, "P Sat use in Fix  : %d\r\n", __gnss_config.data.fixInfo.gps.nbSatUsed);
-        sprintf(buf, "P PDOP            : %d\r\n", __gnss_config.data.fixInfo.gps.pdop);
-        sprintf(buf, "P VDOP            : %d\r\n", __gnss_config.data.fixInfo.gps.vdop);
-        sprintf(buf, "P HDOP            : %d\r\n", __gnss_config.data.fixInfo.gps.hdop);
+        sprintf(buf, "P Sat use in Fix  : %d", __gnss_config.data.fixInfo.gps.nbSatUsed);
+        sprintf(buf, "P PDOP            : %d", __gnss_config.data.fixInfo.gps.pdop);
+        sprintf(buf, "P VDOP            : %d", __gnss_config.data.fixInfo.gps.vdop);
+        sprintf(buf, "P HDOP            : %d", __gnss_config.data.fixInfo.gps.hdop);
 #endif
 #if ITSDK_DRIVERS_GNSS_WITHGLOSAT == __ENABLE
-        sprintf(buf, "L Sat use in Fix  : %d\r\n", __gnss_config.data.fixInfo.glonass.nbSatUsed);
-        sprintf(buf, "L PDOP            : %d\r\n", __gnss_config.data.fixInfo.glonass.pdop);
-        sprintf(buf, "L VDOP            : %d\r\n", __gnss_config.data.fixInfo.glonass.vdop);
-        sprintf(buf, "L HDOP            : %d\r\n", __gnss_config.data.fixInfo.glonass.hdop);
+        sprintf(buf, "L Sat use in Fix  : %d", __gnss_config.data.fixInfo.glonass.nbSatUsed);
+        sprintf(buf, "L PDOP            : %d", __gnss_config.data.fixInfo.glonass.pdop);
+        sprintf(buf, "L VDOP            : %d", __gnss_config.data.fixInfo.glonass.vdop);
+        sprintf(buf, "L HDOP            : %d", __gnss_config.data.fixInfo.glonass.hdop);
 #endif
 #if ITSDK_DRIVERS_GNSS_WITHGALSAT == __ENABLE
-        sprintf(buf, "A Sat use in Fix  : %d\r\n", __gnss_config.data.fixInfo.galileo.nbSatUsed);
-        sprintf(buf, "A PDOP            : %d\r\n", __gnss_config.data.fixInfo.galileo.pdop);
-        sprintf(buf, "A VDOP            : %d\r\n", __gnss_config.data.fixInfo.galileo.vdop);
-        sprintf(buf, "A HDOP            : %d\r\n", __gnss_config.data.fixInfo.galileo.hdop);
+        sprintf(buf, "A Sat use in Fix  : %d", __gnss_config.data.fixInfo.galileo.nbSatUsed);
+        sprintf(buf, "A PDOP            : %d", __gnss_config.data.fixInfo.galileo.pdop);
+        sprintf(buf, "A VDOP            : %d", __gnss_config.data.fixInfo.galileo.vdop);
+        sprintf(buf, "A HDOP            : %d", __gnss_config.data.fixInfo.galileo.hdop);
 #endif
     }
 
-    sprintf(buf, "Sat in view  : %d\r\n", __gnss_config.data.satInView);
+    sprintf(buf, "Sat in view  : %d", __gnss_config.data.satInView);
+    ST7735_WriteString(0, 40, buf, Font_7x10, WHITE, BLACK);
+    if (__gnss_config.data.satInView == 0)
+        return;
     if (__gnss_config.data.satInView > 0 && false)
     {
 #if ITSDK_DRIVERS_GNSS_WITHGPSSAT == __ENABLE && (ITSDK_DRIVERS_GNSS_POSINFO & __GNSS_WITH_SAT_DETAILS) > 0
-        sprintf(buf, "GPS Sats \r\n");
+        sprintf(buf, "GPS Sats ");
         // for (int i = 0; i < ITSDK_GNSS_GPSSAT_NB; i++)
         // {
         //     if (__gnss_config.data.sat_gps[i].updateTime != 0)
-        //         sprintf(buf, "  [%02d] El: %02d Az: %03d Snr: -%02d  MaxSnr: -%02d LastSeen: %08d\r\n", i,
+        //         sprintf(buf, "  [%02d] El: %02d Az: %03d Snr: -%02d  MaxSnr: -%02d LastSeen: %08d", i,
         //                   __gnss_config.data.sat_gps[i].elevation,
         //                   __gnss_config.data.sat_gps[i].azimuth,
         //                   __gnss_config.data.sat_gps[i].signal,
@@ -914,11 +916,11 @@ void gnss_printToTFT(void)
         // }
 #endif
 #if ITSDK_DRIVERS_GNSS_WITHGLOSAT == __ENABLE && (ITSDK_DRIVERS_GNSS_POSINFO & __GNSS_WITH_SAT_DETAILS) > 0
-        sprintf(buf, "GLONAS Sats \r\n");
+        sprintf(buf, "GLONAS Sats ");
         // for (int i = 0; i < ITSDK_GNSS_GLOSAT_NB; i++)
         // {
         //     if (__gnss_config.data.sat_glonas[i].updateTime != 0)
-        //         sprintf(buf, "  [%02d] El: %02d Az: %03d Snr: -%02d  MaxSnr: -%02d LastSeen: %08d\r\n", i,
+        //         sprintf(buf, "  [%02d] El: %02d Az: %03d Snr: -%02d  MaxSnr: -%02d LastSeen: %08d", i,
         //                   __gnss_config.data.sat_glonas[i].elevation,
         //                   __gnss_config.data.sat_glonas[i].azimuth,
         //                   __gnss_config.data.sat_glonas[i].signal,
@@ -927,11 +929,11 @@ void gnss_printToTFT(void)
         // }
 #endif
 #if ITSDK_DRIVERS_GNSS_WITHGALSAT == __ENABLE && (ITSDK_DRIVERS_GNSS_POSINFO & __GNSS_WITH_SAT_DETAILS) > 0
-        sprintf(buf, "GALILEO Sats \r\n");
+        sprintf(buf, "GALILEO Sats ");
         // for (int i = 0; i < ITSDK_GNSS_GALSAT_NB; i++)
         // {
         //     if (__gnss_config.data.sat_galileo[i].updateTime != 0)
-        //         sprintf(buf, "  [%02d] El: %02d Az: %03d Snr: -%02d  MaxSnr: -%02d LastSeen: %08d\r\n", i,
+        //         sprintf(buf, "  [%02d] El: %02d Az: %03d Snr: -%02d  MaxSnr: -%02d LastSeen: %08d", i,
         //                   __gnss_config.data.sat_galileo[i].elevation,
         //                   __gnss_config.data.sat_galileo[i].azimuth,
         //                   __gnss_config.data.sat_galileo[i].signal,

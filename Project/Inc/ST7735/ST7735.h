@@ -17,10 +17,20 @@
 
 /****** TFT DEFINES ******/
 //#define ST7735_IS_160X80 1
-//#define ST7735_IS_128X128 1
-#define ST7735_IS_160X128 1
+#define ST7735_IS_128X128 1
+//#define ST7735_IS_160X128 1
+#ifdef ST7735_IS_160X80
+#define ST7735_WIDTH  80
+#define ST7735_HEIGHT 160
+#elif defined ST7735_IS_128X128
+#define ST7735_WIDTH  128
+#define ST7735_HEIGHT 128
+#elif defined ST7735_IS_160X128
 #define ST7735_WIDTH  128
 #define ST7735_HEIGHT 160
+#else
+#error "ST7735 size is not defined"
+#endif
 
 #define DELAY 0x80
 

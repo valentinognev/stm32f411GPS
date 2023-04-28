@@ -3,10 +3,9 @@
 #include "FreeRTOS.h"
 #include "SWO.h"
 
-
 extern "C"
 {
-#include "ST7735.h"    
+#include "ST7735.h"
 #include "gnss.h"
 }
 
@@ -22,7 +21,7 @@ TaskHandle_t xGNSSprocessTaskHandle;
 
 gnss_simple_data_t xGNSSData;
 
-bool xGNSSprocessReadFromQueue(char* message);
+bool xGNSSprocessReadFromQueue(char *message);
 
 void vGNSSprocessTask(void *pvParameters)
 {
@@ -45,7 +44,7 @@ void vGNSSprocessTask(void *pvParameters)
         .speed = 0,
         .course = 0,
     };
-    
+
     const size_t gnssMessageBufferSizeBytes = 100;
 
     gnss_run_mode_e mode = GNSS_RUN_HOT;
@@ -53,9 +52,10 @@ void vGNSSprocessTask(void *pvParameters)
     uint32_t timeoutS = 1;
 
     ST7735_Init(0);
+    ST7735_FillScreen(BLACK);
 
     LL_USART_DisableDMAReq_RX(GNSS_USART);
-    LL_USART_DisableIT_IDLE(GNSS_USART);    
+    LL_USART_DisableIT_IDLE(GNSS_USART);
     LL_USART_EnableIT_RXNE(GNSS_USART);
     vTaskDelay(portTICK_PERIOD_MS * 1); // 10 ms min according to doc
 
@@ -68,7 +68,7 @@ void vGNSSprocessTask(void *pvParameters)
     //     gnss_processString(mes);
     // }
 
-    //gnss_setup();
+    gnss_setup();
 
     gnss_ret_e res = gnss_start(mode, fixFreq, timeoutS);
 
@@ -79,7 +79,7 @@ void vGNSSprocessTask(void *pvParameters)
         {
             gnss_processString(message);
 
-            //gnss_getData(&gnssData);
+            // gnss_getData(&gnssData);
             USART_PrintString(message);
 
             gnss_printState();
@@ -107,7 +107,6 @@ void osQueueGNSSprocessMessageFromISR(const char *gnssmess)
     }
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
-
 
 void setupGNSSprocess()
 {

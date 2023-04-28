@@ -304,17 +304,26 @@ void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16
   ST7735_SetAddressWindow(x, y, x + w - 1, y + h - 1);
 
   uint8_t data[] = {color >> 8, color & 0xFF};
-  LL_GPIO_SetOutputPin(DC_PORT, DC_PIN);
+  uint8_t buf[ST7735_WIDTH * 2];
+//  LL_GPIO_SetOutputPin(DC_PO RT, DC_PIN);
   for (y = h; y > 0; y--)
   {
     for (x = w; x > 0; x--)
     {
-      LL_SPI_TransmitData8(ST7735_SPI_PORT, data[0]);
-      LL_SPI_TransmitData8(ST7735_SPI_PORT, data[1]);
+      // buf[x] = data[0];
+      // buf[x + 1] = data[1];
+      TFT_WriteData(data, 2);
     }
+    // TFT_WriteData(buf, ST7735_WIDTH * 2);
+    // vTaskDelay(1);
   }
 
   TFT_Unselect();
+}
+
+void ST7735_FillScreen(uint16_t color)
+{
+  ST7735_FillRectangle(0, 0, _width, _height, color);
 }
 
 void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t *data)

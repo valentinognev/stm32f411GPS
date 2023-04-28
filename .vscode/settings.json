@@ -17,6 +17,7 @@
         "usarttask.h": "c",
         "serialcommtxtask.h": "c",
         "gnsscommrxtask.h": "c",
-        "tftcommtxtask.h": "c"
+        "tftcommtxtask.h": "c",
+        "freertos.h": "c"
     }
 }
