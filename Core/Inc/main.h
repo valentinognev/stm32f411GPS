@@ -87,18 +87,14 @@ void Error_Handler(void);
 #define TFT_SCK_GPIO_Port GPIOA
 #define TFT_MOSI_Pin LL_GPIO_PIN_7
 #define TFT_MOSI_GPIO_Port GPIOA
-#define LCD_BLK_Pin LL_GPIO_PIN_0
-#define LCD_BLK_GPIO_Port GPIOB
+#define TFT_BLK_Pin LL_GPIO_PIN_0
+#define TFT_BLK_GPIO_Port GPIOB
 #define TFT_RS_Pin LL_GPIO_PIN_1
 #define TFT_RS_GPIO_Port GPIOB
 #define TFT_CS_Pin LL_GPIO_PIN_12
 #define TFT_CS_GPIO_Port GPIOB
-#define LCD_SCL_Pin LL_GPIO_PIN_13
-#define LCD_SCL_GPIO_Port GPIOB
 #define TFT_RST_Pin LL_GPIO_PIN_14
 #define TFT_RST_GPIO_Port GPIOB
-#define LCD_SDI_Pin LL_GPIO_PIN_15
-#define LCD_SDI_GPIO_Port GPIOB
 #define GNSS_RST_Pin LL_GPIO_PIN_9
 #define GNSS_RST_GPIO_Port GPIOA
 #define GNSS_RX_Pin LL_GPIO_PIN_10
@@ -119,8 +115,8 @@ void Error_Handler(void);
 #define TFT_DMA                DMA2
 #define TFT_DMA_STREAM_TX      LL_DMA_STREAM_3
 #define SENSOR_DMA             DMA1
-#define SENSOR_DMA_STREAM_TX   LL_DMA_Stream_1
-#define SENSOR_DMA_STREAM_RX   LL_DMA_Stream_0
+#define SENSOR_DMA_STREAM_TX   LL_DMA_STREAM_1
+#define SENSOR_DMA_STREAM_RX   LL_DMA_STREAM_0
 #define SERIAL_DMA             DMA1
 #define SERIAL_DMA_STREAM_TX   LL_DMA_STREAM_6
 #define SERIAL_DMA_STREAM_RX   LL_DMA_STREAM_5
@@ -128,7 +124,16 @@ void Error_Handler(void);
 #define GNSS_DMA_STREAM_TX     LL_DMA_STREAM_7
 #define GNSS_DMA_STREAM_RX     LL_DMA_STREAM_2
 
+#define SENSOR_IRQTX DMA1_Stream1_IRQn
+#define SENSOR_IRQRX DMA1_Stream0_IRQn
+#define SENSOR_EVIRQn I2C1_EV_IRQn
+#define SENSOR_ERIRQn I2C1_ER_IRQn
+
 #define STACK_SIZE_WORDS 256
+#define map(x, in_min, in_max, out_min, out_max) (long)((x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min)
+#define micros xTaskGetTickCount
+#define I2C_BUFFER_LENGTH 128
+#define SENSOR_BUFFER_LENGTH I2C_BUFFER_LENGTH
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

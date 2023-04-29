@@ -226,3 +226,12 @@ build/CMakeFiles/stm32f411GPS.dir/Project/Src/ST7735/ST7735.c.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/TFTcommTXTask.cpp.obj
 build/CMakeFiles/Progress/2
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Queue.c.obj
+build/CMakeFiles/Progress/2
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Helper/Kalman.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Helper/MadgwickAHRS.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/AK8963/AK8963.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/MPU6050/MPU6050_6Axis_MotionApps20.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/MPU6050/MPU6050_6Axis_MotionApps612.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/MPU6050/MPU6050_9Axis_MotionApps41.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/MPU6050/MPU6050.cpp.obj
+build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/MPU9250KalmanTask.cpp.obj

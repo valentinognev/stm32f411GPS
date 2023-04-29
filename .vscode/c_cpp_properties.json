@@ -19,7 +19,10 @@
                 "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
                 "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/include",
                 "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F",
-                "${workspaceFolder}/Project/Inc/Tasks"
+                "${workspaceFolder}/Project/Inc/Tasks",
+                "${workspaceFolder}/Project/Inc/Helper",
+                "${workspaceFolder}/Project/Inc/Sensors/MPU6050",
+                "${workspaceFolder}/Project/Inc/Sensors/AK8963"
             ],
             "defines": [
                 "STM32F411xE",

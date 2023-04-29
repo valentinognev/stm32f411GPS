@@ -29,14 +29,14 @@ enum TFTmessageType
     TFT_RESET
 };
 
-struct LCDMessage
+struct TFTMessage
 {
     TFTmessageType type;
     uint8_t len;
     uint8_t *ucData = nullptr;//[TFTMESSAGE_SIZE];
  };
 
-bool osQueueTFTMessage(const LCDMessage& lcdMessage_, const uint8_t *buf, const uint16_t len);
+bool osQueueTFTMessage(const TFTMessage& TFTMessage_, const uint8_t *buf, const uint16_t len);
 
 
 // DMA_HandleTypeDef dma;
@@ -49,15 +49,15 @@ bool osQueueTFTMessage(const LCDMessage& lcdMessage_, const uint8_t *buf, const 
   */
  void vTFTcommTXTask(void *pvParameters)
  {
-    LCDMessage lcdMessage;
+    TFTMessage TFTMessage;
 
     while (1)
     {
-        if (xQueueReceive(xTFTcommTXQueue, &lcdMessage, portMAX_DELAY))
+        if (xQueueReceive(xTFTcommTXQueue, &TFTMessage, portMAX_DELAY))
         { // Receive a message from the queue
             
             LL_DMA_DisableStream(TFT_DMA, TFT_DMA_STREAM_TX);
-            switch (lcdMessage.type)
+            switch (TFTMessage.type)
             {
             case TFT_COMMAND:
                 LL_GPIO_ResetOutputPin(TFT_RS_GPIO_Port, TFT_RS_Pin);
@@ -73,24 +73,24 @@ bool osQueueTFTMessage(const LCDMessage& lcdMessage_, const uint8_t *buf, const 
                 break;
             case TFT_RESET:
                 LL_GPIO_ResetOutputPin(TFT_RST_GPIO_Port, TFT_RST_Pin);
-                vTaskDelay(portTICK_PERIOD_MS * 5);
+                vTaskDelay(pdMS_TO_TICKS(5));
                 LL_GPIO_SetOutputPin(TFT_RST_GPIO_Port, TFT_RST_Pin);
                 break;
             default:
                 break;
             }
-            if (lcdMessage.len > 0)
+            if (TFTMessage.len > 0)
             {
-                LL_DMA_SetDataLength(TFT_DMA, TFT_DMA_STREAM_TX, lcdMessage.len); // Set amount of copied bits for DMA
-                LL_DMA_ConfigAddresses(TFT_DMA, TFT_DMA_STREAM_TX, (uint32_t)lcdMessage.ucData,
+                LL_DMA_SetDataLength(TFT_DMA, TFT_DMA_STREAM_TX, TFTMessage.len); // Set amount of copied bits for DMA
+                LL_DMA_ConfigAddresses(TFT_DMA, TFT_DMA_STREAM_TX, (uint32_t)TFTMessage.ucData,
                            LL_SPI_DMA_GetRegAddr(TFT_SPI), LL_DMA_DIRECTION_MEMORY_TO_PERIPH); // Send message from memory to the USART Data Register
                 LL_SPI_Enable(TFT_SPI);
                 LL_DMA_EnableStream(TFT_DMA, TFT_DMA_STREAM_TX);
                 xTaskNotifyWait(0x00, 0x00, NULL, portMAX_DELAY);
                 LL_DMA_DisableStream(TFT_DMA, TFT_DMA_STREAM_TX);
                 LL_SPI_Disable(TFT_SPI);
-                vPortFree(lcdMessage.ucData);
-                lcdMessage.ucData=nullptr;
+                vPortFree(TFTMessage.ucData);
+                TFTMessage.ucData=nullptr;
             }
         }
     }
@@ -100,13 +100,13 @@ void setupTFTcommTX()
 {
     LL_GPIO_SetOutputPin(TFT_CS_GPIO_Port, TFT_CS_Pin);
     LL_GPIO_SetOutputPin(TFT_RST_GPIO_Port, TFT_RST_Pin);
-    LL_GPIO_SetOutputPin(LCD_BLK_GPIO_Port,LCD_BLK_Pin);
+    LL_GPIO_SetOutputPin(TFT_BLK_GPIO_Port,TFT_BLK_Pin);
 
     LL_SPI_EnableDMAReq_TX(TFT_SPI);
     LL_DMA_EnableIT_TC(TFT_DMA, TFT_DMA_STREAM_TX);
     LL_DMA_EnableIT_TE(TFT_DMA, TFT_DMA_STREAM_TX);
 
-    xTFTcommTXQueue = xQueueCreate(TFTcommTX_QUEUE_SIZE, sizeof(LCDMessage));
+    xTFTcommTXQueue = xQueueCreate(TFTcommTX_QUEUE_SIZE, sizeof(TFTMessage));
     xTaskCreate(vTFTcommTXTask, "TFT_TX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 4, &xTFTcommTXTaskHandle);
 }
 
@@ -138,69 +138,69 @@ void TFT_DMA_TransferError_Callback(void)
 
 void TFT_WriteCommand(uint8_t cmd)
 {
-    LCDMessage lcdMessage = {.type = TFT_COMMAND, .len = 1, .ucData = nullptr };
-    osQueueTFTMessage(lcdMessage, &cmd, 1);
+    TFTMessage TFTMessage = {.type = TFT_COMMAND, .len = 1, .ucData = nullptr };
+    osQueueTFTMessage(TFTMessage, &cmd, 1);
 }
 
 void TFT_WriteData(uint8_t *buff, size_t buff_size)
 {
-    LCDMessage lcdMessage = {.type = TFT_DATA, .len = buff_size, .ucData = nullptr};
-    osQueueTFTMessage(lcdMessage, buff, buff_size);
+    TFTMessage TFTMessage = {.type = TFT_DATA, .len = buff_size, .ucData = nullptr};
+    osQueueTFTMessage(TFTMessage, buff, buff_size);
 }
 
 void TFT_Select()
 {
-    LCDMessage lcdMessage = {.type = TFT_SELECT, .len = 0, .ucData = nullptr};
-    osQueueTFTMessage(lcdMessage, nullptr, 0);
+    TFTMessage TFTMessage = {.type = TFT_SELECT, .len = 0, .ucData = nullptr};
+    osQueueTFTMessage(TFTMessage, nullptr, 0);
 }
 
 void TFT_Unselect()
 {
-    LCDMessage lcdMessage = {.type = TFT_UNSELECT, .len = 0, .ucData = nullptr};
-    xQueueSend(xTFTcommTXQueue, &lcdMessage, portMAX_DELAY);
-    osQueueTFTMessage(lcdMessage, nullptr, 0);
+    TFTMessage TFTMessage = {.type = TFT_UNSELECT, .len = 0, .ucData = nullptr};
+    xQueueSend(xTFTcommTXQueue, &TFTMessage, portMAX_DELAY);
+    osQueueTFTMessage(TFTMessage, nullptr, 0);
 }
 
 void TFT_Reset()
 {
-    LCDMessage lcdMessage = {.type = TFT_RESET, .len = 0, .ucData = nullptr};
-    osQueueTFTMessage(lcdMessage, nullptr, 0);
+    TFTMessage TFTMessage = {.type = TFT_RESET, .len = 0, .ucData = nullptr};
+    osQueueTFTMessage(TFTMessage, nullptr, 0);
 }
 
-bool osQueueTFTMessage(const LCDMessage& lcdMessage_, const uint8_t *buf, const uint16_t len)
+bool osQueueTFTMessage(const TFTMessage& TFTMessage_, const uint8_t *buf, const uint16_t len)
 {
     // TODO: Less copying around bits
 
     // configASSERT(strlen(message) < 127);
-    LCDMessage lcdMessage = lcdMessage_;
+    TFTMessage TFTMessage = TFTMessage_;
     if (len==0)      
     {
-        xQueueSend(xTFTcommTXQueue, (void *)(&lcdMessage), (TickType_t)0);
+        xQueueSend(xTFTcommTXQueue, (void *)(&TFTMessage), (TickType_t)0);
         return true;
     }
     
-    lcdMessage.ucData = (uint8_t *)pvPortMalloc(len);
-     if (lcdMessage.ucData == nullptr)
+    TFTMessage.ucData = (uint8_t *)pvPortMalloc(len);
+     if (TFTMessage.ucData == nullptr)
     {
         if (len==1)
         {
             USART_PrintString("ERROR! Not enough memory to store UART string\r\n");
             return false;
         }   
-        osQueueTFTMessage(lcdMessage_, buf, len/2);
-        osQueueTFTMessage(lcdMessage_, buf+len/2, len-len/2);
+        osQueueTFTMessage(TFTMessage_, buf, len/2);
+        osQueueTFTMessage(TFTMessage_, buf+len/2, len-len/2);
     }
     else
     {
-        memcpy(lcdMessage.ucData, buf, len);
-        lcdMessage.len = len;
+        memcpy(TFTMessage.ucData, buf, len);
+        TFTMessage.len = len;
 
         // TODO: Show a warning if the queue is full (e.g. replace the last
         // message in the queue)
-        if (xQueueSend(xTFTcommTXQueue, (void *)(&lcdMessage), (TickType_t)0) == pdFAIL)
+        if (xQueueSend(xTFTcommTXQueue, (void *)(&TFTMessage), (TickType_t)0) == pdFAIL)
         {
             // Make sure to deallocate the failed message
-            vPortFree(lcdMessage.ucData);
+            vPortFree(TFTMessage.ucData);
         }
     }
 }

@@ -26,7 +26,7 @@ bool xGNSSprocessReadFromQueue(char *message);
 void vGNSSprocessTask(void *pvParameters)
 {
 
-    vTaskDelay(portTICK_PERIOD_MS * 500);
+    vTaskDelay(pdMS_TO_TICKS(500));
     vTaskPrioritySet(xGNSSprocessTaskHandle, tskIDLE_PRIORITY + 3);
 
     gnss_simple_data_t gnssData = {
@@ -57,10 +57,10 @@ void vGNSSprocessTask(void *pvParameters)
     LL_USART_DisableDMAReq_RX(GNSS_USART);
     LL_USART_DisableIT_IDLE(GNSS_USART);
     LL_USART_EnableIT_RXNE(GNSS_USART);
-    vTaskDelay(portTICK_PERIOD_MS * 1); // 10 ms min according to doc
+    vTaskDelay(pdMS_TO_TICKS(1)); // 10 ms min according to doc
 
     LL_GPIO_ResetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
-    vTaskDelay(portTICK_PERIOD_MS * 30); // 10 ms min according to doc
+    vTaskDelay(pdMS_TO_TICKS(30)); // 10 ms min according to doc
     LL_GPIO_SetOutputPin(ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_BANK, ITSDK_DRIVERS_GNSS_QUECTEL_NRESET_PIN);
     // char mes[GNSS_INIT_BUFFER_SIZE];
     // if (xQueueReceive(xGNSSprocessQueue, mes, portMAX_DELAY))

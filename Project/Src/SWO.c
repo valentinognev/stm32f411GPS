@@ -1,7 +1,5 @@
 #include "SWO.h"
 #include "main.h"
-#include "GUI.h"
-#include "Lcd_Driver.h"
 //extern UART_HandleTypeDef huart2;
 
 #define HEX_CHARS      "0123456789ABCDEF"
@@ -194,11 +192,3 @@ void USART_PrintBufHexFancy(char *buf, uint16_t bufsize, uint8_t column_width, c
 	}
 }
 
-/// @brief The function prints a string on the TFT screen, starting at line lineNum.
-/// @param lineNum - the line number to start printing the string on.
-/// @param s - the string to print.
-void TFT_PrintString(int16_t lineNum, char const *s)
-{
-    // This function prints a string on the screen, starting at line lineNum.
-    Gui_DrawFont_GBK16(8, (lineNum-1)*16 , BLUE, GRAY0, s);
-}

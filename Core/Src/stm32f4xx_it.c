@@ -28,6 +28,7 @@
 #include "GNSScommTXTask.h"
 #include "GNSSprocessTask.h"
 #include "SERIALcommTXTask.h"
+#include "I2Cdev4C.h"
 
 extern TaskHandle_t xGNSScommRXTaskHandle;
 /* USER CODE END Includes */
@@ -181,14 +182,14 @@ void DMA1_Stream0_IRQHandler(void)
     /*Check for transfer complete flag*/
     if (LL_DMA_IsActiveFlag_TC0(DMA1))
     {
-        i2c_receive_complete_callback();
+        DMA_I2C_RX_ISR();
         LL_DMA_ClearFlag_TC0(DMA1);
     }
 
     /*Check for transfer error flag*/
     if (LL_DMA_IsActiveFlag_TE0(DMA1))
     {
-        i2c_receive_error_callback();
+        DMA_I2C_RX_ISR_ERR();
     }
 
   /* USER CODE END DMA1_Stream0_IRQn 0 */
@@ -208,14 +209,14 @@ void DMA1_Stream1_IRQHandler(void)
     /*Check for transfer complete flag*/
     if (LL_DMA_IsActiveFlag_TC1(DMA1))
     {
-        i2c_transfer_complete_callback();
+        DMA_I2C_TX_ISR();
         LL_DMA_ClearFlag_TC1(DMA1);
     }
 
     /*Check for transfer error flag*/
     if (LL_DMA_IsActiveFlag_TE1(DMA1))
     {
-        i2c_transfer_error_callback();
+        DMA_I2C_TX_ISR_ERR();
     }
 
   /* USER CODE END DMA1_Stream1_IRQn 0 */

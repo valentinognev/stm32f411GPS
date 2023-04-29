@@ -38,19 +38,12 @@ THE SOFTWARE.
 #include "main.h"
 #include <stdint.h>
 
+#define I2CDEV_DEFAULT_READ_TIMEOUT 1000
+
 typedef uint8_t byte;
 
 /** Default readTimeout value for read operations.
  */
-#define I2CDEV_DEFAULT_READ_TIMEOUT 1000
-#define I2CDEVICE I2C1
-#define I2CDMA DMA1
-#define I2CDMA_STREAM_TX LL_DMA_STREAM_1
-#define I2CDMA_STREAM_RX LL_DMA_STREAM_0
-#define I2CIRQTX DMA1_Stream1_IRQn
-#define I2CIRQRX DMA1_Stream0_IRQn
-#define I2CEVIRQn I2C1_EV_IRQn
-#define I2CERIRQn I2C1_ER_IRQn
 
 class I2Cdev
 {

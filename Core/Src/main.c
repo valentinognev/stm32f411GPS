@@ -653,15 +653,13 @@ static void MX_GPIO_Init(void)
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOB, LCD_BLK_Pin|TFT_RS_Pin|TFT_CS_Pin|LCD_SCL_Pin
-                          |TFT_RST_Pin|LCD_SDI_Pin);
+  LL_GPIO_ResetOutputPin(GPIOB, TFT_BLK_Pin|TFT_RS_Pin|TFT_CS_Pin|TFT_RST_Pin);
 
   /**/
   LL_GPIO_ResetOutputPin(GNSS_RST_GPIO_Port, GNSS_RST_Pin);
 
   /**/
-  GPIO_InitStruct.Pin = LCD_BLK_Pin|TFT_RS_Pin|TFT_CS_Pin|LCD_SCL_Pin
-                          |TFT_RST_Pin|LCD_SDI_Pin;
+  GPIO_InitStruct.Pin = TFT_BLK_Pin|TFT_RS_Pin|TFT_CS_Pin|TFT_RST_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;

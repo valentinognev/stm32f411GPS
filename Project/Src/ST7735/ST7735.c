@@ -109,7 +109,7 @@ void DisplayInit(const uint8_t *addr)
       ms = *addr++;
       if (ms == 255)
         ms = 500;
-      vTaskDelay(portTICK_PERIOD_MS * ms);
+      vTaskDelay(pdMS_TO_TICKS(ms));
     }
     __NOP();
   }
