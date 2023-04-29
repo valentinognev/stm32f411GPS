@@ -83,8 +83,6 @@ void Error_Handler(void);
 #define SERIAL_TX_GPIO_Port GPIOA
 #define SERIAL_RX_Pin LL_GPIO_PIN_3
 #define SERIAL_RX_GPIO_Port GPIOA
-#define GNSS_RST_Pin LL_GPIO_PIN_4
-#define GNSS_RST_GPIO_Port GPIOA
 #define TFT_SCK_Pin LL_GPIO_PIN_5
 #define TFT_SCK_GPIO_Port GPIOA
 #define TFT_MOSI_Pin LL_GPIO_PIN_7
@@ -101,6 +99,8 @@ void Error_Handler(void);
 #define TFT_RST_GPIO_Port GPIOB
 #define LCD_SDI_Pin LL_GPIO_PIN_15
 #define LCD_SDI_GPIO_Port GPIOB
+#define GNSS_RST_Pin LL_GPIO_PIN_9
+#define GNSS_RST_GPIO_Port GPIOA
 #define GNSS_RX_Pin LL_GPIO_PIN_10
 #define GNSS_RX_GPIO_Port GPIOA
 #define GNSS_TX_Pin LL_GPIO_PIN_15
