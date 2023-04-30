@@ -227,6 +227,32 @@ void DMA1_Stream1_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA1 stream4 global interrupt.
+  */
+void DMA1_Stream4_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream4_IRQn 0 */
+    // TFT SPI TX
+    if (LL_DMA_IsActiveFlag_TC4(TFT_DMA))
+    {
+        LL_DMA_ClearFlag_TC4(TFT_DMA);
+        /* Call function Transmission complete Callback */
+        TFT_DMA_TransmitComplete_Callback();
+    }
+    else if (LL_DMA_IsActiveFlag_TE4(TFT_DMA))
+    {
+        /* Call Error function */
+        TFT_DMA_TransferError_Callback();
+    }
+
+  /* USER CODE END DMA1_Stream4_IRQn 0 */
+
+  /* USER CODE BEGIN DMA1_Stream4_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream4_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 stream5 global interrupt.
   */
 void DMA1_Stream5_IRQHandler(void)
@@ -379,6 +405,19 @@ void SPI1_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles SPI2 global interrupt.
+  */
+void SPI2_IRQHandler(void)
+{
+  /* USER CODE BEGIN SPI2_IRQn 0 */
+
+  /* USER CODE END SPI2_IRQn 0 */
+  /* USER CODE BEGIN SPI2_IRQn 1 */
+
+  /* USER CODE END SPI2_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
@@ -434,6 +473,20 @@ void USART2_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA2 stream0 global interrupt.
+  */
+void DMA2_Stream0_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream0_IRQn 0 */
+
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream0_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA2 stream2 global interrupt.
   */
 void DMA2_Stream2_IRQHandler(void)
@@ -458,18 +511,7 @@ void DMA2_Stream2_IRQHandler(void)
 void DMA2_Stream3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
-  // SPI TX
-  if (LL_DMA_IsActiveFlag_TC3(TFT_DMA))
-  {
-    LL_DMA_ClearFlag_TC3(TFT_DMA);
-    /* Call function Transmission complete Callback */
-    TFT_DMA_TransmitComplete_Callback();
-  }
-  else if (LL_DMA_IsActiveFlag_TE3(TFT_DMA))
-  {
-    /* Call Error function */
-    TFT_DMA_TransferError_Callback();
-  }
+
   /* USER CODE END DMA2_Stream3_IRQn 0 */
 
   /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */

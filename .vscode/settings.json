@@ -1,6 +1,7 @@
 {
     "cortex-debug.armToolchainPath": "/usr/bin",
     "cortex-debug.openocdPath": "/usr/local/bin/openocd",
+    "cortex-debug.JLinkGDBServerPath": "/usr/bin/JLinkGDBServer",
     "files.associations": {
         "*.json": "json",
         "stdarg.h": "c",

@@ -235,3 +235,13 @@ build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/MPU6050/MPU6050_6Axis_Moti
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/MPU6050/MPU6050_9Axis_MotionApps41.cpp.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Sensors/MPU6050/MPU6050.cpp.obj
 build/CMakeFiles/stm32f411GPS.dir/Project/Src/Tasks/MPU9250KalmanTask.cpp.obj
+build/build.ninja
+build/jlink-script
+build/rules.ninja
+build/.cmake/api/v1/query/client-vscode/query.json
+build/.cmake/api/v1/reply/cache-v2-a6e2d06e2964fb0790c0.json
+build/.cmake/api/v1/reply/cmakeFiles-v1-7f2299b1ee8420e34f49.json
+build/.cmake/api/v1/reply/codemodel-v2-058f3f5b859c941cd203.json
+build/.cmake/api/v1/reply/index-2023-04-30T19-30-08-0418.json
+build/.cmake/api/v1/reply/target-firmware-Debug-794ece64a767bec4f7bb.json
+build/CMakeFiles/Progress/2
