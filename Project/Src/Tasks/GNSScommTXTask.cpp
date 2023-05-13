@@ -50,7 +50,7 @@ void setupGNSScommTX()
 
     LL_DMA_DisableStream(GNSS_DMA, GNSS_DMA_STREAM_TX);
 
-    xTaskCreate(vGNSScommTXTask, "GNSScommTX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 3, &xGNSScommTXTaskHandle);
+    xTaskCreate(vGNSScommTXTask, "GNSScommTX", STACK_SIZE_WORDS, NULL, GNSScommTxTaskPriority, &xGNSScommTXTaskHandle);
 }
 
 void DMA_GNSS_TX_ISR(void)

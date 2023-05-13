@@ -93,7 +93,7 @@ void setupSERIALcommRX()
     LL_DMA_EnableIT_TC(SERIAL_DMA, SERIAL_DMA_STREAM_RX);
     LL_USART_EnableIT_IDLE(SERIAL_USART);
 
-    xTaskCreate(vSERIALcommRXTask, "SERIALcommRX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 3, &xSERIALcommRXTaskHandle);
+    xTaskCreate(vSERIALcommRXTask, "SERIALcommRX", STACK_SIZE_WORDS, NULL, SERIALcommRXTaskPriority, &xSERIALcommRXTaskHandle);
     __NOP();
     //xUSARTQueue = xQueueCreate(USART_QUEUE_SIZE, sizeof(UARTMessage_t *));
 }

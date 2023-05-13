@@ -369,12 +369,20 @@ void I2C1_EV_IRQHandler(void)
         /* Clear ADDR flag value in ISR register */
         LL_I2C_ClearFlag_ADDR(I2C1);
     }
+    else if (LL_I2C_IsActiveFlag_AF)
+    {
+      LL_I2C_ClearFlag_AF(I2C1);
+    }
+    else
+    {
+        /* Call Error function */
+        Error_Callback();
+    }
+    /* USER CODE END I2C1_EV_IRQn 0 */
 
-  /* USER CODE END I2C1_EV_IRQn 0 */
+    /* USER CODE BEGIN I2C1_EV_IRQn 1 */
 
-  /* USER CODE BEGIN I2C1_EV_IRQn 1 */
-
-  /* USER CODE END I2C1_EV_IRQn 1 */
+    /* USER CODE END I2C1_EV_IRQn 1 */
 }
 
 /**

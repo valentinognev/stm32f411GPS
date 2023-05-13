@@ -110,6 +110,8 @@ static float magCalibration[3];
 
 static I2Cdev i2cdev;
 
+TaskHandle_t xMPU9250KalmanTaskHandle;
+
 static void updateAK8963();
 static void updateMPU6050();
 static void updateYaw();
@@ -123,38 +125,38 @@ void MPU9250KalmanTask(void *pvParameters)
 #if 0
 	// Get Device ID
 	uint8_t DeviceID = mpu.getDeviceID();
-	osQueueSERIALMessage("DeviceID=0x%x", DeviceID);
+	osQueueSERIALMessage("DeviceID=0x%x\n", DeviceID);
 	if (DeviceID != 0x34) {
-		osQueueSERIALMessage("MPU6050 not found");
+		osQueueSERIALMessage("MPU6050 not found\n");
 		vTaskDelete(NULL);
 	}
 #endif
 
     // Get the sample rate
-    osQueueSERIALMessage("getRate()=%d", mpu.getRate());
+    osQueueSERIALMessage("getRate()=%d\n", mpu.getRate());
     // Set the sample rate to 8kHz
     if (mpu.getRate() != 0)
         mpu.setRate(0);
 
     // Get FSYNC configuration value
-    osQueueSERIALMessage("getExternalFrameSync()=%d", mpu.getExternalFrameSync());
+    osQueueSERIALMessage("getExternalFrameSync()=%d\n", mpu.getExternalFrameSync());
     // Disable FSYNC and set 260 Hz Acc filtering, 256 Hz Gyro filtering
     if (mpu.getExternalFrameSync() != 0)
         mpu.setExternalFrameSync(0);
 
     // Set Digital Low Pass Filter
-    osQueueSERIALMessage("getDLPFMode()=%d", mpu.getDLPFMode());
+    osQueueSERIALMessage("getDLPFMode()=%d\n", mpu.getDLPFMode());
     if (mpu.getDLPFMode() != 6)
         mpu.setDLPFMode(6);
 
     // Get Accelerometer Scale Range
-    osQueueSERIALMessage("getFullScaleAccelRange()=%d", mpu.getFullScaleAccelRange());
+    osQueueSERIALMessage("getFullScaleAccelRange()=%d\n", mpu.getFullScaleAccelRange());
     // Set Accelerometer Full Scale Range to ±2g
     if (mpu.getFullScaleAccelRange() != 0)
         mpu.setFullScaleAccelRange(0);
 
     // Get Gyro Scale Range
-    osQueueSERIALMessage("getFullScaleGyroRange()=%d", mpu.getFullScaleGyroRange());
+    osQueueSERIALMessage("getFullScaleGyroRange()=%d\n", mpu.getFullScaleGyroRange());
     // Set Gyro Full Scale Range to ±250deg/s
     if (mpu.getFullScaleGyroRange() != 0)
         mpu.setFullScaleGyroRange(0);
@@ -164,10 +166,10 @@ void MPU9250KalmanTask(void *pvParameters)
 
     // Get MAG Device ID
     uint8_t MagDeviceID = mag.getDeviceID();
-    osQueueSERIALMessage("MagDeviceID=0x%x", MagDeviceID);
+    osQueueSERIALMessage("MagDeviceID=0x%x\n", MagDeviceID);
     if (MagDeviceID != 0x48)
     {
-        osQueueSERIALMessage("AK8963 not found");
+        osQueueSERIALMessage("AK8963 not found\n");
         // vTaskDelete(NULL);
     }
 
@@ -185,14 +187,14 @@ void MPU9250KalmanTask(void *pvParameters)
     MagAdjustmentValue[0] = mag.getAdjustmentX();
     MagAdjustmentValue[1] = mag.getAdjustmentY();
     MagAdjustmentValue[2] = mag.getAdjustmentZ();
-    osQueueSERIALMessage("MagAdjustmentValue: %x %x %x", MagAdjustmentValue[0], MagAdjustmentValue[1], MagAdjustmentValue[2]);
+    osQueueSERIALMessage("MagAdjustmentValue: %x %x %x\n", MagAdjustmentValue[0], MagAdjustmentValue[1], MagAdjustmentValue[2]);
 
     // Calculate sensitivity
     // from datasheet 8.3.11
     for (int i = 0; i < 3; i++)
     {
         magCalibration[i] = (float)(MagAdjustmentValue[i] - 128) / 256.0f + 1.0f;
-        osQueueSERIALMessage("magCalibration[%d]=%f", i, magCalibration[i]);
+        osQueueSERIALMessage("magCalibration[%d]=%f\n", i, magCalibration[i]);
     }
 
     // Goto Powerdown Mode
@@ -362,7 +364,7 @@ void MPU9250KalmanTask(void *pvParameters)
             float _yaw = yaw - initial_yaw;
             if (_yaw < -180.0)
                 _yaw = _yaw + 360.0;
-            osQueueSERIALMessage("roll:%f pitch=%f yaw=%f", _roll, _pitch, _yaw);
+            osQueueSERIALMessage("roll:%f pitch=%f yaw=%f\n", _roll, _pitch, _yaw);
 
             POSE_t pose;
             pose.roll = _roll;
@@ -373,7 +375,7 @@ void MPU9250KalmanTask(void *pvParameters)
             // 	ESP_LOGE(pcTaskGetName(NULL), "xQueueSend fail");
             // }
 
-            LL_mDelay(1);
+            LL_mDelay(100);
             elapsed = 0;
         }
 
@@ -393,12 +395,12 @@ static bool getMagRaw(int16_t *mx, int16_t *my, int16_t *mz)
         uint8_t _raw;
         i2cdev.readByte(MAG_ADDRESS, reg, &_raw);
         rawData[i] = _raw;
-        osQueueSERIALMessage("read_mag(0x%d)=%x", reg, rawData[i]);
+        osQueueSERIALMessage("read_mag(0x%d)=%x\n", reg, rawData[i]);
     }
 
     if (rawData[6] & 0x08)
     {
-        osQueueSERIALMessage("*****magnetic sensor overflow*****");
+        osQueueSERIALMessage("*****magnetic sensor overflow*****\n");
 
         return false;
     }
@@ -412,19 +414,19 @@ static bool getMagRaw(int16_t *mx, int16_t *my, int16_t *mz)
     *my = ((int16_t)rawData[3] << 8) | rawData[2];
     *mz = ((int16_t)rawData[5] << 8) | rawData[4];
 #endif
-    osQueueSERIALMessage("mx=0x%x my=0x%x mz=0x%x", *mx, *my, *mz);
+    osQueueSERIALMessage("mx=0x%x my=0x%x mz=0x%x\n", *mx, *my, *mz);
 
     return true;
 }
 
 static bool getMagData(int16_t *mx, int16_t *my, int16_t *mz)
 {
-    osQueueSERIALMessage("mag.getDeviceID()=0x%x", mag.getDeviceID());
+    osQueueSERIALMessage("mag.getDeviceID()=0x%x\n", mag.getDeviceID());
     if (mag.getDeviceID() != 0x48)
     {
-        osQueueSERIALMessage("*****AK8963 connection lost*****");
+        osQueueSERIALMessage("*****AK8963 connection lost*****\n");
 
-        osQueueSERIALMessage("mag.getDeviceID()=0x%x", mag.getDeviceID());
+        osQueueSERIALMessage("mag.getDeviceID()=0x%x\n", mag.getDeviceID());
 
         // Bypass Enable Configuration
         mpu.setI2CBypassEnabled(true);
@@ -432,11 +434,11 @@ static bool getMagData(int16_t *mx, int16_t *my, int16_t *mz)
         return false;
     }
 
-    osQueueSERIALMessage("mag.getMode()=0x%x", mag.getMode());
+    osQueueSERIALMessage("mag.getMode()=0x%x\n", mag.getMode());
     if (mag.getMode() != 0x06)
     {
-        osQueueSERIALMessage("*****AK8963 illegal data mode*****");
-        osQueueSERIALMessage("mag.getMode()=0x%x", mag.getMode());
+        osQueueSERIALMessage("*****AK8963 illegal data mode*****\n");
+        osQueueSERIALMessage("mag.getMode()=0x%x\n", mag.getMode());
         // Bypass Enable Configuration
         mpu.setI2CBypassEnabled(true);
         LL_mDelay(100);
@@ -444,7 +446,7 @@ static bool getMagData(int16_t *mx, int16_t *my, int16_t *mz)
     }
 
     // Wait until DataReady
-    osQueueSERIALMessage("mag.getDataReady()=0x%x", mag.getDataReady());
+    osQueueSERIALMessage("mag.getDataReady()=0x%x\n", mag.getDataReady());
     for (int retry = 0; retry < 10; retry++)
     {
         if (mag.getDataReady())
@@ -460,14 +462,14 @@ static bool getMagData(int16_t *mx, int16_t *my, int16_t *mz)
         }
         else
         {
-            osQueueSERIALMessage("*****AK8963 magnetic sensor overflow*****");
+            osQueueSERIALMessage("*****AK8963 magnetic sensor overflow*****\n");
             return false;
         }
     }
     else
     {
-        osQueueSERIALMessage("*****AK8963 data not ready*****");
-        osQueueSERIALMessage("mag.getDataReady()=0x%x", mag.getDataReady());
+        osQueueSERIALMessage("*****AK8963 data not ready*****\n");
+        osQueueSERIALMessage("mag.getDataReady()=0x%x\n", mag.getDataReady());
         // vTaskDelay(10);
         return false;
     }
@@ -492,17 +494,17 @@ static void updateAK8963()
     int16_t mx, my, mz;
     if (getMagData(&mx, &my, &mz))
     {
-        osQueueSERIALMessage("mag=%d %d %d", mx, my, mz);
+        osQueueSERIALMessage("mag=%d %d %d\n", mx, my, mz);
 
-        mx = mx + CONFIG_MAGX;
-        my = my + CONFIG_MAGY;
-        mz = mz + CONFIG_MAGZ;
+        mx += CONFIG_MAGX;
+        my += CONFIG_MAGY;
+        mz += CONFIG_MAGZ;
         // adjust sensitivity
         // from datasheet 8.3.11
         magX = mx * magCalibration[0];
         magY = my * magCalibration[1];
         magZ = mz * magCalibration[2];
-        osQueueSERIALMessage("mag=%f %f %f", magX, magY, magZ);
+        osQueueSERIALMessage("mag=%f %f %f\n", magX, magY, magZ);
     }
 }
 
@@ -544,4 +546,9 @@ static void updateYaw()
     yaw = atan2(-Bfy, Bfx) * RAD_TO_DEG;
 
     // yaw *= -1;
+}
+
+void setupMPU9250Kalman()
+{
+    xTaskCreate(MPU9250KalmanTask, "MPU9250Kalman", STACK_SIZE_WORDS, NULL, MPU9250KalmanTaskPriority, &xMPU9250KalmanTaskHandle);
 }

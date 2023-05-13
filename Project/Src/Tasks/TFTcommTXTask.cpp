@@ -107,7 +107,7 @@ void setupTFTcommTX()
     LL_DMA_EnableIT_TE(TFT_DMA, TFT_DMA_STREAM_TX);
 
     xTFTcommTXQueue = xQueueCreate(TFTcommTX_QUEUE_SIZE, sizeof(TFTMessage));
-    xTaskCreate(vTFTcommTXTask, "TFT_TX", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 4, &xTFTcommTXTaskHandle);
+    xTaskCreate(vTFTcommTXTask, "TFT_TX", STACK_SIZE_WORDS, NULL, TFTcommTXTaskPriority, &xTFTcommTXTaskHandle);
 }
 
 /**

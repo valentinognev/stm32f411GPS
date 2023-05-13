@@ -21,16 +21,18 @@
 #include "SERIALcommRXTask.h"
 #include "SERIALcommTXTask.h"
 #include "TFTcommTXTask.h"
+#include "MPU9250KalmanTask.h"
 #include "InfoTask.h"
 
 void ProjectMain()
 {
-    setupTFTcommTX();    
-    setupSERIALcommRX();
+ //   setupTFTcommTX();    
+ //   setupSERIALcommRX();
     setupSERIALcommTX();
-    setupGNSSprocess();
-    setupGNSScommTX();
-   // setupGNSScommRX();
+   setupGNSSprocess();
+   setupGNSScommTX();
+    setupMPU9250Kalman();
+    // setupGNSScommRX();
 
     // SWO_PrintString("Hello World!\r
     configSTACK_DEPTH_TYPE xStackSize = 512;

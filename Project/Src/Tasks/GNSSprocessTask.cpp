@@ -27,7 +27,7 @@ void vGNSSprocessTask(void *pvParameters)
 {
 
     vTaskDelay(pdMS_TO_TICKS(500));
-    vTaskPrioritySet(xGNSSprocessTaskHandle, tskIDLE_PRIORITY + 3);
+    vTaskPrioritySet(xGNSSprocessTaskHandle, GNSSprocessTaskPriority + 1);
 
     gnss_simple_data_t gnssData = {
         .hour = 0,
@@ -111,7 +111,7 @@ void osQueueGNSSprocessMessageFromISR(const char *gnssmess)
 void setupGNSSprocess()
 {
     xGNSSprocessQueue = xQueueCreate(GNSS_PROCESS_QUEUE_SIZE, GNSS_INIT_BUFFER_SIZE);
-    xTaskCreate(vGNSSprocessTask, "GNSSprocess", STACK_SIZE_WORDS, NULL, tskIDLE_PRIORITY + 2, NULL);
+    xTaskCreate(vGNSSprocessTask, "GNSSprocess", STACK_SIZE_WORDS, NULL, GNSSprocessTaskPriority, NULL);
 }
 
 void GNSSreceiveData()

@@ -19,9 +19,8 @@
 
 typedef char *IMUprocessMessage_t;
 
-void setupIMUprocess();
-void vIMUprocessTask(void *pvParameters);
-void osQueueIMUprocessMessageFromISR(const char *IMUmess);
+void setupMPU9250Kalman();
+void MPU9250KalmanTask(void *pvParameters);
 
 #undef EXTERNC
 #endif /* IMU_TASK_H_ */

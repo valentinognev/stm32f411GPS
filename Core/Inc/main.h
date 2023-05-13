@@ -115,6 +115,14 @@ void Error_Handler(void);
 #define SENSOR_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+#define GNSScommTxTaskPriority 3
+#define GNSSprocessTaskPriority 2
+#define InfoTaskPriority 3
+#define MPU9250KalmanTaskPriority 3
+#define SERIALcommRXTaskPriority 3
+#define SERIALcommTXTaskPriority 4
+#define TFTcommTXTaskPriority 4
+
 #define GNSS_USART USART1
 #define SERIAL_USART USART2
 #define SENSOR_I2C I2C1
