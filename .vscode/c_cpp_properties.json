@@ -14,7 +14,6 @@
                 "${workspaceFolder}/USB_DEVICE/Target",
                 "${workspaceFolder}/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc",
                 "${workspaceFolder}/Project/Inc/GPS",
-                "${workspaceFolder}/Project/Inc/TFT",
                 "${workspaceFolder}/Project/Inc/ST7735",
                 "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
                 "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/include",
@@ -22,7 +21,9 @@
                 "${workspaceFolder}/Project/Inc/Tasks",
                 "${workspaceFolder}/Project/Inc/Helper",
                 "${workspaceFolder}/Project/Inc/Sensors/MPU6050",
-                "${workspaceFolder}/Project/Inc/Sensors/AK8963"
+                "${workspaceFolder}/Project/Inc/Sensors/AK8963",
+                "${workspaceFolder}/Project/Inc/VL53L5CX",
+                "${workspaceFolder}/Project/Inc/VL53L5CX"
             ],
             "defines": [
                 "STM32F411xE",

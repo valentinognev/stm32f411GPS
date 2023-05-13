@@ -113,6 +113,10 @@ void Error_Handler(void);
 #define SENSOR_SCL_GPIO_Port GPIOB
 #define SENSOR_SDA_Pin LL_GPIO_PIN_7
 #define SENSOR_SDA_GPIO_Port GPIOB
+#define VLLPN_Pin LL_GPIO_PIN_8
+#define VLLPN_GPIO_Port GPIOB
+#define VLINT_Pin LL_GPIO_PIN_9
+#define VLINT_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 #define GNSScommTxTaskPriority 3
@@ -122,6 +126,7 @@ void Error_Handler(void);
 #define SERIALcommRXTaskPriority 3
 #define SERIALcommTXTaskPriority 4
 #define TFTcommTXTaskPriority 4
+#define VL53L5CXTaskPriority 3
 
 #define GNSS_USART USART1
 #define SERIAL_USART USART2
@@ -154,6 +159,51 @@ void Error_Handler(void);
 #define micros xTaskGetTickCount
 #define I2C_BUFFER_LENGTH 128
 #define SENSOR_BUFFER_LENGTH I2C_BUFFER_LENGTH
+
+
+//////////////////////////////////////////////////////////////////////
+/////// VL52L5CX data
+//////////////////////////////////////////////////////////////////////
+/*
+ * @brief The macro below is used to define the number of target per zone sent
+ * through I2C. This value can be changed by user, in order to tune I2C
+ * transaction, and also the total memory size (a lower number of target per
+ * zone means a lower RAM). The value must be between 1 and 4.
+ */
+
+#ifndef VL53L5CX_NB_TARGET_PER_ZONE
+#define VL53L5CX_NB_TARGET_PER_ZONE 1U
+#endif
+
+/*
+ * @brief The macro below can be used to avoid data conversion into the driver.
+ * By default there is a conversion between firmware and user data. Using this macro
+ * allows to use the firmware format instead of user format. The firmware format allows
+ * an increased precision.
+ */
+
+// #define  VL53L5CX_USE_RAW_FORMAT
+
+/*
+ * @brief All macro below are used to configure the sensor output. User can
+ * define some macros if he wants to disable selected output, in order to reduce
+ * I2C access.
+ */
+
+// #define VL53L5CX_DISABLE_AMBIENT_PER_SPAD
+// #define VL53L5CX_DISABLE_NB_SPADS_ENABLED
+// #define VL53L5CX_DISABLE_NB_TARGET_DETECTED
+// #define VL53L5CX_DISABLE_SIGNAL_PER_SPAD
+// #define VL53L5CX_DISABLE_RANGE_SIGMA_MM
+// #define VL53L5CX_DISABLE_DISTANCE_MM
+// #define VL53L5CX_DISABLE_REFLECTANCE_PERCENT
+// #define VL53L5CX_DISABLE_TARGET_STATUS
+// #define VL53L5CX_DISABLE_MOTION_INDICATOR
+//////////////////////////////////////////////////////////////////////
+/////// End of VL52L5CX data
+//////////////////////////////////////////////////////////////////////
+
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
