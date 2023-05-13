@@ -77,7 +77,7 @@ char buffer[100];
 
 // Arduino macro
 #define micros() (unsigned long)(HAL_GetTick())
-#define delay(ms) LL_mDelay(ms)
+#define delay(ms) vTaskDelay(pdMS_TO_TICKS(ms)
 
 #define MAG_ADDRESS 0x0C
 
@@ -176,11 +176,11 @@ void MPU9250KalmanTask(void *pvParameters)
     // Goto Powerdown Mode
     mag.setMode(0x00);
     // After power-down mode is set, at least 100ms(Twat) is needed before setting another mode.
-    LL_mDelay(200);
+    vTaskDelay(pdMS_TO_TICKS(200));
 
     // Goto Fuse ROM access mode
     mag.setMode(0x0F);
-    LL_mDelay(200);
+    vTaskDelay(pdMS_TO_TICKS(200));
 
     // Get Sensitivity adjustment value from fuse ROM
     // Sensitivity adjustment values for each axis are written in the fuse ROM at the time of shipment.
@@ -199,7 +199,7 @@ void MPU9250KalmanTask(void *pvParameters)
 
     // Goto Powerdown Mode
     mag.setMode(0x00);
-    LL_mDelay(200);
+    vTaskDelay(pdMS_TO_TICKS(200));
 
     // Goto oparation mode
     // mode1:Automatically repeat sensor measurements at 8Hz
@@ -374,13 +374,12 @@ void MPU9250KalmanTask(void *pvParameters)
             // {
             // 	ESP_LOGE(pcTaskGetName(NULL), "xQueueSend fail");
             // }
-
-            LL_mDelay(100);
+            vTaskDelay(pdMS_TO_TICKS(1000));
             elapsed = 0;
         }
 
         elapsed++;
-        LL_mDelay(1);
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
     // Never reach here
     vTaskDelete(NULL);
@@ -395,12 +394,12 @@ static bool getMagRaw(int16_t *mx, int16_t *my, int16_t *mz)
         uint8_t _raw;
         i2cdev.readByte(MAG_ADDRESS, reg, &_raw);
         rawData[i] = _raw;
-        osQueueSERIALMessage("read_mag(0x%d)=%x\n", reg, rawData[i]);
+        //osQueueSERIALMessage("read_mag(0x%d)=%x\n", reg, rawData[i]);
     }
 
     if (rawData[6] & 0x08)
     {
-        osQueueSERIALMessage("*****magnetic sensor overflow*****\n");
+        //osQueueSERIALMessage("*****magnetic sensor overflow*****\n");
 
         return false;
     }
@@ -414,44 +413,44 @@ static bool getMagRaw(int16_t *mx, int16_t *my, int16_t *mz)
     *my = ((int16_t)rawData[3] << 8) | rawData[2];
     *mz = ((int16_t)rawData[5] << 8) | rawData[4];
 #endif
-    osQueueSERIALMessage("mx=0x%x my=0x%x mz=0x%x\n", *mx, *my, *mz);
+    //osQueueSERIALMessage("mx=0x%x my=0x%x mz=0x%x\n", *mx, *my, *mz);
 
     return true;
 }
 
 static bool getMagData(int16_t *mx, int16_t *my, int16_t *mz)
 {
-    osQueueSERIALMessage("mag.getDeviceID()=0x%x\n", mag.getDeviceID());
+    //osQueueSERIALMessage("mag.getDeviceID()=0x%x\n", mag.getDeviceID());
     if (mag.getDeviceID() != 0x48)
     {
-        osQueueSERIALMessage("*****AK8963 connection lost*****\n");
+        //osQueueSERIALMessage("*****AK8963 connection lost*****\n");
 
-        osQueueSERIALMessage("mag.getDeviceID()=0x%x\n", mag.getDeviceID());
+        //osQueueSERIALMessage("mag.getDeviceID()=0x%x\n", mag.getDeviceID());
 
         // Bypass Enable Configuration
         mpu.setI2CBypassEnabled(true);
-        LL_mDelay(100);
+        vTaskDelay(pdMS_TO_TICKS(100));
         return false;
     }
 
-    osQueueSERIALMessage("mag.getMode()=0x%x\n", mag.getMode());
+    //osQueueSERIALMessage("mag.getMode()=0x%x\n", mag.getMode());
     if (mag.getMode() != 0x06)
     {
-        osQueueSERIALMessage("*****AK8963 illegal data mode*****\n");
-        osQueueSERIALMessage("mag.getMode()=0x%x\n", mag.getMode());
+        //osQueueSERIALMessage("*****AK8963 illegal data mode*****\n");
+        //osQueueSERIALMessage("mag.getMode()=0x%x\n", mag.getMode());
         // Bypass Enable Configuration
         mpu.setI2CBypassEnabled(true);
-        LL_mDelay(100);
+        vTaskDelay(pdMS_TO_TICKS(100));
         return false;
     }
 
     // Wait until DataReady
-    osQueueSERIALMessage("mag.getDataReady()=0x%x\n", mag.getDataReady());
+    //osQueueSERIALMessage("mag.getDataReady()=0x%x\n", mag.getDataReady());
     for (int retry = 0; retry < 10; retry++)
     {
         if (mag.getDataReady())
             break;
-        LL_mDelay(1);
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 
     if (mag.getDataReady())
@@ -468,8 +467,8 @@ static bool getMagData(int16_t *mx, int16_t *my, int16_t *mz)
     }
     else
     {
-        osQueueSERIALMessage("*****AK8963 data not ready*****\n");
-        osQueueSERIALMessage("mag.getDataReady()=0x%x\n", mag.getDataReady());
+        //osQueueSERIALMessage("*****AK8963 data not ready*****\n");
+        //osQueueSERIALMessage("mag.getDataReady()=0x%x\n", mag.getDataReady());
         // vTaskDelay(10);
         return false;
     }
@@ -494,7 +493,7 @@ static void updateAK8963()
     int16_t mx, my, mz;
     if (getMagData(&mx, &my, &mz))
     {
-        osQueueSERIALMessage("mag=%d %d %d\n", mx, my, mz);
+        //osQueueSERIALMessage("mag=%d %d %d\n", mx, my, mz);
 
         mx += CONFIG_MAGX;
         my += CONFIG_MAGY;
@@ -504,7 +503,7 @@ static void updateAK8963()
         magX = mx * magCalibration[0];
         magY = my * magCalibration[1];
         magZ = mz * magCalibration[2];
-        osQueueSERIALMessage("mag=%f %f %f\n", magX, magY, magZ);
+        //osQueueSERIALMessage("mag=%f %f %f\n", magX, magY, magZ);
     }
 }
 
