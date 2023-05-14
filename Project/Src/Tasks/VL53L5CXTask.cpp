@@ -57,7 +57,7 @@ THE SOFTWARE.
 
 TaskHandle_t xVL53L5CXTaskHandle;
 I2Cdev i2cdev;
-VL53L5CX sensor_vl53l5cx_sat(i2cdev);
+VL53L5CX sensor_vl53l5cx_sat(&i2cdev);
 
 void VL53L5CXTask(void *pvParameters)
 {
@@ -76,9 +76,8 @@ void VL53L5CXTask(void *pvParameters)
     status = sensor_vl53l5cx_sat.vl53l5cx_set_ranging_mode(VL53L5CX_RANGING_MODE_AUTONOMOUS);
     if (status)
     {
-        snprintf(report, sizeof(report), "vl53l5cx_set_ranging_mode failed, status %u\r\n", status);
-        SerialPort.print(report);
-        blink_led_loop();
+        osQueueSERIALMessage("vl53l5cx_set_ranging_mode failed, status %u\r\n", status);
+        //blink_led_loop();
     }
 
     /* Using autonomous mode, the integration time can be updated (not possible
@@ -87,9 +86,8 @@ void VL53L5CXTask(void *pvParameters)
 
     if (status)
     {
-        snprintf(report, sizeof(report), "vl53l5cx_set_integration_time_ms failed, status %u\r\n", status);
-        SerialPort.print(report);
-        blink_led_loop();
+        osQueueSERIALMessage("vl53l5cx_set_integration_time_ms failed, status %u\r\n", status);
+        //link_led_loop();
     }
 
     // Start Measurements
@@ -112,7 +110,7 @@ void VL53L5CXTask(void *pvParameters)
             } while (!NewDataReady);
 
             // Led on
-            digitalWrite(LedPin, HIGH);
+            //digitalWrite(LedPin, HIGH);
 
             if ((!status) && (NewDataReady != 0))
             {
@@ -122,21 +120,20 @@ void VL53L5CXTask(void *pvParameters)
                  * of 16 zones to print.
                  */
 
-                snprintf(report, sizeof(report), "Print data no : %3u\r\n", sensor_vl53l5cx_sat.get_stream_count());
-                SerialPort.print(report);
+                osQueueSERIALMessage("Print data no : %3u\r\n", sensor_vl53l5cx_sat.get_stream_count());
+                // SerialPort.print(report);
                 for (int i = 0; i < 16; i++)
                 {
-                    snprintf(report, sizeof(report), "Zone : %3d, Status : %3u, Distance : %4d mm\r\n",
-                             i,
-                             Results.target_status[VL53L5CX_NB_TARGET_PER_ZONE * i],
-                             Results.distance_mm[VL53L5CX_NB_TARGET_PER_ZONE * i]);
-                    SerialPort.print(report);
+                    osQueueSERIALMessage("Zone : %3d, Status : %3u, Distance : %4d mm\r\n",
+                                         i,
+                                         Results.target_status[VL53L5CX_NB_TARGET_PER_ZONE * i],
+                                         Results.distance_mm[VL53L5CX_NB_TARGET_PER_ZONE * i]);
                 }
-                SerialPort.println("");
+                osQueueSERIALMessage("\n");
                 loop_count++;
             }
 
-            digitalWrite(LedPin, LOW);
+            //digitalWrite(LedPin, LOW);
         }
         else if (loop_count == 10)
         {
@@ -144,12 +141,11 @@ void VL53L5CXTask(void *pvParameters)
             status = sensor_vl53l5cx_sat.vl53l5cx_stop_ranging();
             if (status)
             {
-                snprintf(report, sizeof(report), "vl53l5cx_stop_ranging failed, status %u\r\n", status);
-                SerialPort.print(report);
-                blink_led_loop();
+                osQueueSERIALMessage("vl53l5cx_stop_ranging failed, status %u\r\n", status);
+                // blink_led_loop();
             }
 
-            SerialPort.println("\r\n\r\nStop ranging mode autonomous and Start ranging mode continuous\r\n\r\n");
+            osQueueSERIALMessage("\r\n\r\nStop ranging mode autonomous and Start ranging mode continuous\r\n\r\n");
 
             /*********************************/
             /* Set ranging mode continuous   */
@@ -160,8 +156,7 @@ void VL53L5CXTask(void *pvParameters)
             status = sensor_vl53l5cx_sat.vl53l5cx_set_ranging_mode(VL53L5CX_RANGING_MODE_CONTINUOUS);
             if (status)
             {
-                snprintf(report, sizeof(report), "vl53l5cx_set_ranging_mode failed, status %u\r\n", status);
-                SerialPort.print(report);
+                osQueueSERIALMessage("vl53l5cx_set_ranging_mode failed, status %u\r\n", status);
                 //blink_led_loop();
             }
 
@@ -188,21 +183,19 @@ void VL53L5CXTask(void *pvParameters)
                  * of 16 zones to print.
                  */
 
-                snprintf(report, sizeof(report), "Print data no : %3u\r\n", sensor_vl53l5cx_sat.get_stream_count());
-                SerialPort.print(report);
+                osQueueSERIALMessage("Print data no : %3u\r\n", sensor_vl53l5cx_sat.get_stream_count());
                 for (int i = 0; i < 16; i++)
                 {
-                    snprintf(report, sizeof(report), "Zone : %3d, Status : %3u, Distance : %4d mm\r\n",
-                             i,
-                             Results.target_status[VL53L5CX_NB_TARGET_PER_ZONE * i],
-                             Results.distance_mm[VL53L5CX_NB_TARGET_PER_ZONE * i]);
-                    SerialPort.print(report);
+                    osQueueSERIALMessage("Zone : %3d, Status : %3u, Distance : %4d mm\r\n",
+                                         i,
+                                         Results.target_status[VL53L5CX_NB_TARGET_PER_ZONE * i],
+                                         Results.distance_mm[VL53L5CX_NB_TARGET_PER_ZONE * i]);
                 }
-                SerialPort.println("");
+                osQueueSERIALMessage("\n");
                 loop_count++;
             }
 
-            digitalWrite(LedPin, LOW);
+            //digitalWrite(LedPin, LOW);
         }
         else if (loop_count == 21)
         {
@@ -210,14 +203,13 @@ void VL53L5CXTask(void *pvParameters)
             status = sensor_vl53l5cx_sat.vl53l5cx_stop_ranging();
             if (status)
             {
-                snprintf(report, sizeof(report), "vl53l5cx_stop_ranging failed, status %u\r\n", status);
-                SerialPort.print(report);
-                blink_led_loop();
+                osQueueSERIALMessage("vl53l5cx_stop_ranging failed, status %u\r\n", status);
+                //blink_led_loop();
             }
 
             loop_count++;
             /* End of the demo */
-            SerialPort.println("End of ULD demo");
+            osQueueSERIALMessage("End of ULD demo\n");
         }
         else
         {

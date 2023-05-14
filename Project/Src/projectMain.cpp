@@ -22,6 +22,7 @@
 #include "SERIALcommTXTask.h"
 #include "TFTcommTXTask.h"
 #include "MPU9250KalmanTask.h"
+#include "VL53L5CXTask.h"
 #include "InfoTask.h"
 
 void ProjectMain()
@@ -32,6 +33,7 @@ void ProjectMain()
    setupGNSSprocess();
    setupGNSScommTX();
    setupMPU9250Kalman();
+    setupVL53L5CX();
 
 
     // SWO_PrintString("Hello World!\r

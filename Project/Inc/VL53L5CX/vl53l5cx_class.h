@@ -61,7 +61,7 @@ public:
   /** Constructor
    * @param[in] i2c device I2C to be used for communication
    * @param[in] lpn_pin pin to be used as component LPn
-   * @param[in] i2c_rst_pin pin to be used as component I2C_RST
+   * @param[in] rst_pin pin to be used as component I2C_RST
    */
   VL53L5CX(I2Cdev *i2c, uint32_t lpn_pin = VLLPN_Pin, GPIO_TypeDef *lpn_port = VLLPN_GPIO_Port)
   {
@@ -70,7 +70,7 @@ public:
     _dev.platform.dev_i2c = i2c;
     _dev.platform.lpn_pin = lpn_pin;
     _dev.platform.lpn_port = lpn_port;
-    _dev.platform.i2c_rst_pin = -1;//i2c_rst_pin;
+    _dev.platform.rst_pin = -1;//rst_pin;
     p_dev = &_dev;
   }
 
@@ -87,9 +87,9 @@ public:
       // pinMode(_dev.platform.lpn_pin, OUTPUT);
       LL_GPIO_ResetOutputPin(_dev.platform.lpn_port, _dev.platform.lpn_pin);
     }
-    if (_dev.platform.i2c_rst_pin >= 0)
+    if (_dev.platform.rst_pin >= 0)
     {
-      // pinMode(_dev.platform.i2c_rst_pin, OUTPUT);
+      // pinMode(_dev.platform.rst_pin, OUTPUT);
       // LL_GPIO_ResetOutputPin(_dev.platform.rst_port, _dev.platform.rst_pin);
     }
     return 0;
@@ -101,9 +101,9 @@ public:
     // {
     //   pinMode(_dev.platform.lpn_pin, INPUT);
     // }
-    // if (_dev.platform.i2c_rst_pin >= 0)
+    // if (_dev.platform.rst_pin >= 0)
     // {
-    //   pinMode(_dev.platform.i2c_rst_pin, INPUT);
+    //   pinMode(_dev.platform.rst_pin, INPUT);
     // }
     return 0;
   }
@@ -142,7 +142,7 @@ public:
    */
   virtual void vl53l5cx_i2c_reset(void)
   {
-    if (_dev.platform.i2c_rst_pin >= 0)
+    if (_dev.platform.rst_pin >= 0)
     {
       LL_GPIO_ResetOutputPin(_dev.platform.rst_port, _dev.platform.rst_pin);
       delay(10);

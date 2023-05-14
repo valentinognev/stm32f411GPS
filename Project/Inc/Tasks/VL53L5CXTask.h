@@ -17,8 +17,8 @@
 //     #include "IMU.h"
 // }
 
-void setupVLC53L5CX();
-void VLC53L5CXTask(void *pvParameters);
+void setupVL53L5CX();
+void VL53L5CXTask(void *pvParameters);
 
 #undef EXTERNC
 #endif /* VLC53L5CX_TASK_H_ */
