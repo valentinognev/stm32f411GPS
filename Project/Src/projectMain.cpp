@@ -27,12 +27,12 @@
 
 void ProjectMain()
 {
-    setupTFTcommTX();    
- //   setupSERIALcommRX();
-    setupSERIALcommTX();
-   setupGNSSprocess();
-   setupGNSScommTX();
-   setupMPU9250Kalman();
+//     setupTFTcommTX();    
+//  //   setupSERIALcommRX();
+      setupSERIALcommTX();
+//    setupGNSSprocess();
+//    setupGNSScommTX();
+//    setupMPU9250Kalman();
     setupVL53L5CX();
 
 

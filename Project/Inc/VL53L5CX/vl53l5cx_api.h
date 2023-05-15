@@ -58,7 +58,7 @@
  * vl53l5cx_set_i2c_address() function is called.
  */
 
-#define VL53L5CX_DEFAULT_I2C_ADDRESS          ((uint16_t)0x52)
+#define VL53L5CX_DEFAULT_I2C_ADDRESS          ((uint16_t)0x29)//  ((uint16_t)0x52)
 
 /**
  * @brief Macro VL53L5CX_RESOLUTION_4X4 or VL53L5CX_RESOLUTION_8X8 allows

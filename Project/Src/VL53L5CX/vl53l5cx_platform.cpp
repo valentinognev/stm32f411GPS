@@ -63,7 +63,7 @@ uint8_t VL53L5CX::WrMulti(
   uint8_t *p_values,
   uint32_t size)
 {
-  return p_platform->dev_i2c->writeBytes((uint8_t)((p_platform->address >> 1) & 0x7F), RegisterAddress, size, p_values);
+  return p_platform->dev_i2c->writeBytes(p_platform->address, RegisterAddress, size, p_values);
   // uint32_t i = 0;
   // uint8_t buffer[2];
 
@@ -98,7 +98,7 @@ uint8_t VL53L5CX::RdMulti(
   uint8_t *p_values,
   uint32_t size)
 {
-  return p_platform->dev_i2c->readBytes((uint8_t)((p_platform->address >> 1) & 0x7F), RegisterAddress, size, p_values) != size;
+  return p_platform->dev_i2c->readBytes(p_platform->address , RegisterAddress, size, p_values) != size;
 //   int status = 0;
 //   uint8_t buffer[2];
 

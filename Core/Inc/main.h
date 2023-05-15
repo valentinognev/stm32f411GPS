@@ -113,10 +113,10 @@ void Error_Handler(void);
 #define SENSOR_SCL_GPIO_Port GPIOB
 #define SENSOR_SDA_Pin LL_GPIO_PIN_7
 #define SENSOR_SDA_GPIO_Port GPIOB
-#define VLLPN_Pin LL_GPIO_PIN_8
-#define VLLPN_GPIO_Port GPIOB
-#define VLINT_Pin LL_GPIO_PIN_9
+#define VLINT_Pin LL_GPIO_PIN_8
 #define VLINT_GPIO_Port GPIOB
+#define VLLPN_Pin LL_GPIO_PIN_9
+#define VLLPN_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 #define GNSScommTxTaskPriority 3
