@@ -119,32 +119,35 @@ static bool transfer_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *t
                                    uint32_t size, uint32_t maxBufferSize, bool sendStop = true)
 {
     deviceAddress = (devaddr << 1) | I2C_MASTER_WRITE;
-    uint8_t buf[100];
+    uint8_t buf[100] = {0};
     uint32_t i=0;
+    // Activate SENSOR_I2C interrupts
+    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+    LL_I2C_Disable(SENSOR_I2C);
+    LL_I2C_EnableIT_EVT(SENSOR_I2C);
+    LL_I2C_EnableIT_ERR(SENSOR_I2C);
+    // Activate SENSOR_DMA interrupts
+    LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+    LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+    LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)buf, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
     do
     {
           // If still more than DEFAULT_I2C_BUFFER_LEN bytes to go, DEFAULT_I2C_BUFFER_LEN,
           // else the remaining number of bytes
-        size_t current_write_size = (size - i > maxBufferSize ? maxBufferSize : size - i);
+        uint32_t current_write_size = (size - i > maxBufferSize ? maxBufferSize : size - i);
         buf[0] = (uint8_t)((regaddr + i) >> 8);
         buf[1] = (uint8_t)((regaddr + i) & 0xFF);
 
-        memcpy(buf + 2, tx_data + i, size);
+        memcpy(buf + 2, tx_data + i, current_write_size);
         ubMasterNbDataToTransmit = current_write_size + 3;
+        // if (current_write_size>3) 
+        //     ubMasterNbDataToTransmit--;
         ubMasterXferDirection = LL_I2C_DIRECTION_WRITE;
 
-        // Activate SENSOR_I2C interrupts
-        LL_I2C_EnableIT_EVT(SENSOR_I2C);
-        LL_I2C_EnableIT_ERR(SENSOR_I2C);
-        // Activate SENSOR_DMA interrupts
-        LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-        LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
 
         /* (1) Enable SENSOR_I2C **********************************************************/
         LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-        LL_I2C_Disable(SENSOR_I2C);
         LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_TX, ubMasterNbDataToTransmit);
-        LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)buf, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
 
         LL_I2C_Enable(SENSOR_I2C);
         /* (1) Enable DMA transfer **************************************************/
@@ -168,17 +171,21 @@ static bool transfer_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *t
 
         /* End of Master Process */
         LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-        // Deactivate SENSOR_I2C interrupts
-        LL_I2C_DisableIT_EVT(SENSOR_I2C);
-        LL_I2C_DisableIT_ERR(SENSOR_I2C);
-        LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-        LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+        if (sendStop)
+            LL_I2C_Disable(SENSOR_I2C);
 
         i += current_write_size;
     } while (i < size);
         /* Generate Stop condition */
     if (sendStop)
         LL_I2C_GenerateStopCondition(SENSOR_I2C);
+
+    // Deactivate SENSOR_I2C interrupts
+    LL_I2C_DisableIT_EVT(SENSOR_I2C);
+    LL_I2C_DisableIT_ERR(SENSOR_I2C);
+    LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+    LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+
 
     return true;
 }
@@ -291,7 +298,7 @@ static bool receive_i2c(uint8_t devaddr, uint8_t regaddr, uint8_t *rx_data, uint
     LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
     return true;
 }
-static bool receive_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *rx_data, uint16_t size, uint16_t maxBufSize)
+static bool receive_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *rx_data, uint32_t size, uint32_t maxBufSize)
 {
     ubMasterNbDataToReceive = size;
     transfer_i2c_16bitaddr(devaddr, regaddr, (uint8_t *)&regaddr, 0, maxBufSize, false);
@@ -496,7 +503,7 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
         return 0;
     }
 }
-int8_t I2Cdev::readBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint8_t length, uint8_t *data)
+int8_t I2Cdev::readBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint32_t length, uint8_t *data)
 {
     if (receive_i2c_16bitaddr(devAddr, regAddr, data, length, DEFAULT_I2C_BUFFER_LEN))
     {
@@ -532,7 +539,7 @@ bool I2Cdev::writeBytes(
     return transfer_i2c(devAddr, regAddr, data, length);
 }
 bool I2Cdev::writeBytes_16bitaddr(
-    uint8_t devAddr, uint16_t regAddr, uint8_t length, uint8_t *data)
+    uint8_t devAddr, uint16_t regAddr, uint32_t length, uint8_t *data)
 {
     return transfer_i2c_16bitaddr(devAddr, regAddr, data, length, DEFAULT_I2C_BUFFER_LEN);
 }
