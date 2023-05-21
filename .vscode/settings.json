@@ -20,6 +20,7 @@
         "gnsscommrxtask.h": "c",
         "tftcommtxtask.h": "c",
         "freertos.h": "c",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "i2c_drv.h": "c"
     }
 }
