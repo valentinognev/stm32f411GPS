@@ -153,6 +153,10 @@ void Error_Handler(void);
 #define SENSOR_IRQRX DMA1_Stream0_IRQn
 #define SENSOR_EVIRQn I2C1_EV_IRQn
 #define SENSOR_ERIRQn I2C1_ER_IRQn
+#define SENSOR_PERIPH LL_APB1_GRP1_PERIPH_I2C1
+#define SENSOR_SCL_PERIPH LL_AHB1_GRP1_PERIPH_GPIOB
+#define SENSOR_SDA_PERIPH LL_AHB1_GRP1_PERIPH_GPIOB
+#define SENSOR_DMA_PERIPH LL_AHB1_GRP1_PERIPH_DMA1
 
 #define STACK_SIZE_WORDS 256
 #define map(x, in_min, in_max, out_min, out_max) (long)((x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min)
