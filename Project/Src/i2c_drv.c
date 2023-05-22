@@ -114,34 +114,32 @@ static void i2cdrvErrorIsrHandler(I2cDrv* i2c);
 static void i2cdrvDmaIsrHandler(I2cDrv* i2c);
 
 // // Cost definitions of busses
-// static const I2cDef sensorBusDef =
-// {
-//   .i2cPort            = I2C3,
-//   .i2cPerif           = RCC_APB1Periph_I2C3,
-//   .i2cEVIRQn          = I2C3_EV_IRQn,
-//   .i2cERIRQn          = I2C3_ER_IRQn,
-//   .i2cClockSpeed      = I2C_DEFAULT_SENSORS_CLOCK_SPEED,
-//   .gpioSCLPerif       = RCC_AHB1Periph_GPIOA,
-//   .gpioSCLPort        = GPIOA,
-//   .gpioSCLPin         = GPIO_Pin_8,
-//   .gpioSCLPinSource   = GPIO_PinSource8,
-//   .gpioSDAPerif       = RCC_AHB1Periph_GPIOC,
-//   .gpioSDAPort        = GPIOC,
-//   .gpioSDAPin         = GPIO_Pin_9,
-//   .gpioSDAPinSource   = GPIO_PinSource9,
-//   .gpioAF             = GPIO_AF_I2C3,
-//   .dmaPerif           = RCC_AHB1Periph_DMA1,
-//   .dmaChannel         = DMA_Channel_3,
-//   .dmaRxStream        = DMA1_Stream2,
-//   .dmaRxIRQ           = DMA1_Stream2_IRQn,
-//   .dmaRxTCFlag        = DMA_FLAG_TCIF2,
-//   .dmaRxTEFlag        = DMA_FLAG_TEIF2,
-// };
+static const I2cDef sensorBusDef =
+{
+  .i2cPort            = SENSOR_I2C,
+  .i2cPerif           = SENSOR_I2C_PERIPH,
+  .i2cEVIRQn          = SENSOR_EVIRQn,
+  .i2cERIRQn          = SENSOR_ERIRQn,
+  .i2cClockSpeed      = I2C_DEFAULT_SENSORS_CLOCK_SPEED,
+  .gpioSCLPerif       = SENSOR_SCL_PERIPH,
+  .gpioSCLPort        = SENSOR_SCL_GPIO_Port,
+  .gpioSCLPin         = SENSOR_SCL_Pin,
+  .gpioSDAPerif       = SENSOR_SDA_PERIPH,
+  .gpioSDAPort        = SENSOR_SDA_GPIO_Port,
+  .gpioSDAPin         = SENSOR_SDA_Pin,
+  .gpioAF             = SENSOR_GPIO_AF,
+  .dmaPerif           = SENSOR_DMA_PERIPH,
+  .dmaRxChannel       = SENSOR_DMA_CHANNEL_RX,
+  .dmaRxStream        = SENSOR_DMA_STREAM_RX,
+  .dmaRxIRQ           = SENSOR_DMA_IRQ_RX,
+  .dmaRxTCFlag        = DMA_FLAG_TCIF2,
+  .dmaRxTEFlag        = DMA_FLAG_TEIF2,
+};
 
-// I2cDrv sensorsBus =
-// {
-//   .def                = &sensorBusDef,
-// };
+I2cDrv sensorsBus =
+{
+  .def                = &sensorBusDef,
+};
 
 // static const I2cDef deckBusDef =
 // {

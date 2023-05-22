@@ -49,18 +49,16 @@ typedef struct
   uint32_t            gpioSCLPerif;
   GPIO_TypeDef*       gpioSCLPort;
   uint32_t            gpioSCLPin;
-  uint32_t            gpioSCLPinSource;
   uint32_t            gpioSDAPerif;
   GPIO_TypeDef*       gpioSDAPort;
   uint32_t            gpioSDAPin;
-  uint32_t            gpioSDAPinSource;
   uint32_t            gpioAF;
   uint32_t            dmaPerif;
-  uint32_t            dmaChannel;
+  uint32_t            dmaRxChannel;
   DMA_Stream_TypeDef* dmaRxStream;
   uint32_t            dmaRxIRQ;
-  uint32_t            dmaRxTCFlag;
-  uint32_t            dmaRxTEFlag;
+  void (*DMA_ClearFlag_TC)(DMA_TypeDef *DMAx)   SENSOR_DMA_RX_ClearFlag_TC;
+  void (*DMA_ClearFlag_TE)(DMA_TypeDef *DMAx)   SENSOR_DMA_RX_ClearFlag_TE;
 
 } I2cDef;
 
