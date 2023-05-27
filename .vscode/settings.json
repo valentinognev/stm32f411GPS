@@ -21,6 +21,8 @@
         "tftcommtxtask.h": "c",
         "freertos.h": "c",
         "cmath": "cpp",
-        "i2c_drv.h": "c"
+        "i2c_drv.h": "c",
+        "i2cdevbc.h": "c",
+        "freertosconfig.h": "c"
     }
 }

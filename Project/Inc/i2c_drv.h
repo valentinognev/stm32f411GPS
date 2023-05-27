@@ -57,8 +57,11 @@ typedef struct
   uint32_t            dmaRxChannel;
   DMA_Stream_TypeDef* dmaRxStream;
   uint32_t            dmaRxIRQ;
-  void (*DMA_ClearFlag_TC)(DMA_TypeDef *DMAx)   SENSOR_DMA_RX_ClearFlag_TC;
-  void (*DMA_ClearFlag_TE)(DMA_TypeDef *DMAx)   SENSOR_DMA_RX_ClearFlag_TE;
+  DMA_TypeDef*        dma;
+  void (*DMA_ClearFlag_TC)(DMA_TypeDef *DMAx);
+  void (*DMA_ClearFlag_TE)(DMA_TypeDef *DMAx);
+  uint32_t (*DMA_IsActiveFlag_TC)(DMA_TypeDef *DMAx);
+  uint32_t (*DMA_IsActiveFlag_TE)(DMA_TypeDef *DMAx);
 
 } I2cDef;
 
@@ -76,7 +79,6 @@ typedef struct
 } I2cDrv;
 
 // Definitions of i2c busses found in c file.
-extern I2cDrv deckBus;
 extern I2cDrv sensorsBus;
 
 /**
@@ -131,4 +133,7 @@ void i2cdrvCreateMessageIntAddr(I2cMessage *message,
                              uint32_t length,
                              const uint8_t  *buffer);
 
+void i2cdrvErrorIsrHandler(I2cDrv *i2c);
+void i2cdrvDmaIsrHandler(I2cDrv *i2c);
+void i2cdrvEventIsrHandler(I2cDrv *i2c);
 #endif

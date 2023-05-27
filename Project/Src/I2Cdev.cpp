@@ -30,7 +30,7 @@ THE SOFTWARE.
 ===============================================
 */
 #include "I2Cdev.h"
-#include "I2Cdev4C.h"
+#include "i2cdevBC.h"
 
 #include "main.h"
 #include <string.h>
@@ -60,135 +60,135 @@ uint8_t ubMasterNbDataToTransmit = 0;
 uint8_t ubMasterNbDataToReceive = 0;
 uint8_t ubMasterXferDirection = 0;
 
-static bool transfer_i2c(uint8_t devaddr, uint8_t regaddr, uint8_t *tx_data, uint8_t size_of_tx_data)
-{
-    deviceAddress = (devaddr << 1) | I2C_MASTER_WRITE;
-    uint8_t buf[100];
-    buf[0] = regaddr;
-    memcpy(buf + 1, tx_data, size_of_tx_data);
-    ubMasterNbDataToTransmit = size_of_tx_data + 2;
-    ubMasterXferDirection = LL_I2C_DIRECTION_WRITE;
+// static bool transfer_i2c(uint8_t devaddr, uint8_t regaddr, uint8_t *tx_data, uint8_t size_of_tx_data)
+// {
+//     deviceAddress = (devaddr << 1) & I2C_MASTER_WRITE;
+//     uint8_t buf[100];
+//     buf[0] = regaddr;
+//     memcpy(buf + 1, tx_data, size_of_tx_data);
+//     ubMasterNbDataToTransmit = size_of_tx_data + 2;
+//     ubMasterXferDirection = LL_I2C_DIRECTION_WRITE;
 
-    // Activate SENSOR_I2C interrupts
-    LL_I2C_EnableIT_EVT(SENSOR_I2C);
-    LL_I2C_EnableIT_ERR(SENSOR_I2C);
-    // Activate SENSOR_DMA interrupts
-    LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     // Activate SENSOR_I2C interrupts
+//     LL_I2C_EnableIT_EVT(SENSOR_I2C);
+//     LL_I2C_EnableIT_ERR(SENSOR_I2C);
+//     // Activate SENSOR_DMA interrupts
+//     LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
 
-    /* (1) Enable SENSOR_I2C **********************************************************/
-    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_I2C_Disable(SENSOR_I2C);
-    LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_TX, ubMasterNbDataToTransmit);
-    LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)buf, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
+//     /* (1) Enable SENSOR_I2C **********************************************************/
+//     LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_I2C_Disable(SENSOR_I2C);
+//     LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_TX, ubMasterNbDataToTransmit);
+//     LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)buf, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
 
-    LL_I2C_Enable(SENSOR_I2C);
-    /* (1) Enable DMA transfer **************************************************/
-    LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    /* (2) Prepare acknowledge for Master data reception ************************/
-    LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
+//     LL_I2C_Enable(SENSOR_I2C);
+//     /* (1) Enable DMA transfer **************************************************/
+//     LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     /* (2) Prepare acknowledge for Master data reception ************************/
+//     LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
 
-    /* (3) Initiate a Start condition to the Slave device ***********************/
-    /* Master Generate Start condition */
-    LL_I2C_GenerateStartCondition(SENSOR_I2C);
+//     /* (3) Initiate a Start condition to the Slave device ***********************/
+//     /* Master Generate Start condition */
+//     LL_I2C_GenerateStartCondition(SENSOR_I2C);
 
-    /* (4) Loop until Start Bit transmitted (SB flag raised) ********************/
-    uint16_t tout = i2c_timeout;
-    /* Loop until DMA transfer complete event */
-    while (!i2c_dma_tx_cmplt)
-    {
-        if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
-            return false;
-    }
-    i2c_dma_tx_cmplt = false;
+//     /* (4) Loop until Start Bit transmitted (SB flag raised) ********************/
+//     uint16_t tout = i2c_timeout;
+//     /* Loop until DMA transfer complete event */
+//     while (!i2c_dma_tx_cmplt)
+//     {
+//         if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
+//             return false;
+//     }
+//     i2c_dma_tx_cmplt = false;
 
-    /* Generate Stop condition */
-    LL_I2C_GenerateStopCondition(SENSOR_I2C);
+//     /* Generate Stop condition */
+//     LL_I2C_GenerateStopCondition(SENSOR_I2C);
 
-    /* End of Master Process */
-    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    // Deactivate SENSOR_I2C interrupts
-    LL_I2C_DisableIT_EVT(SENSOR_I2C);
-    LL_I2C_DisableIT_ERR(SENSOR_I2C);
-    LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    return true;
-}
+//     /* End of Master Process */
+//     LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     // Deactivate SENSOR_I2C interrupts
+//     LL_I2C_DisableIT_EVT(SENSOR_I2C);
+//     LL_I2C_DisableIT_ERR(SENSOR_I2C);
+//     LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     return true;
+// }
 
-static bool transfer_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *tx_data,
-                                   uint32_t size, uint32_t maxBufferSize, bool sendStop = true)
-{
-    deviceAddress = (devaddr << 1) | I2C_MASTER_WRITE;
-    uint8_t buf[100] = {0};
-    uint32_t i=0;
-    // Activate SENSOR_I2C interrupts
-    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_I2C_Disable(SENSOR_I2C);
-    LL_I2C_EnableIT_EVT(SENSOR_I2C);
-    LL_I2C_EnableIT_ERR(SENSOR_I2C);
-    // Activate SENSOR_DMA interrupts
-    LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)buf, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
-    do
-    {
-          // If still more than DEFAULT_I2C_BUFFER_LEN bytes to go, DEFAULT_I2C_BUFFER_LEN,
-          // else the remaining number of bytes
-        uint32_t current_write_size = (size - i > maxBufferSize ? maxBufferSize : size - i);
-        buf[0] = (uint8_t)((regaddr + i) >> 8);
-        buf[1] = (uint8_t)((regaddr + i) & 0xFF);
+// static bool transfer_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *tx_data,
+//                                    uint32_t size, uint32_t maxBufferSize, bool sendStop = true)
+// {
+//     deviceAddress = (devaddr << 1) & I2C_MASTER_WRITE;
+//     uint8_t buf[100] = {0};
+//     uint32_t i=0;
+//     // Activate SENSOR_I2C interrupts
+//     LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_I2C_Disable(SENSOR_I2C);
+//     LL_I2C_EnableIT_EVT(SENSOR_I2C);
+//     LL_I2C_EnableIT_ERR(SENSOR_I2C);
+//     // Activate SENSOR_DMA interrupts
+//     LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)buf, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
+//     do
+//     {
+//           // If still more than DEFAULT_I2C_BUFFER_LEN bytes to go, DEFAULT_I2C_BUFFER_LEN,
+//           // else the remaining number of bytes
+//         uint32_t current_write_size = (size - i > maxBufferSize ? maxBufferSize : size - i);
+//         buf[0] = (uint8_t)((regaddr + i) >> 8);
+//         buf[1] = (uint8_t)((regaddr + i) & 0xFF);
 
-        memcpy(buf + 2, tx_data + i, current_write_size);
-        ubMasterNbDataToTransmit = current_write_size + 3;
-        // if (current_write_size>3) 
-        //     ubMasterNbDataToTransmit--;
-        ubMasterXferDirection = LL_I2C_DIRECTION_WRITE;
-
-
-        /* (1) Enable SENSOR_I2C **********************************************************/
-        LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-        LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_TX, ubMasterNbDataToTransmit);
-
-        LL_I2C_Enable(SENSOR_I2C);
-        /* (1) Enable DMA transfer **************************************************/
-        LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-        /* (2) Prepare acknowledge for Master data reception ************************/
-        LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
-
-        /* (3) Initiate a Start condition to the Slave device ***********************/
-        /* Master Generate Start condition */
-        LL_I2C_GenerateStartCondition(SENSOR_I2C);
-
-        /* (4) Loop until Start Bit transmitted (SB flag raised) ********************/
-        uint16_t tout = i2c_timeout;
-        /* Loop until DMA transfer complete event */
-        while (!i2c_dma_tx_cmplt)
-        {
-            if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
-                return false;
-        }
-        i2c_dma_tx_cmplt = false;
-
-        /* End of Master Process */
-        LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-        if (sendStop)
-            LL_I2C_Disable(SENSOR_I2C);
-
-        i += current_write_size;
-    } while (i < size);
-        /* Generate Stop condition */
-    if (sendStop)
-        LL_I2C_GenerateStopCondition(SENSOR_I2C);
-
-    // Deactivate SENSOR_I2C interrupts
-    LL_I2C_DisableIT_EVT(SENSOR_I2C);
-    LL_I2C_DisableIT_ERR(SENSOR_I2C);
-    LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//         memcpy(buf + 2, tx_data + i, current_write_size);
+//         ubMasterNbDataToTransmit = current_write_size + 3;
+//         // if (current_write_size>3) 
+//         //     ubMasterNbDataToTransmit--;
+//         ubMasterXferDirection = LL_I2C_DIRECTION_WRITE;
 
 
-    return true;
-}
+//         /* (1) Enable SENSOR_I2C **********************************************************/
+//         LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//         LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_TX, ubMasterNbDataToTransmit);
+
+//         LL_I2C_Enable(SENSOR_I2C);
+//         /* (1) Enable DMA transfer **************************************************/
+//         LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//         /* (2) Prepare acknowledge for Master data reception ************************/
+//         LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
+
+//         /* (3) Initiate a Start condition to the Slave device ***********************/
+//         /* Master Generate Start condition */
+//         LL_I2C_GenerateStartCondition(SENSOR_I2C);
+
+//         /* (4) Loop until Start Bit transmitted (SB flag raised) ********************/
+//         uint16_t tout = i2c_timeout;
+//         /* Loop until DMA transfer complete event */
+//         while (!i2c_dma_tx_cmplt)
+//         {
+//             if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
+//                 return false;
+//         }
+//         i2c_dma_tx_cmplt = false;
+
+//         /* End of Master Process */
+//         LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//         if (sendStop)
+//             LL_I2C_Disable(SENSOR_I2C);
+
+//         i += current_write_size;
+//     } while (i < size);
+//         /* Generate Stop condition */
+//     if (sendStop)
+//         LL_I2C_GenerateStopCondition(SENSOR_I2C);
+
+//     // Deactivate SENSOR_I2C interrupts
+//     LL_I2C_DisableIT_EVT(SENSOR_I2C);
+//     LL_I2C_DisableIT_ERR(SENSOR_I2C);
+//     LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+
+
+//     return true;
+// }
 /**
  * @brief  This Function handle Master events to perform a transmission then a reception
  * process
@@ -206,191 +206,192 @@ static bool transfer_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *t
  * @param  None
  * @retval None
  */
-static bool receive_i2c(uint8_t devaddr, uint8_t regaddr, uint8_t *rx_data, uint8_t size_of_rx_data)
-{
-    uint8_t buf[100];
-    buf[0] = regaddr;
-    ubMasterNbDataToTransmit = 1;
-    ubMasterNbDataToReceive = size_of_rx_data;
-    ubMasterXferDirection = LL_I2C_DIRECTION_WRITE;
+// static bool receive_i2c(uint8_t devaddr, uint8_t regaddr, uint8_t *rx_data, uint8_t size_of_rx_data)
+// {
+//     uint8_t buf[100];
+//     buf[0] = regaddr;
+//     ubMasterNbDataToTransmit = 1;
+//     ubMasterNbDataToReceive = size_of_rx_data;
+//     ubMasterXferDirection = LL_I2C_DIRECTION_WRITE;
 
-    // Activate SENSOR_I2C interrupts
-    LL_I2C_EnableIT_EVT(SENSOR_I2C);
-    LL_I2C_EnableIT_ERR(SENSOR_I2C);
-    // Activate SENSOR_DMA interrupts
-    LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     // Activate SENSOR_I2C interrupts
+//     LL_I2C_EnableIT_EVT(SENSOR_I2C);
+//     LL_I2C_EnableIT_ERR(SENSOR_I2C);
+//     // Activate SENSOR_DMA interrupts
+//     LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
 
-    /* (1) Enable SENSOR_I2C **********************************************************/
-    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_I2C_Disable(SENSOR_I2C);
-    LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_TX, 1);
-    LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)&regaddr, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
-    LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_RX, size_of_rx_data);
-    LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_RX, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), (uint32_t)rx_data, LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_RX));
+//     /* (1) Enable SENSOR_I2C **********************************************************/
+//     LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_I2C_Disable(SENSOR_I2C);
+//     LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_TX, 1);
+//     LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_TX, (uint32_t)&regaddr, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_TX));
+//     LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_RX, size_of_rx_data);
+//     LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_RX, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), (uint32_t)rx_data, LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_RX));
 
-    LL_I2C_Enable(SENSOR_I2C);
-    deviceAddress = (devaddr << 1) | I2C_MASTER_WRITE;
-    /* (1) Enable DMA transfer **************************************************/
-    LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    /* (2) Prepare acknowledge for Master data reception ************************/
-    LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
+//     LL_I2C_Enable(SENSOR_I2C);
+//     deviceAddress = (devaddr << 1) & I2C_MASTER_WRITE;
+//     /* (1) Enable DMA transfer **************************************************/
+//     LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     /* (2) Prepare acknowledge for Master data reception ************************/
+//     LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
 
-    /* (3) Initiate a Start condition to the Slave device ***********************/
-    /* Master Generate Start condition */
-    LL_I2C_GenerateStartCondition(SENSOR_I2C);
+//     /* (3) Initiate a Start condition to the Slave device ***********************/
+//     /* Master Generate Start condition */
+//     LL_I2C_GenerateStartCondition(SENSOR_I2C);
 
-    uint16_t tout = i2c_timeout;
-    /* Loop until DMA transfer complete event */
-    while (!i2c_dma_tx_cmplt)
-    {
-        if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
-            return false;
-    }
-    i2c_dma_tx_cmplt = false;
+//     uint16_t tout = i2c_timeout;
+//     /* Loop until DMA transfer complete event */
+//     while (!i2c_dma_tx_cmplt)
+//     {
+//         if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
+//             return false;
+//     }
+//     i2c_dma_tx_cmplt = false;
 
-    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    /* (8) Loop until end of master transfer completed (TXE flag raised) then generate STOP
-     * condition -8.1- Data consistency are checking into Slave process. */
+//     LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     /* (8) Loop until end of master transfer completed (TXE flag raised) then generate STOP
+//      * condition -8.1- Data consistency are checking into Slave process. */
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    deviceAddress = (devaddr << 1) | I2C_MASTER_READ;
-    ubMasterXferDirection = LL_I2C_DIRECTION_READ;
+//     ////////////////////////////////////////////////////////////////////////////////////////////
+//     deviceAddress = (devaddr << 1) | I2C_MASTER_READ;
+//     ubMasterXferDirection = LL_I2C_DIRECTION_READ;
 
-    /* (6) Prepare acknowledge for Master data reception ************************/
-    LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
+//     /* (6) Prepare acknowledge for Master data reception ************************/
+//     LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
 
-    /* (7) Initiate a ReStart condition to the Slave device *********************/
-    /* Master Generate ReStart condition */
-    LL_I2C_GenerateStartCondition(SENSOR_I2C);
+//     /* (7) Initiate a ReStart condition to the Slave device *********************/
+//     /* Master Generate ReStart condition */
+//     LL_I2C_GenerateStartCondition(SENSOR_I2C);
 
-    /* (8) Loop until end of transfer completed (DMA TC raised) *****************/
-    tout = i2c_timeout;
-    /* Loop until DMA transfer complete event */
-    while (!i2c_dma_rx_cmplt)
-    {
-        if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
-            return false;
-    }
-    i2c_dma_rx_cmplt = false;
-    /* (9) Generate a Stop condition to the Slave device ************************/
-    LL_I2C_GenerateStopCondition(SENSOR_I2C);
+//     /* (8) Loop until end of transfer completed (DMA TC raised) *****************/
+//     tout = i2c_timeout;
+//     /* Loop until DMA transfer complete event */
+//     while (!i2c_dma_rx_cmplt)
+//     {
+//         if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
+//             return false;
+//     }
+//     i2c_dma_rx_cmplt = false;
+//     /* (9) Generate a Stop condition to the Slave device ************************/
+//     LL_I2C_GenerateStopCondition(SENSOR_I2C);
 
-    /* (10) Clear pending flags, Data Command Code are checking into Slave process */
-    /* Disable Last DMA bit */
-    LL_I2C_DisableLastDMA(SENSOR_I2C);
+//     /* (10) Clear pending flags, Data Command Code are checking into Slave process */
+//     /* Disable Last DMA bit */
+//     LL_I2C_DisableLastDMA(SENSOR_I2C);
 
-    /* Disable acknowledge for Master next data reception */
-    LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_NACK);
+//     /* Disable acknowledge for Master next data reception */
+//     LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_NACK);
 
-    /* End of Master Process */
-    LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    // Deactivate SENSOR_I2C interrupts
-    LL_I2C_DisableIT_EVT(SENSOR_I2C);
-    LL_I2C_DisableIT_ERR(SENSOR_I2C);
-    LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
-    return true;
-}
-static bool receive_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *rx_data, uint32_t size, uint32_t maxBufSize)
-{
-    ubMasterNbDataToReceive = size;
-    transfer_i2c_16bitaddr(devaddr, regaddr, (uint8_t *)&regaddr, 0, maxBufSize, false);
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    LL_I2C_EnableIT_EVT(SENSOR_I2C);
-    LL_I2C_EnableIT_ERR(SENSOR_I2C);
+//     /* End of Master Process */
+//     LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     // Deactivate SENSOR_I2C interrupts
+//     LL_I2C_DisableIT_EVT(SENSOR_I2C);
+//     LL_I2C_DisableIT_ERR(SENSOR_I2C);
+//     LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_TX);
+//     return true;
+// }
+// static bool receive_i2c_16bitaddr(uint8_t devaddr, uint16_t regaddr, uint8_t *rx_data, uint32_t size, uint32_t maxBufSize)
+// {
+//     ubMasterNbDataToReceive = size;
+//     transfer_i2c_16bitaddr(devaddr, regaddr, (uint8_t *)&regaddr, 0, maxBufSize, false);
+//     ////////////////////////////////////////////////////////////////////////////////////////////
+//     LL_I2C_EnableIT_EVT(SENSOR_I2C);
+//     LL_I2C_EnableIT_ERR(SENSOR_I2C);
 
-    deviceAddress = (devaddr << 1) | I2C_MASTER_READ;
-    ubMasterXferDirection = LL_I2C_DIRECTION_READ;
+//     deviceAddress = (devaddr << 1) | I2C_MASTER_READ;
+//     ubMasterXferDirection = LL_I2C_DIRECTION_READ;
 
-    /* (6) Prepare acknowledge for Master data reception ************************/
-    LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
+//     /* (6) Prepare acknowledge for Master data reception ************************/
+//     LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_ACK);
 
-    uint32_t i = 0;
-    while (i < size)
-    {
-        // If still more than DEFAULT_I2C_BUFFER_LEN bytes to go, DEFAULT_I2C_BUFFER_LEN,
-        // else the remaining number of bytes
-        uint8_t current_read_size = (size - i > maxBufSize ? maxBufSize : size - i);
-        /* (7) Initiate a ReStart condition to the Slave device *********************/
-        /* Master Generate ReStart condition */
-        LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-        LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-        LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-        LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_RX, current_read_size);
-        LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_RX, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), (uint32_t)rx_data+i, LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_RX));
-        LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-        LL_I2C_GenerateStartCondition(SENSOR_I2C);
+//     uint32_t i = 0;
+//     while (i < size)
+//     {
+//         // If still more than DEFAULT_I2C_BUFFER_LEN bytes to go, DEFAULT_I2C_BUFFER_LEN,
+//         // else the remaining number of bytes
+//         uint8_t current_read_size = (size - i > maxBufSize ? maxBufSize : size - i);
+//         /* (7) Initiate a ReStart condition to the Slave device *********************/
+//         /* Master Generate ReStart condition */
+//         LL_DMA_EnableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//         LL_DMA_EnableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//         LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//         LL_DMA_SetDataLength(SENSOR_DMA, SENSOR_DMA_STREAM_RX, current_read_size);
+//         LL_DMA_ConfigAddresses(SENSOR_DMA, SENSOR_DMA_STREAM_RX, (uint32_t)LL_I2C_DMA_GetRegAddr(SENSOR_I2C), (uint32_t)rx_data+i, LL_DMA_GetDataTransferDirection(SENSOR_DMA, SENSOR_DMA_STREAM_RX));
+//         LL_DMA_EnableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//         LL_I2C_GenerateStartCondition(SENSOR_I2C);
 
-        /* (8) Loop until end of transfer completed (DMA TC raised) *****************/
-        uint16_t tout = i2c_timeout;
-        /* Loop until DMA transfer complete event */
-        while (!i2c_dma_rx_cmplt)
-        {
-            if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
-                return false;
-        }
-        i2c_dma_rx_cmplt = false;
-        /* (9) Generate a Stop condition to the Slave device ************************/
-        LL_I2C_GenerateStopCondition(SENSOR_I2C);
+//         /* (8) Loop until end of transfer completed (DMA TC raised) *****************/
+//         uint16_t tout = i2c_timeout;
+//         /* Loop until DMA transfer complete event */
+//         while (!i2c_dma_rx_cmplt)
+//         {
+//             if (LL_SYSTICK_IsActiveCounterFlag() && tout-- == 0)
+//                 return false;
+//         }
+//         i2c_dma_rx_cmplt = false;
+//         /* (9) Generate a Stop condition to the Slave device ************************/
+//         LL_I2C_GenerateStopCondition(SENSOR_I2C);
 
-        /* (10) Clear pending flags, Data Command Code are checking into Slave process */
-        /* Disable Last DMA bit */
-        LL_I2C_DisableLastDMA(SENSOR_I2C);
-        /* End of Master Process */
-        LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-        i+=current_read_size;
-    }
-    /* Disable acknowledge for Master next data reception */
-    LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_NACK);
+//         /* (10) Clear pending flags, Data Command Code are checking into Slave process */
+//         /* Disable Last DMA bit */
+//         LL_I2C_DisableLastDMA(SENSOR_I2C);
+//         /* End of Master Process */
+//         LL_DMA_DisableStream(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//         i+=current_read_size;
+//     }
+//     /* Disable acknowledge for Master next data reception */
+//     LL_I2C_AcknowledgeNextData(SENSOR_I2C, LL_I2C_NACK);
 
-    // Deactivate SENSOR_I2C interrupts
-    LL_I2C_DisableIT_EVT(SENSOR_I2C);
-    LL_I2C_DisableIT_ERR(SENSOR_I2C);
-    LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
-    LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     // Deactivate SENSOR_I2C interrupts
+//     LL_I2C_DisableIT_EVT(SENSOR_I2C);
+//     LL_I2C_DisableIT_ERR(SENSOR_I2C);
+//     LL_DMA_DisableIT_TC(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
+//     LL_DMA_DisableIT_TE(SENSOR_DMA, SENSOR_DMA_STREAM_RX);
 
-    return true;
-}
-void DMA_I2C_TX_ISR(void)
-{
-    i2c_dma_tx_cmplt = true;
-}
+//     return true;
+// }
+// void DMA_I2C_TX_ISR(void)
+// {
+//     i2c_dma_tx_cmplt = true;
+// }
 
-void DMA_I2C_TX_ISR_ERR(void)
-{
-    NVIC_DisableIRQ(SENSOR_IRQTX);
-}
+// void DMA_I2C_TX_ISR_ERR(void)
+// {
+//     NVIC_DisableIRQ(SENSOR_IRQTX);
+// }
 
-void DMA_I2C_RX_ISR(void)
-{
-    i2c_dma_rx_cmplt = true;
-}
-void DMA_I2C_RX_ISR_ERR(void)
-{
-    NVIC_DisableIRQ(SENSOR_IRQRX);
-}
+// void DMA_I2C_RX_ISR(void)
+// {
+//     i2c_dma_rx_cmplt = true;
+// }
+// void DMA_I2C_RX_ISR_ERR(void)
+// {
+//     NVIC_DisableIRQ(SENSOR_IRQRX);
+// }
 
 /**
  * @brief  Function called in case of error detected in I2C IT Handler
  * @param  None
  * @retval None
  */
-void Error_Callback(void)
-{
-    /* Disable I2C1_EV_IRQn */
-    NVIC_DisableIRQ(SENSOR_EVIRQn);
+// void Error_Callback(void)
+// {
+//     /* Disable I2C1_EV_IRQn */
+//     NVIC_DisableIRQ(SENSOR_EVIRQn);
 
-    /* Disable I2C1_ER_IRQn */
-    NVIC_DisableIRQ(SENSOR_ERIRQn);
-}
+//     /* Disable I2C1_ER_IRQn */
+//     NVIC_DisableIRQ(SENSOR_ERIRQn);
+// }
 
+extern I2cDrv sensorsBus;
 /** Read a single bit from an 8-bit device register.
  * @param devAddr I2C slave device address
  * @param regAddr Register regAddr to read from
@@ -494,7 +495,7 @@ int8_t I2Cdev::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data)
  */
 int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data)
 {
-    if (receive_i2c(devAddr, regAddr, data, length))
+    if (i2cdevReadReg8(&sensorsBus, devAddr, regAddr, length, data))
     {
         return length;
     }
@@ -503,9 +504,9 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
         return 0;
     }
 }
-int8_t I2Cdev::readBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint32_t length, uint8_t *data)
+int8_t I2Cdev::readBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint16_t length, uint8_t *data)
 {
-    if (receive_i2c_16bitaddr(devAddr, regAddr, data, length, DEFAULT_I2C_BUFFER_LEN))
+    if (i2cdevReadReg16(&sensorsBus, devAddr, regAddr, length, data))
     {
         return length;
     }
@@ -523,7 +524,7 @@ int8_t I2Cdev::readBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint32_t l
  */
 bool I2Cdev::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data)
 {
-    return transfer_i2c(devAddr, regAddr, &data, 1);
+    return writeBytes(devAddr, regAddr, 1, &data);
 }
 
 /** Write single byte to an 8-bit device register.
@@ -536,12 +537,12 @@ bool I2Cdev::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data)
 bool I2Cdev::writeBytes(
     uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data)
 {
-    return transfer_i2c(devAddr, regAddr, data, length);
+    return i2cdevWriteReg8(&sensorsBus, devAddr, regAddr, length, data);
 }
 bool I2Cdev::writeBytes_16bitaddr(
-    uint8_t devAddr, uint16_t regAddr, uint32_t length, uint8_t *data)
+    uint8_t devAddr, uint16_t regAddr, uint16_t length, uint8_t *data)
 {
-    return transfer_i2c_16bitaddr(devAddr, regAddr, data, length, DEFAULT_I2C_BUFFER_LEN);
+    return i2cdevWriteReg16(&sensorsBus, devAddr, regAddr, length, data);
 }
 
 /** Write single word to a 16-bit device register.

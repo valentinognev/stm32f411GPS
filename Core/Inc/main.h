@@ -164,8 +164,9 @@ void Error_Handler(void);
 #define SENSOR_DMA_IRQ_TX DMA1_Stream1_IRQn
 #define SENSOR_DMA_RX_ClearFlag_TC LL_DMA_ClearFlag_TC0
 #define SENSOR_DMA_RX_ClearFlag_TE LL_DMA_ClearFlag_TE0
+#define SENSOR_DMA_RX_IsActiveFlag_TC LL_DMA_IsActiveFlag_TC0
+#define SENSOR_DMA_RX_IsActiveFlag_TE LL_DMA_IsActiveFlag_TE0
 
-#define 
 
 #define STACK_SIZE_WORDS 256
 #define map(x, in_min, in_max, out_min, out_max) (long)((x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min)
