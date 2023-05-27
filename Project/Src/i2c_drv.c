@@ -169,30 +169,46 @@ static void i2cdrvStartTransfer(I2cDrv *i2c)
 
   if (i2c->txMessage.direction == i2cRead)
   {
-    // i2c->DMAStruct.DMA_BufferSize = i2c->txMessage.messageLength;
-    // i2c->DMAStruct.DMA_Memory0BaseAddr = (uint32_t)i2c->txMessage.buffer;
-    LL_DMA_ConfigAddresses(i2c->def->dma, i2c->def->dmaRxStream, (uint32_t)i2c->txMessage.buffer,
-                           (uint32_t)LL_I2C_DMA_GetRegAddr(i2c->def->i2cPort), LL_DMA_GetDataTransferDirection(i2c->def->dma, i2c->def->dmaRxStream));
+    LL_I2C_Disable(i2c->def->i2cPort);
+    LL_I2C_DisableDMAReq_RX(i2c->def->i2cPort);
+    LL_DMA_DisableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
+    LL_DMA_DisableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
+    LL_DMA_DisableStream(i2c->def->dma, i2c->def->dmaRxStream);
 
+    // LL_DMA_SetChannelSelection(i2c->def->dma, i2c->def->dmaRxStream, i2c->def->dmaRxChannel);
+    // LL_DMA_SetDataTransferDirection(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+    // LL_DMA_SetStreamPriorityLevel(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_PRIORITY_HIGH);
+    // LL_DMA_SetMode(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_MODE_NORMAL);
+    // LL_DMA_SetPeriphIncMode(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_PERIPH_NOINCREMENT);
+    // LL_DMA_SetMemoryIncMode(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_MEMORY_INCREMENT);
+    // LL_DMA_SetPeriphSize(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_PDATAALIGN_BYTE);
+    // LL_DMA_SetMemorySize(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_MDATAALIGN_BYTE);
+    // LL_DMA_DisableFifoMode(i2c->def->dma, i2c->def->dmaRxStream);
+
+    LL_DMA_ConfigAddresses(i2c->def->dma, i2c->def->dmaRxStream, (uint32_t)LL_I2C_DMA_GetRegAddr(i2c->def->i2cPort), (uint32_t)i2c->txMessage.buffer, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
     LL_DMA_SetDataLength(i2c->def->dma, i2c->def->dmaRxStream, i2c->txMessage.messageLength);
-    LL_DMA_Init(i2c->def->dma, i2c->def->dmaRxStream, &i2c->DMAStruct);
+   
+    LL_I2C_Enable(i2c->def->i2cPort);
+    LL_I2C_EnableDMAReq_RX(i2c->def->i2cPort);
+    LL_DMA_EnableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
+    LL_DMA_EnableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
     LL_DMA_EnableStream(i2c->def->dma, i2c->def->dmaRxStream);
   }
 
-  LL_I2C_DisableIT_BUF(SENSOR_I2C);
-  LL_I2C_EnableIT_EVT(SENSOR_I2C);
+  LL_I2C_DisableIT_BUF(i2c->def->i2cPort);
+  LL_I2C_EnableIT_EVT(i2c->def->i2cPort);
 
-  LL_I2C_ClearFlag_STOP(SENSOR_I2C); //   i2c->def->i2cPort->CR1 = (I2C_CR1_START | I2C_CR1_PE);
-  LL_I2C_GenerateStartCondition(SENSOR_I2C);
+  LL_I2C_ClearFlag_STOP(i2c->def->i2cPort); //   i2c->def->i2cPort->CR1 = (I2C_CR1_START | I2C_CR1_PE);
+  LL_I2C_GenerateStartCondition(i2c->def->i2cPort);
 }
 
 static void i2cTryNextMessage(I2cDrv *i2c)
 {
-  LL_I2C_ClearFlag_STOP(SENSOR_I2C); //   i2c->def->i2cPort->CR1 = (I2C_CR1_STOP | I2C_CR1_PE);
-  LL_I2C_GenerateStopCondition(SENSOR_I2C);
+  LL_I2C_ClearFlag_STOP(i2c->def->i2cPort); //   i2c->def->i2cPort->CR1 = (I2C_CR1_STOP | I2C_CR1_PE);
+  LL_I2C_GenerateStopCondition(i2c->def->i2cPort);
 
-  LL_I2C_DisableIT_BUF(SENSOR_I2C);
-  LL_I2C_DisableIT_EVT(SENSOR_I2C);
+  LL_I2C_DisableIT_BUF(i2c->def->i2cPort);
+  LL_I2C_DisableIT_EVT(i2c->def->i2cPort);
 }
 
 static void i2cNotifyClient(I2cDrv *i2c)
@@ -213,36 +229,36 @@ static void i2cdrvTryToRestartBus(I2cDrv *i2c)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
 
   // Configure I2C_SENSORS pins to unlock bus.
-  GPIO_InitStruct.Pin = SENSOR_SCL_Pin | SENSOR_SDA_Pin;
+  GPIO_InitStruct.Pin = i2c->def->gpioSCLPin | i2c->def->gpioSDAPin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_4;
-  LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  LL_GPIO_Init(i2c->def->gpioSCLPort, &GPIO_InitStruct);
 
   i2cdrvdevUnlockBus(i2c->def->gpioSCLPort, i2c->def->gpioSDAPort, i2c->def->gpioSCLPin, i2c->def->gpioSDAPin);
 
   // I2C_SENSORS configuration
-  LL_I2C_DisableOwnAddress2(SENSOR_I2C);
-  LL_I2C_DisableGeneralCall(SENSOR_I2C);
-  LL_I2C_EnableClockStretching(SENSOR_I2C);
+  LL_I2C_DisableOwnAddress2(i2c->def->i2cPort);
+  LL_I2C_DisableGeneralCall(i2c->def->i2cPort);
+  LL_I2C_EnableClockStretching(i2c->def->i2cPort);
   I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
   I2C_InitStruct.ClockSpeed = 100000;
   I2C_InitStruct.DutyCycle = LL_I2C_DUTYCYCLE_2;
   I2C_InitStruct.OwnAddress1 = 0;
   I2C_InitStruct.TypeAcknowledge = LL_I2C_ACK;
   I2C_InitStruct.OwnAddrSize = LL_I2C_OWNADDRESS1_7BIT;
-  LL_I2C_Init(SENSOR_I2C, &I2C_InitStruct);
-  LL_I2C_SetOwnAddress2(SENSOR_I2C, 0);
+  LL_I2C_Init(i2c->def->i2cPort, &I2C_InitStruct);
+  LL_I2C_SetOwnAddress2(i2c->def->i2cPort, 0);
 
   // Enable I2C_SENSORS error interrupts
-  LL_I2C_EnableIT_ERR(SENSOR_I2C); // I2C_ITConfig(i2c->def->i2cPort, I2C_IT_ERR, ENABLE);
+  LL_I2C_EnableIT_ERR(i2c->def->i2cPort); // I2C_ITConfig(i2c->def->i2cPort, I2C_IT_ERR, ENABLE);
 
-  NVIC_SetPriority(SENSOR_EVIRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
-  NVIC_EnableIRQ(SENSOR_EVIRQn);
-  NVIC_SetPriority(SENSOR_ERIRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
-  NVIC_EnableIRQ(SENSOR_ERIRQn);
+  NVIC_SetPriority(i2c->def->i2cEVIRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+  NVIC_EnableIRQ(i2c->def->i2cEVIRQn);
+  NVIC_SetPriority(i2c->def->i2cERIRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+  NVIC_EnableIRQ(i2c->def->i2cERIRQn);
 
   i2cdrvDmaSetupBus(i2c);
 }
@@ -253,21 +269,15 @@ static void i2cdrvDmaSetupBus(I2cDrv *i2c)
   LL_AHB1_GRP1_EnableClock(i2c->def->dmaPerif);
 
   // RX DMA Channel Config
-  i2c->DMAStruct.Channel = i2c->def->dmaRxChannel;
-  // i2c->DMAStruct.DMA_PeripheralBaseAddr = (uint32_t)&i2c->def->i2cPort->DR;
-  // i2c->DMAStruct.DMA_Memory0BaseAddr = 0;
-  i2c->DMAStruct.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
-  // i2c->DMAStruct.DMA_BufferSize = 0;
-  i2c->DMAStruct.PeriphInc = LL_DMA_PERIPH_NOINCREMENT;
-  i2c->DMAStruct.MemInc = LL_DMA_MEMORY_NOINCREMENT;
-  i2c->DMAStruct.PeriphDataAlignment = LL_DMA_PDATAALIGN_BYTE;
-  i2c->DMAStruct.MemDataAlignment = LL_DMA_MDATAALIGN_BYTE;
-  i2c->DMAStruct.Mode = LL_DMA_MODE_NORMAL;
-  i2c->DMAStruct.Priority = LL_DMA_PRIORITY_HIGH;
-  i2c->DMAStruct.FIFOMode = LL_DMA_FIFOMODE_DISABLE;
-  i2c->DMAStruct.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_1_4;
-  i2c->DMAStruct.MemBurst = LL_DMA_MBURST_SINGLE;
-  i2c->DMAStruct.PeriphBurst = LL_DMA_PBURST_SINGLE;
+  LL_DMA_SetChannelSelection(i2c->def->dma, i2c->def->dmaRxStream, i2c->def->dmaRxChannel);
+  LL_DMA_SetDataTransferDirection(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+  LL_DMA_SetStreamPriorityLevel(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_PRIORITY_HIGH);
+  LL_DMA_SetMode(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_MODE_NORMAL);
+  LL_DMA_SetPeriphIncMode(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_PERIPH_NOINCREMENT);
+  LL_DMA_SetMemoryIncMode(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_MEMORY_INCREMENT);
+  LL_DMA_SetPeriphSize(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_PDATAALIGN_BYTE);
+  LL_DMA_SetMemorySize(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_MDATAALIGN_BYTE);
+  LL_DMA_DisableFifoMode(i2c->def->dma, i2c->def->dmaRxStream);
 
   NVIC_SetPriority(SENSOR_IRQRX, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 12, 0));
   NVIC_EnableIRQ(SENSOR_IRQRX);
@@ -405,12 +415,14 @@ void i2cdrvEventIsrHandler(I2cDrv *i2c)
     if (i2c->txMessage.direction == i2cWrite ||
         i2c->txMessage.internalAddress != I2C_NO_INTERNAL_ADDRESS)
     {
-      LL_I2C_TransmitData8(i2c->def->i2cPort, i2c->txMessage.slaveAddress << 1 & I2C_MASTER_WRITE);
+      uint8_t data = (i2c->txMessage.slaveAddress << 1) | I2C_MASTER_WRITE;
+      LL_I2C_TransmitData8(i2c->def->i2cPort, data);
     }
     else
     {
       LL_I2C_AcknowledgeNextData(i2c->def->i2cPort, LL_I2C_ACK); // I2C_AcknowledgeConfig(i2c->def->i2cPort, ENABLE);
-      LL_I2C_TransmitData8(i2c->def->i2cPort, i2c->txMessage.slaveAddress << 1 | I2C_MASTER_READ);
+      uint8_t data = i2c->txMessage.slaveAddress << 1 | I2C_MASTER_READ;
+      LL_I2C_TransmitData8(i2c->def->i2cPort, data);
     }
   }
   // Address event
@@ -421,7 +433,8 @@ void i2cdrvEventIsrHandler(I2cDrv *i2c)
     {
       // SR2 = i2c->def->i2cPort->SR2;                               // clear ADDR
       // In write mode transmit is always empty so can send up to two bytes
-      if (i2c->txMessage.internalAddress != I2C_NO_INTERNAL_ADDRESS)
+      if (i2c->txMessage.internalAddress != I2C_NO_INTERNAL_ADDRESS &&
+          LL_I2C_GetTransferDirection(i2c->def->i2cPort) == LL_I2C_DIRECTION_WRITE)
       {
         if (i2c->txMessage.isInternal16bit)
         {
@@ -572,7 +585,7 @@ static void i2cdrvClearDMA(I2cDrv *i2c)
 {
   LL_DMA_DisableStream(i2c->def->dma, i2c->def->dmaRxStream);
   i2c->def->DMA_ClearFlag_TC(i2c->def->dmaRxStream);
-  LL_I2C_EnableDMAReq_RX(i2c->def->i2cPort);
+  LL_I2C_DisableDMAReq_RX(i2c->def->i2cPort);
   LL_I2C_DisableLastDMA(i2c->def->i2cPort);
   LL_DMA_DisableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
   LL_DMA_DisableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
@@ -586,8 +599,8 @@ void i2cdrvDmaIsrHandler(I2cDrv *i2c)
     i2cNotifyClient(i2c);
     // Are there any other messages to transact?
     i2cTryNextMessage(i2c);
-  }
-  if (i2c->def->DMA_IsActiveFlag_TE(i2c->def->dma)) // Transfer error
+  } 
+  else if (i2c->def->DMA_IsActiveFlag_TE(i2c->def->dma)) // Transfer error
   {
     i2c->def->DMA_ClearFlag_TE(i2c->def->dma);
     // TODO: Best thing we could do?

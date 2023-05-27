@@ -202,33 +202,6 @@ void DMA1_Stream0_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 stream1 global interrupt.
-  */
-void DMA1_Stream1_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
-    // I2C TX
-    /*Check for transfer complete flag*/
-    // if (LL_DMA_IsActiveFlag_TC1(DMA1))
-    // {
-    //     DMA_I2C_TX_ISR();
-    //     LL_DMA_ClearFlag_TC1(DMA1);
-    // }
-
-    // /*Check for transfer error flag*/
-    // if (LL_DMA_IsActiveFlag_TE1(DMA1))
-    // {
-    //     DMA_I2C_TX_ISR_ERR();
-    // }
-
-  /* USER CODE END DMA1_Stream1_IRQn 0 */
-
-  /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
-
-  /* USER CODE END DMA1_Stream1_IRQn 1 */
-}
-
-/**
   * @brief This function handles DMA1 stream4 global interrupt.
   */
 void DMA1_Stream4_IRQHandler(void)

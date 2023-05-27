@@ -53,16 +53,20 @@ THE SOFTWARE.
 #include <string.h>
 
 #include "I2Cdev.h"
+#include "i2cdevBC.h"
 #include "vl53l5cx_class.h"
 
 TaskHandle_t xVL53L5CXTaskHandle;
 I2Cdev i2cdev;
 VL53L5CX sensor_vl53l5cx_sat(&i2cdev);
 
+extern I2cDrv sensorsBus;
 void VL53L5CXTask(void *pvParameters)
 {
     char report[64];
     uint8_t status;
+
+    i2cdevInit(&sensorsBus);
 
     // Configure VL53L5CX satellite component.
     sensor_vl53l5cx_sat.begin();
