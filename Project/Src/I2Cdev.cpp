@@ -540,7 +540,7 @@ bool I2Cdev::writeBytes(
     return i2cdevWriteReg8(&sensorsBus, devAddr, regAddr, length, data);
 }
 bool I2Cdev::writeBytes_16bitaddr(
-    uint8_t devAddr, uint16_t regAddr, uint16_t length, uint8_t *data)
+    uint8_t devAddr, uint16_t regAddr, uint32_t length, uint8_t *data)
 {
     return i2cdevWriteReg16(&sensorsBus, devAddr, regAddr, length, data);
 }

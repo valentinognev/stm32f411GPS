@@ -65,7 +65,7 @@ public:
         bool writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data);
         bool writeWord(uint8_t devAddr, uint8_t regAddr, uint16_t data);
         bool writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data);
-        bool writeBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint16_t length, uint8_t *data);
+        bool writeBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint32_t length, uint8_t *data);
         bool writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data);
 };
 

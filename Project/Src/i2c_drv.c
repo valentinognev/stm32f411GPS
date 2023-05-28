@@ -171,9 +171,12 @@ static void i2cdrvStartTransfer(I2cDrv *i2c)
   {
     LL_I2C_Disable(i2c->def->i2cPort);
     LL_I2C_DisableDMAReq_RX(i2c->def->i2cPort);
-    LL_DMA_DisableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
-    LL_DMA_DisableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
     LL_DMA_DisableStream(i2c->def->dma, i2c->def->dmaRxStream);
+
+    if (i2c->def->DMA_IsActiveFlag_TC(i2c->def->dma))
+      i2c->def->DMA_ClearFlag_TC(i2c->def->dmaRxStream);
+    LL_DMA_EnableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
+    LL_DMA_EnableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
 
     // LL_DMA_SetChannelSelection(i2c->def->dma, i2c->def->dmaRxStream, i2c->def->dmaRxChannel);
     // LL_DMA_SetDataTransferDirection(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
@@ -188,18 +191,17 @@ static void i2cdrvStartTransfer(I2cDrv *i2c)
     LL_DMA_ConfigAddresses(i2c->def->dma, i2c->def->dmaRxStream, (uint32_t)LL_I2C_DMA_GetRegAddr(i2c->def->i2cPort), (uint32_t)i2c->txMessage.buffer, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
     LL_DMA_SetDataLength(i2c->def->dma, i2c->def->dmaRxStream, i2c->txMessage.messageLength);
    
-    LL_I2C_Enable(i2c->def->i2cPort);
-    LL_I2C_EnableDMAReq_RX(i2c->def->i2cPort);
-    LL_DMA_EnableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
-    LL_DMA_EnableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
     LL_DMA_EnableStream(i2c->def->dma, i2c->def->dmaRxStream);
+    LL_I2C_EnableDMAReq_RX(i2c->def->i2cPort);
+    LL_I2C_Enable(i2c->def->i2cPort);
   }
 
   LL_I2C_DisableIT_BUF(i2c->def->i2cPort);
   LL_I2C_EnableIT_EVT(i2c->def->i2cPort);
 
   LL_I2C_ClearFlag_STOP(i2c->def->i2cPort); //   i2c->def->i2cPort->CR1 = (I2C_CR1_START | I2C_CR1_PE);
-  LL_I2C_GenerateStartCondition(i2c->def->i2cPort);
+ LL_I2C_GenerateStartCondition(i2c->def->i2cPort);
+
 }
 
 static void i2cTryNextMessage(I2cDrv *i2c)
@@ -534,6 +536,8 @@ void i2cdrvEventIsrHandler(I2cDrv *i2c)
     }
     else
     {
+      if (i2c->messageIndex==12000)
+        __NOP();
       LL_I2C_TransmitData8(i2c->def->i2cPort, i2c->txMessage.buffer[i2c->messageIndex++]);
       if (i2c->messageIndex == i2c->txMessage.messageLength)
       {
@@ -584,7 +588,7 @@ void i2cdrvErrorIsrHandler(I2cDrv *i2c)
 static void i2cdrvClearDMA(I2cDrv *i2c)
 {
   LL_DMA_DisableStream(i2c->def->dma, i2c->def->dmaRxStream);
-  i2c->def->DMA_ClearFlag_TC(i2c->def->dmaRxStream);
+  i2c->def->DMA_ClearFlag_TC(i2c->def->dma);
   LL_I2C_DisableDMAReq_RX(i2c->def->i2cPort);
   LL_I2C_DisableLastDMA(i2c->def->i2cPort);
   LL_DMA_DisableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
@@ -597,6 +601,7 @@ void i2cdrvDmaIsrHandler(I2cDrv *i2c)
   {
     i2cdrvClearDMA(i2c);
     i2cNotifyClient(i2c);
+
     // Are there any other messages to transact?
     i2cTryNextMessage(i2c);
   } 

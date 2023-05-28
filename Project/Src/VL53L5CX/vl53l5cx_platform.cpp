@@ -64,6 +64,8 @@ uint8_t VL53L5CX::WrMulti(
   uint32_t size)
 {
   vTaskDelay(1);
+  if (size > 1)
+    __NOP();
   return p_platform->dev_i2c->writeBytes_16bitaddr(p_platform->address, RegisterAddress, size, p_values)?0:1;
   // uint32_t i = 0;
   // uint8_t buffer[2];
