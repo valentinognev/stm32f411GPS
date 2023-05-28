@@ -181,7 +181,7 @@ void DMA1_Stream0_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
     // I2C RX
     /*Check for transfer complete flag*/
-  i2cdrvDmaIsrHandler(&sensorsBus);
+  i2cdrvRX_DmaIsrHandler(&sensorsBus);
   // if (LL_DMA_IsActiveFlag_TC0(DMA1))
   // {
   //   DMA_I2C_RX_ISR();
@@ -199,6 +199,23 @@ void DMA1_Stream0_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
 
   /* USER CODE END DMA1_Stream0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 stream1 global interrupt.
+  */
+void DMA1_Stream1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
+  // I2C TX
+  /*Check for transfer complete flag*/
+  i2cdrvTX_DmaIsrHandler(&sensorsBus);
+
+  /* USER CODE END DMA1_Stream1_IRQn 0 */
+
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream1_IRQn 1 */
 }
 
 /**

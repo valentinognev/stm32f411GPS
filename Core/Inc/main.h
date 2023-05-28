@@ -149,8 +149,6 @@ void Error_Handler(void);
 #define FLASH_DMA_STREAM_TX    LL_DMA_STREAM_3
 #define FLASH_DMA_STREAM_RX    LL_DMA_STREAM_0
 
-#define SENSOR_IRQTX DMA1_Stream1_IRQn
-#define SENSOR_IRQRX DMA1_Stream0_IRQn
 #define SENSOR_EVIRQn I2C1_EV_IRQn
 #define SENSOR_ERIRQn I2C1_ER_IRQn
 #define SENSOR_I2C_PERIPH LL_APB1_GRP1_PERIPH_I2C1
@@ -166,7 +164,10 @@ void Error_Handler(void);
 #define SENSOR_DMA_RX_ClearFlag_TE LL_DMA_ClearFlag_TE0
 #define SENSOR_DMA_RX_IsActiveFlag_TC LL_DMA_IsActiveFlag_TC0
 #define SENSOR_DMA_RX_IsActiveFlag_TE LL_DMA_IsActiveFlag_TE0
-
+#define SENSOR_DMA_TX_ClearFlag_TC LL_DMA_ClearFlag_TC1
+#define SENSOR_DMA_TX_ClearFlag_TE LL_DMA_ClearFlag_TE1
+#define SENSOR_DMA_TX_IsActiveFlag_TC LL_DMA_IsActiveFlag_TC1
+#define SENSOR_DMA_TX_IsActiveFlag_TE LL_DMA_IsActiveFlag_TE1
 
 #define STACK_SIZE_WORDS 256
 #define map(x, in_min, in_max, out_min, out_max) (long)((x - in_min) * (out_max - out_min + 1) / (in_max - in_min + 1) + out_min)

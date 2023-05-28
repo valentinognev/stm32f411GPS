@@ -53,15 +53,22 @@ typedef struct
   GPIO_TypeDef*       gpioSDAPort;
   uint32_t            gpioSDAPin;
   uint32_t            gpioAF;
-  uint32_t            dmaPerif;
-  uint32_t            dmaRxChannel;
-  DMA_Stream_TypeDef* dmaRxStream;
-  uint32_t            dmaRxIRQ;
   DMA_TypeDef*        dma;
-  void (*DMA_ClearFlag_TC)(DMA_TypeDef *DMAx);
-  void (*DMA_ClearFlag_TE)(DMA_TypeDef *DMAx);
-  uint32_t (*DMA_IsActiveFlag_TC)(DMA_TypeDef *DMAx);
-  uint32_t (*DMA_IsActiveFlag_TE)(DMA_TypeDef *DMAx);
+  uint32_t            dmaPerif;
+  uint32_t dmaRxChannel;
+  uint32_t dmaTxChannel;
+  DMA_Stream_TypeDef *dmaRxStream;
+  DMA_Stream_TypeDef *dmaTxStream;
+  uint32_t dmaRxIRQ;
+  uint32_t dmaTxIRQ;
+  void (*DMA_RX_ClearFlag_TC)(DMA_TypeDef *DMAx);
+  void (*DMA_RX_ClearFlag_TE)(DMA_TypeDef *DMAx);
+  uint32_t (*DMA_RX_IsActiveFlag_TC)(DMA_TypeDef *DMAx);
+  uint32_t (*DMA_RX_IsActiveFlag_TE)(DMA_TypeDef *DMAx);
+  void (*DMA_TX_ClearFlag_TC)(DMA_TypeDef *DMAx);
+  void (*DMA_TX_ClearFlag_TE)(DMA_TypeDef *DMAx);
+  uint32_t (*DMA_TX_IsActiveFlag_TC)(DMA_TypeDef *DMAx);
+  uint32_t (*DMA_TX_IsActiveFlag_TE)(DMA_TypeDef *DMAx);
 
 } I2cDef;
 
@@ -134,6 +141,7 @@ void i2cdrvCreateMessageIntAddr(I2cMessage *message,
                              const uint8_t  *buffer);
 
 void i2cdrvErrorIsrHandler(I2cDrv *i2c);
-void i2cdrvDmaIsrHandler(I2cDrv *i2c);
+void i2cdrvRX_DmaIsrHandler(I2cDrv *i2c);
+void i2cdrvTX_DmaIsrHandler(I2cDrv *i2c);
 void i2cdrvEventIsrHandler(I2cDrv *i2c);
 #endif
