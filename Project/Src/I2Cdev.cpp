@@ -399,7 +399,7 @@ extern I2cDrv sensorsBus;
  * @param data Container for single bit value
  * @return Status of read operation (true = success)
  */
-int8_t I2Cdev::readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data)
+uint32_t I2Cdev::readBit(uint8_t devAddr, uint8_t regAddr, uint32_t bitNum, uint8_t *data)
 {
     uint8_t b;
     uint8_t count = readByte(devAddr, regAddr, &b);
@@ -414,7 +414,7 @@ int8_t I2Cdev::readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t
  * @param data Container for single bit value
  * @return Status of read operation (true = success)
  */
-int8_t I2Cdev::readBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t *data)
+uint32_t I2Cdev::readBitW(uint8_t devAddr, uint8_t regAddr, uint32_t bitNum, uint16_t *data)
 {
     uint16_t b;
     uint8_t count = readWord(devAddr, regAddr, &b);
@@ -430,7 +430,7 @@ int8_t I2Cdev::readBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16
  * @param data Container for right-aligned value (i.e. '101' read from any bitStart position will equal 0x05)
  * @return Status of read operation (true = success)
  */
-int8_t I2Cdev::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data)
+uint32_t I2Cdev::readBits(uint8_t devAddr, uint8_t regAddr, uint32_t bitStart, uint32_t length, uint8_t *data)
 {
     // 01101001 read byte
     // 76543210 bit numbers
@@ -456,7 +456,7 @@ int8_t I2Cdev::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint
  * @param data Container for right-aligned value (i.e. '101' read from any bitStart position will equal 0x05)
  * @return Status of read operation (1 = success, 0 = failure, -1 = readTimeout)
  */
-int8_t I2Cdev::readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t *data)
+uint32_t I2Cdev::readBitsW(uint8_t devAddr, uint8_t regAddr, uint32_t bitStart, uint32_t length, uint16_t *data)
 {
     // 1101011001101001 read byte
     // fedcba9876543210 bit numbers
@@ -481,9 +481,23 @@ int8_t I2Cdev::readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uin
  * @param data Container for byte value read from device
  * @return Status of read operation (true = success)
  */
-int8_t I2Cdev::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data)
+uint32_t I2Cdev::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data)
 {
     return readBytes(devAddr, regAddr, 1, data);
+}
+
+/** Read single word from a 16-bit device register.
+ * @param devAddr I2C slave device address
+ * @param regAddr Register regAddr to read from
+ * @param data Container for word value read from device
+ * @return Status of read operation (true = success)
+ */
+uint32_t I2Cdev::readWord(uint8_t devAddr, uint8_t regAddr, uint16_t *data)
+{
+    uint8_t msb[2] = {0, 0};
+    readBytes(devAddr, regAddr, 2, msb);
+    *data = (int16_t)((msb[0] << 8) | msb[1]);
+    return 0;
 }
 
 /** Read multiple bytes from an 8-bit device register.
@@ -493,7 +507,7 @@ int8_t I2Cdev::readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data)
  * @param data Buffer to store read data in
  * @return I2C_TransferReturn_TypeDef http://downloads.energymicro.com/documentation/doxygen/group__I2C.html
  */
-int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data)
+uint32_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint32_t length, uint8_t *data)
 {
     if (i2cdevReadReg8(&sensorsBus, devAddr, regAddr, length, data))
     {
@@ -504,7 +518,28 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
         return 0;
     }
 }
-int8_t I2Cdev::readBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint16_t length, uint8_t *data)
+
+/** Read multiple words from a 16-bit device register.
+ * @param devAddr I2C slave device address
+ * @param regAddr First register regAddr to read from
+ * @param length Number of words to read
+ * @param data Buffer to store read data in
+ * @return Number of words read (-1 indicates failure)
+ */
+uint32_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint32_t length, uint16_t *data)
+{
+    uint8_t msb[2] = {0, 0};
+    for (int _index = 0; _index < length; _index++)
+    {
+        uint8_t _regAddr = regAddr + (_index * 2);
+        readBytes(devAddr, _regAddr, 2, msb);
+        data[_index] = (int16_t)((msb[0] << 8) | msb[1]);
+    }
+
+    return length;
+}
+
+uint32_t I2Cdev::readBytes_16bitaddr(uint8_t devAddr, uint16_t regAddr, uint32_t length, uint8_t *data)
 {
     if (i2cdevReadReg16(&sensorsBus, devAddr, regAddr, length, data))
     {
@@ -535,7 +570,7 @@ bool I2Cdev::writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data)
  * @return Status of operation (true = success)
  */
 bool I2Cdev::writeBytes(
-    uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data)
+    uint8_t devAddr, uint8_t regAddr, uint32_t length, uint8_t *data)
 {
     return i2cdevWriteReg8(&sensorsBus, devAddr, regAddr, length, data);
 }
@@ -565,7 +600,7 @@ bool I2Cdev::writeWord(uint8_t devAddr, uint8_t regAddr, uint16_t data)
  * @param data Buffer to copy new data from
  * @return Status of operation (true = success)
  */
-bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data)
+bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint32_t length, uint16_t *data)
 {
     for (int _index = 0; _index < length; _index++)
     {
@@ -583,7 +618,7 @@ bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16
  * @param value New bit value to write
  * @return Status of operation (true = success)
  */
-bool I2Cdev::writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data)
+bool I2Cdev::writeBit(uint8_t devAddr, uint8_t regAddr, uint32_t bitNum, uint8_t data)
 {
     uint8_t b;
     readByte(devAddr, regAddr, &b);
@@ -598,7 +633,7 @@ bool I2Cdev::writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t 
  * @param value New bit value to write
  * @return Status of operation (true = success)
  */
-bool I2Cdev::writeBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t data)
+bool I2Cdev::writeBitW(uint8_t devAddr, uint8_t regAddr, uint32_t bitNum, uint16_t data)
 {
     uint16_t w;
     readWord(devAddr, regAddr, &w);
@@ -614,7 +649,7 @@ bool I2Cdev::writeBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_
  * @param data Right-aligned value to write
  * @return Status of operation (true = success)
  */
-bool I2Cdev::writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data)
+bool I2Cdev::writeBits(uint8_t devAddr, uint8_t regAddr, uint32_t bitStart, uint32_t length, uint8_t data)
 {
     //      010 value to write
     // 76543210 bit numbers
@@ -647,7 +682,7 @@ bool I2Cdev::writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8
  * @param data Right-aligned value to write
  * @return Status of operation (true = success)
  */
-bool I2Cdev::writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data)
+bool I2Cdev::writeBitsW(uint8_t devAddr, uint8_t regAddr, uint32_t bitStart, uint32_t length, uint16_t data)
 {
     //              010 value to write
     // fedcba9876543210 bit numbers
@@ -672,36 +707,3 @@ bool I2Cdev::writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint
     }
 }
 
-/** Read single word from a 16-bit device register.
- * @param devAddr I2C slave device address
- * @param regAddr Register regAddr to read from
- * @param data Container for word value read from device
- * @return Status of read operation (true = success)
- */
-int8_t I2Cdev::readWord(uint8_t devAddr, uint8_t regAddr, uint16_t *data)
-{
-    uint8_t msb[2] = {0, 0};
-    readBytes(devAddr, regAddr, 2, msb);
-    *data = (int16_t)((msb[0] << 8) | msb[1]);
-    return 0;
-}
-
-/** Read multiple words from a 16-bit device register.
- * @param devAddr I2C slave device address
- * @param regAddr First register regAddr to read from
- * @param length Number of words to read
- * @param data Buffer to store read data in
- * @return Number of words read (-1 indicates failure)
- */
-int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data)
-{
-    uint8_t msb[2] = {0, 0};
-    for (int _index = 0; _index < length; _index++)
-    {
-        uint8_t _regAddr = regAddr + (_index * 2);
-        readBytes(devAddr, _regAddr, 2, msb);
-        data[_index] = (int16_t)((msb[0] << 8) | msb[1]);
-    }
-
-    return length;
-}

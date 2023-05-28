@@ -173,11 +173,6 @@ static void i2cdrvStartTransfer(I2cDrv *i2c)
     LL_I2C_DisableDMAReq_RX(i2c->def->i2cPort);
     LL_DMA_DisableStream(i2c->def->dma, i2c->def->dmaRxStream);
 
-    if (i2c->def->DMA_IsActiveFlag_TC(i2c->def->dma))
-      i2c->def->DMA_ClearFlag_TC(i2c->def->dmaRxStream);
-    LL_DMA_EnableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
-    LL_DMA_EnableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
-
     // LL_DMA_SetChannelSelection(i2c->def->dma, i2c->def->dmaRxStream, i2c->def->dmaRxChannel);
     // LL_DMA_SetDataTransferDirection(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
     // LL_DMA_SetStreamPriorityLevel(i2c->def->dma, i2c->def->dmaRxStream, LL_DMA_PRIORITY_HIGH);
@@ -192,6 +187,8 @@ static void i2cdrvStartTransfer(I2cDrv *i2c)
     LL_DMA_SetDataLength(i2c->def->dma, i2c->def->dmaRxStream, i2c->txMessage.messageLength);
    
     LL_DMA_EnableStream(i2c->def->dma, i2c->def->dmaRxStream);
+    LL_DMA_EnableIT_TC(i2c->def->dma, i2c->def->dmaRxStream);
+    LL_DMA_EnableIT_TE(i2c->def->dma, i2c->def->dmaRxStream);
     LL_I2C_EnableDMAReq_RX(i2c->def->i2cPort);
     LL_I2C_Enable(i2c->def->i2cPort);
   }
@@ -246,7 +243,7 @@ static void i2cdrvTryToRestartBus(I2cDrv *i2c)
   LL_I2C_DisableGeneralCall(i2c->def->i2cPort);
   LL_I2C_EnableClockStretching(i2c->def->i2cPort);
   I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
-  I2C_InitStruct.ClockSpeed = 100000;
+  I2C_InitStruct.ClockSpeed = I2C_DEFAULT_SENSORS_CLOCK_SPEED;
   I2C_InitStruct.DutyCycle = LL_I2C_DUTYCYCLE_2;
   I2C_InitStruct.OwnAddress1 = 0;
   I2C_InitStruct.TypeAcknowledge = LL_I2C_ACK;
@@ -493,9 +490,18 @@ void i2cdrvEventIsrHandler(I2cDrv *i2c)
       }
       else
       {
-        i2cNotifyClient(i2c);
+        //i2cNotifyClient(i2c);
+        portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+        xSemaphoreGiveFromISR(i2c->isBusFreeSemaphore, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
         // Are there any other messages to transact? If so stop else repeated start.
-        i2cTryNextMessage(i2c);
+        //i2cTryNextMessage(i2c);
+        LL_I2C_ClearFlag_STOP(i2c->def->i2cPort); //   i2c->def->i2cPort->CR1 = (I2C_CR1_STOP | I2C_CR1_PE);
+        LL_I2C_GenerateStopCondition(i2c->def->i2cPort);
+
+        LL_I2C_DisableIT_BUF(i2c->def->i2cPort);
+        LL_I2C_DisableIT_EVT(i2c->def->i2cPort);
       }
     }
     else // Reading. Shouldn't happen since we use DMA for reading.
@@ -536,12 +542,12 @@ void i2cdrvEventIsrHandler(I2cDrv *i2c)
     }
     else
     {
-      if (i2c->messageIndex==12000)
-        __NOP();
-      LL_I2C_TransmitData8(i2c->def->i2cPort, i2c->txMessage.buffer[i2c->messageIndex++]);
+     LL_I2C_TransmitData8(i2c->def->i2cPort, i2c->txMessage.buffer[i2c->messageIndex++]);
       if (i2c->messageIndex == i2c->txMessage.messageLength)
       {
-        // Disable TXE to allow the buffer to flush and get BTF
+        if (i2c->messageIndex>1)
+          __NOP();
+          // Disable TXE to allow the buffer to flush and get BTF
         LL_I2C_DisableIT_BUF(i2c->def->i2cPort);
         // If an instruction is not here an extra byte gets sent, don't know why...
         // Is is most likely timing issue but STM32F405 I2C peripheral is bugged so
@@ -549,6 +555,10 @@ void i2cdrvEventIsrHandler(I2cDrv *i2c)
         __DMB();
       }
     }
+  }
+  else
+  {
+    __NOP();
   }
 }
 

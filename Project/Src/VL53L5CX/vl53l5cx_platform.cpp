@@ -102,7 +102,8 @@ uint8_t VL53L5CX::RdMulti(
   uint32_t size)
 {
   vTaskDelay(1);
-  return p_platform->dev_i2c->readBytes_16bitaddr(p_platform->address, RegisterAddress, size, p_values) == size?0:1;
+  uint32_t len = p_platform->dev_i2c->readBytes_16bitaddr(p_platform->address, RegisterAddress, size, p_values);
+  return (len==size)?0:1;
   //   int status = 0;
   //   uint8_t buffer[2];
 
