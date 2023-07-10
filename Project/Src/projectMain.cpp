@@ -27,14 +27,11 @@
 
 void ProjectMain()
 {
-//     setupTFTcommTX();    
-//  //   setupSERIALcommRX();
-      setupSERIALcommTX();
-//    setupGNSSprocess();
-//    setupGNSScommTX();
-//    setupMPU9250Kalman();
-    setupVL53L5CX();
-
+    setupTFTcommTX();    
+    setupSERIALcommRX();
+    setupSERIALcommTX();
+    setupGNSSprocess();
+    setupGNSScommTX();
 
     // SWO_PrintString("Hello World!\r
     configSTACK_DEPTH_TYPE xStackSize = 512;

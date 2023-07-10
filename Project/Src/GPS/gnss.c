@@ -49,7 +49,12 @@ static gnss_ret_e __gnss_onDataRefreshed(void);
 static void __gnss_resetStructForNextCycle(void);
 static void __gnss_resetStructForNewFix(void);
 
+#define PI 3.1415926f
 #define LOGGER_MAX_BUF_SZ 80
+#define DEGTODISTANCE (111194.e-7f/180.f*PI)
+
+static float initX = -1, initY = -1;
+static float lastX = -1, lastY = -1;
 
 extern QueueHandle_t xGNSSprocessQueue;
 // ---------------------------------------------------------
@@ -764,6 +769,14 @@ void gnss_printState(void)
     log_debug("Fix status   : %s\r\n", ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_NONE) ? "NONE" : ((__gnss_config.data.fixInfo.fixType == GNSS_FIX_2D) ? "FIX2D" : "FIX3D")));
     if (__gnss_config.data.fixInfo.fixType >= GNSS_FIX_2D)
     {
+        if (initX == -1 || initY == -1)
+        {
+            initX = (float)__gnss_config.data.fixInfo.latitude*DEGTODISTANCE;
+            initY = (float)__gnss_config.data.fixInfo.longitude*DEGTODISTANCE;
+        }
+        lastX = __gnss_config.data.fixInfo.latitude*DEGTODISTANCE;
+        lastY = __gnss_config.data.fixInfo.longitude*DEGTODISTANCE;
+        
         log_debug("  Lat             : %d\r\n", __gnss_config.data.fixInfo.latitude);
         log_debug("  Lng             : %d\r\n", __gnss_config.data.fixInfo.longitude);
         log_debug("  Alt             : %d\r\n", __gnss_config.data.fixInfo.altitude);
@@ -870,6 +883,10 @@ void gnss_printToTFT(void)
     ST7735_WriteString(0, 30, buf, Font_7x10, WHITE, BLACK);
     if (__gnss_config.data.fixInfo.fixType >= GNSS_FIX_2D)
     {
+        sprintf(buf, "dxLat %f ", lastX - initX);
+        ST7735_WriteString(0, 50, buf, Font_7x10, WHITE, BLACK);
+        sprintf(buf, "dxLon %f ", lastY - initY);
+        ST7735_WriteString(0, 60, buf, Font_7x10, WHITE, BLACK);
         sprintf(buf, "  Lat             : %d", __gnss_config.data.fixInfo.latitude);
         sprintf(buf, "  Lng             : %d", __gnss_config.data.fixInfo.longitude);
         sprintf(buf, "  Alt             : %d", __gnss_config.data.fixInfo.altitude);
