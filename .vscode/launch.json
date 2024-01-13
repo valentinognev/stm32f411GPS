@@ -1,5 +1,66 @@
 {
     "configurations": [
+
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/stm32f411GPS.elf",
+            "name": "Debug WCHLink",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32f411xe.s",
+            "configFiles": [
+                "openocdWCH.cfg"
+            ],
+            "svdFile": "STM32F411.svd"
+        },
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/stm32f411GPS.elf",
+            "name": "Attach WCHLink",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32f411xe.s",
+            "configFiles": [
+                "openocdWCH.cfg"
+            ],
+            "svdFile": "STM32F411.svd"
+        },
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/stm32f411GPS.elf",
+            "name": "Debug DAPLink",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32f411xe.s",
+            "configFiles": [
+                "openocdDAP.cfg"
+            ],
+            "svdFile": "STM32F411.svd"
+        },
+        {
+            "showDevDebugOutput": "parsed",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/stm32f411GPS.elf",
+            "name": "Attach DAPLink",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build STM",
+            "device": "stm32f411xe.s",
+            "configFiles": [
+                "openocdDAP.cfg"
+            ],
+            "svdFile": "STM32F411.svd"
+        },
         {
             "showDevDebugOutput": "parsed",
             "cwd": "${workspaceRoot}",

@@ -69,6 +69,12 @@ $(BUILD_DIR)/jlink-script:
 flash-jlink: build | $(BUILD_DIR)/jlink-script
 	JLinkExe -commanderScript $(BUILD_DIR)/jlink-script
 
+flash-dap: build
+	openocd -f ./openocdDAP.cfg -c "program $(BUILD_DIR)/$(PROJECT_NAME).elf verify reset exit"
+
+flash-wch: build
+	openocd -f ./openocdWCH.cfg -c "program $(BUILD_DIR)/$(PROJECT_NAME).elf verify reset exit"
+
 clean:
 	rm -rf $(BUILD_DIR)
 
