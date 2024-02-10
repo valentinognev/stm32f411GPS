@@ -30,7 +30,8 @@
                 "USE_FULL_LL_DRIVER",
                 "USE_HAL_DRIVER"
             ],
-            "compilerPath": "/usr/bin/arm-none-eabi-g++",
+            //"compilerPath": "/usr/bin/arm-none-eabi-g++",
+            "compilerPath": "c:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/13.2 Rel1/bin/arm-none-eabi-g++.exe",
             "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],

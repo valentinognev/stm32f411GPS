@@ -1,6 +1,6 @@
 {
-    "cortex-debug.armToolchainPath": "/usr/bin",
-    "cortex-debug.openocdPath": "/usr/local/bin/openocd",
+    "cortex-debug.armToolchainPath": "c:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/13.2 Rel1/bin",
+    "cortex-debug.openocdPath": "c:/Program Files (x86)/OpenOCD_0.12/bin/openocd.exe",
     "cortex-debug.JLinkGDBServerPath": "/usr/bin/JLinkGDBServer",
     "files.associations": {
         "*.json": "json",
@@ -24,5 +24,6 @@
         "i2c_drv.h": "c",
         "i2cdevbc.h": "c",
         "freertosconfig.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

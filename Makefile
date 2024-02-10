@@ -6,6 +6,7 @@ BUILD_DIR ?= build
 FIRMWARE := $(BUILD_DIR)/$(PROJECT_NAME).bin
 BUILD_TYPE ?= Debug
 PLATFORM = $(if $(OS),$(OS),$(shell uname -s))
+MAKE = $(if $(filter $(PLATFORM),Windows_NT),make.exe,make)
 
 ifeq ($(PLATFORM),Windows_NT)
     BUILD_SYSTEM ?= MinGW Makefiles
@@ -108,13 +109,13 @@ CONTAINER_RUN = $(WIN_PREFIX) $(CONTAINER_TOOL) run \
 				$(IMAGE_NAME)
 
 build-container: $(NEED_IMAGE)
-	$(CONTAINER_RUN) bash -lc 'make -j$(shell nproc)'
+	$(CONTAINER_RUN) bash -lc $(MAKE) ' -j$(shell nproc)'
 
 format-container:
-	$(CONTAINER_RUN) bash -lc 'make format -j$(shell nproc)'
+	$(CONTAINER_RUN) bash -lc $(MAKE) ' format -j$(shell nproc)'
 
 format-linux-container:
-	$(CONTAINER_RUN) bash -lc 'make format-linux'
+	$(CONTAINER_RUN) bash -lc $(MAKE) ' format-linux'
 
 shell:
 	$(CONTAINER_RUN) bash -l
